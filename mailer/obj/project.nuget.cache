@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "23jMJwUwOJt89WHp4FvacBY54taMI1yOJ0v4FRtJgCOkB1/jLyd+Gty5ia8AshkQ53Or+ySZCEFRfr/q+zFLeg==",
+  "success": true,
+  "projectFilePath": "/Users/stroka01/Development/medium-clone/mailer/mailer.csproj",
+  "expectedPackageFiles": [
+    "/Users/stroka01/.nuget/packages/microsoft.extensions.apidescription.server/3.0.0/microsoft.extensions.apidescription.server.3.0.0.nupkg.sha512",
+    "/Users/stroka01/.nuget/packages/microsoft.openapi/1.2.3/microsoft.openapi.1.2.3.nupkg.sha512",
+    "/Users/stroka01/.nuget/packages/swashbuckle.aspnetcore/6.2.3/swashbuckle.aspnetcore.6.2.3.nupkg.sha512",
+    "/Users/stroka01/.nuget/packages/swashbuckle.aspnetcore.swagger/6.2.3/swashbuckle.aspnetcore.swagger.6.2.3.nupkg.sha512",
+    "/Users/stroka01/.nuget/packages/swashbuckle.aspnetcore.swaggergen/6.2.3/swashbuckle.aspnetcore.swaggergen.6.2.3.nupkg.sha512",
+    "/Users/stroka01/.nuget/packages/swashbuckle.aspnetcore.swaggerui/6.2.3/swashbuckle.aspnetcore.swaggerui.6.2.3.nupkg.sha512"
+  ],
+  "logs": []
+}
