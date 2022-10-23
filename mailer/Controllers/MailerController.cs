@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using RabbitMQ.Client;
 
+
 namespace mailer.Controllers;
 
-[ApiController]
-[Route("/")]
 public class MailController : ControllerBase
 {
 
@@ -16,9 +15,13 @@ public class MailController : ControllerBase
         _service = service;
     }
     
+    
     public async Task<EmailSendResponseDto> SendEmail(EmailDataDto dto)
     {
-        return await _service.MailSend(dto);
+        _logger.LogInformation("Email was sent 20");
+        EmailSendResponseDto mail =  await _service.MailSend(dto);
+        _logger.LogInformation("Email was sent");
+        return mail;
     }
 }
 
