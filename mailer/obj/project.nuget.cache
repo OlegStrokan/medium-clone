@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "vH+twpMgM4w7SROJBPVRCF69pejymI0rzWP2W1ql6tyqePEOpnFpscBXUJrsG4o+VHjAS6oDyYqN/S2ZeoiwdQ==",
+  "dgSpecHash": "aNhDCLQ/sjIAjh+Fc42kPTBZuVQx1blpWEq+S1uXL3bd/pdx+vYJW4BY3h0iKKG9vr+93UwL0mfqXJaoPDYwuQ==",
   "success": true,
   "projectFilePath": "/Users/stroka01/Development/medium-clone/mailer/mailer.csproj",
   "expectedPackageFiles": [
@@ -11,6 +11,7 @@
     "/Users/stroka01/.nuget/packages/microsoft.openapi/1.2.3/microsoft.openapi.1.2.3.nupkg.sha512",
     "/Users/stroka01/.nuget/packages/microsoft.win32.primitives/4.3.0/microsoft.win32.primitives.4.3.0.nupkg.sha512",
     "/Users/stroka01/.nuget/packages/netstandard.library/1.6.1/netstandard.library.1.6.1.nupkg.sha512",
+    "/Users/stroka01/.nuget/packages/rabbitmq.client/6.4.0/rabbitmq.client.6.4.0.nupkg.sha512",
     "/Users/stroka01/.nuget/packages/runtime.debian.8-x64.runtime.native.system.security.cryptography.openssl/4.3.0/runtime.debian.8-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512",
     "/Users/stroka01/.nuget/packages/runtime.fedora.23-x64.runtime.native.system.security.cryptography.openssl/4.3.0/runtime.fedora.23-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512",
     "/Users/stroka01/.nuget/packages/runtime.fedora.24-x64.runtime.native.system.security.cryptography.openssl/4.3.0/runtime.fedora.24-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512",
@@ -51,6 +52,7 @@
     "/Users/stroka01/.nuget/packages/system.io.filesystem.primitives/4.3.0/system.io.filesystem.primitives.4.3.0.nupkg.sha512",
     "/Users/stroka01/.nuget/packages/system.linq/4.3.0/system.linq.4.3.0.nupkg.sha512",
     "/Users/stroka01/.nuget/packages/system.linq.expressions/4.3.0/system.linq.expressions.4.3.0.nupkg.sha512",
+    "/Users/stroka01/.nuget/packages/system.memory/4.5.4/system.memory.4.5.4.nupkg.sha512",
     "/Users/stroka01/.nuget/packages/system.net.http/4.3.0/system.net.http.4.3.0.nupkg.sha512",
     "/Users/stroka01/.nuget/packages/system.net.primitives/4.3.0/system.net.primitives.4.3.0.nupkg.sha512",
     "/Users/stroka01/.nuget/packages/system.net.sockets/4.3.0/system.net.sockets.4.3.0.nupkg.sha512",
@@ -81,6 +83,7 @@
     "/Users/stroka01/.nuget/packages/system.text.encoding.extensions/4.3.0/system.text.encoding.extensions.4.3.0.nupkg.sha512",
     "/Users/stroka01/.nuget/packages/system.text.regularexpressions/4.3.0/system.text.regularexpressions.4.3.0.nupkg.sha512",
     "/Users/stroka01/.nuget/packages/system.threading/4.3.0/system.threading.4.3.0.nupkg.sha512",
+    "/Users/stroka01/.nuget/packages/system.threading.channels/4.7.1/system.threading.channels.4.7.1.nupkg.sha512",
     "/Users/stroka01/.nuget/packages/system.threading.tasks/4.3.0/system.threading.tasks.4.3.0.nupkg.sha512",
     "/Users/stroka01/.nuget/packages/system.threading.tasks.extensions/4.3.0/system.threading.tasks.extensions.4.3.0.nupkg.sha512",
     "/Users/stroka01/.nuget/packages/system.threading.timer/4.3.0/system.threading.timer.4.3.0.nupkg.sha512",
