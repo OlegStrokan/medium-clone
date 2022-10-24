@@ -1,4 +1,4 @@
-import {Controller, Get, HttpStatus} from '@nestjs/common';
+import {Controller, HttpStatus} from '@nestjs/common';
 import {PermissionService} from './services/permission.service';
 import {MessagePattern} from "@nestjs/microservices";
 import {IPermissionParams} from "./interfaces/permission-params.interface";
