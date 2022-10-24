@@ -1,17 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { PermissionController } from './permission.controller';
+import { PermissionService } from './services/permission.service';
 
 describe('AppController', () => {
-  let appController: AppController;
+  let appController: PermissionController;
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
-      controllers: [AppController],
-      providers: [AppService],
+      controllers: [PermissionController],
+      providers: [PermissionService],
     }).compile();
 
-    appController = app.get<AppController>(AppController);
+    appController = app.get<PermissionController>(PermissionController);
   });
 
   describe('root', () => {
