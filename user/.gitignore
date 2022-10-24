@@ -18,6 +18,10 @@ yarn.lock
 # OS
 .DS_Store
 
+# env
+
+.env
+
 # Tests
 /coverage
 /.nyc_output
