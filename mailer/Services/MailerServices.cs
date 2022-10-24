@@ -19,7 +19,6 @@ public class MailerService : IMailerService
         await smtp.SendMailAsync(m);
 
         EmailSendResponseDto obj = new EmailSendResponseDto();
-
         obj.Status = 200;
         obj.Message = "mail_send_success";
 
