@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import {PermissionModule} from "./permission.module";
-import {Transport} from "@nestjs/microservices";
+import {RmqOptions, Transport} from "@nestjs/microservices";
 import {ConfigService} from "./services/config.service";
 
 async function bootstrap() {
@@ -10,6 +10,7 @@ async function bootstrap() {
          host: '0.0.0.0',
          port: new ConfigService().get('port')
      }
- })
+ }as RmqOptions)
+    await app.listen()
 }
 bootstrap();
