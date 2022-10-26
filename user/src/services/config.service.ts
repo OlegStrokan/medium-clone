@@ -18,4 +18,8 @@ export class ConfigService {
             transport: Transport.RMQ
         }
     }
+
+    get(key: string): any {
+        return this.envConfig[key]
+    }
 }

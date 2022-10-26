@@ -3,6 +3,9 @@ import {UserService} from './services/user.service';
 import {ClientProxy} from "@nestjs/microservices";
 import {IUserCreateResponse} from "./interfaces/user-create-response.interface";
 import {IUserCreate} from "./interfaces/user-create.interface";
+import {IUserSearch} from "./interfaces/user-search.interface";
+import {IUserSearchResponse} from "./interfaces/user-search-response.interface";
+import {IUserUpdate} from "./interfaces/user-update.interface";
 
 @Controller()
 export class UserController {
@@ -12,9 +15,19 @@ export class UserController {
     ) {
     }
 
-    public async registration(userParams: IUserCreate): Promise<IUserCreateResponse> {
-        return this.userService.createUser(userParams);
+    public async createUser(dto: IUserCreate): Promise<IUserCreateResponse> {
+        return this.userService.createUser(dto);
 
     }
+
+    public async searchUserByCredentials(dto: IUserSearch): Promise<IUserSearchResponse> {
+        return this.userService.searchUserByCredentials(dto);
+    }
+
+    public async searchUserById(id: string): Promise<IUserSearchResponse> {
+        return this.userService.searchUserById(id);
+    }
+
+    public async updateUser(dto: IUserUpdate): Promise<IU>
 
 }
