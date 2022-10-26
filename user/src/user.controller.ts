@@ -1,4 +1,4 @@
-import {Controller, Inject} from '@nestjs/common';
+import {Controller, Inject, Post} from '@nestjs/common';
 import {UserService} from './services/user.service';
 import {ClientProxy} from "@nestjs/microservices";
 import {IUserCreateResponse} from "./interfaces/user-create-response.interface";
@@ -28,6 +28,8 @@ export class UserController {
         return this.userService.searchUserById(id);
     }
 
-    public async updateUser(dto: IUserUpdate): Promise<IU>
+    public async updateUser(dto: IUserUpdate): Promise<IUserSearchResponse> {
+        return this.userService.updateUser(dto);
+    }
 
 }

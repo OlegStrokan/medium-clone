@@ -8,6 +8,7 @@ import {IUserCreateResponse} from "../interfaces/user-create-response.interface"
 import {IUserSearch} from "../interfaces/user-search.interface";
 import {IUserSearchResponse} from "../interfaces/user-search-response.interface";
 import * as bcrypt from 'bcrypt'
+import {IUserUpdate} from "../interfaces/user-update.interface";
 
 @Injectable()
 export class UserService {
@@ -113,6 +114,36 @@ export class UserService {
         }
 
     }
+
+    public async updateUser(dto: IUserUpdate): Promise<IUserSearchResponse> {
+        const user = await this.userRepository.findOneBy({id: dto.id});
+
+        if (user) {
+            await this.userRepository.save(
+                {
+                    email: dto.email,
+                    username: dto.username,
+                    fullname: dto.fullname,
+                })
+
+            const updatedUser = await this.userRepository.findOneBy({id: dto.id })
+
+            return {
+                status: HttpStatus.OK,
+                message: 'update_user_success',
+                data: updatedUser
+
+            }
+        } else {
+            return {
+                status: HttpStatus.NOT_FOUND,
+                message: 'update_user_not_found',
+                data: null
+            }
+        }
+
+    }
+
 
     private async searchUserByEmail(email: string): Promise<IUser> {
         return await this.userRepository.findOne({where: {email}})
