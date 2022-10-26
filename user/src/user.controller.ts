@@ -6,6 +6,7 @@ import {IUserCreate} from "./interfaces/user-create.interface";
 import {IUserSearch} from "./interfaces/user-search.interface";
 import {IUserSearchResponse} from "./interfaces/user-search-response.interface";
 import {IUserUpdate} from "./interfaces/user-update.interface";
+import {IUserUpdatePassword} from "./interfaces/user-update-password.interface";
 
 @Controller()
 export class UserController {
@@ -30,6 +31,10 @@ export class UserController {
 
     public async updateUser(dto: IUserUpdate): Promise<IUserSearchResponse> {
         return this.userService.updateUser(dto);
+    }
+
+    public async updatePassword(dto: IUserUpdatePassword): Promise<IUserSearchResponse> {
+        return this.userService.updatePassword(dto);
     }
 
 }

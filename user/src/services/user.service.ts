@@ -9,6 +9,7 @@ import {IUserSearch} from "../interfaces/user-search.interface";
 import {IUserSearchResponse} from "../interfaces/user-search-response.interface";
 import * as bcrypt from 'bcrypt'
 import {IUserUpdate} from "../interfaces/user-update.interface";
+import {IUserUpdatePassword} from "../interfaces/user-update-password.interface";
 
 @Injectable()
 export class UserService {
@@ -20,7 +21,7 @@ export class UserService {
 
     public async createUser(dto: IUserCreate): Promise<IUserCreateResponse> {
         if (dto) {
-            const existUser = await this.searchUserByEmail(dto.email)
+            const existUser = await this.searchUserHelper(dto.email, dto);
 
             if (existUser) {
                 return {
@@ -63,9 +64,10 @@ export class UserService {
         }
     }
 
+    //login
     public async searchUserByCredentials(dto: IUserSearch): Promise<IUserSearchResponse> {
         if (dto.email && dto.password) {
-            const user = await this.searchUserByEmail(dto.email);
+            const user = await this.searchUserHelper(dto.email, dto);
 
             if (user) {
                 if (await UserService.compareEncryptedPassword(dto.password, user.password)) {
@@ -116,7 +118,7 @@ export class UserService {
     }
 
     public async updateUser(dto: IUserUpdate): Promise<IUserSearchResponse> {
-        const user = await this.userRepository.findOneBy({id: dto.id});
+        const user = await this.searchUserHelper(dto.id, dto);
 
         if (user) {
             await this.userRepository.save(
@@ -126,7 +128,7 @@ export class UserService {
                     fullname: dto.fullname,
                 })
 
-            const updatedUser = await this.userRepository.findOneBy({id: dto.id })
+            const updatedUser = await this.searchUserHelper(dto.id, dto);
 
             return {
                 status: HttpStatus.OK,
@@ -144,9 +146,33 @@ export class UserService {
 
     }
 
+    public async updatePassword(dto: IUserUpdatePassword): Promise<IUserSearchResponse> {
+        const user = await this.searchUserHelper(dto.id, dto);
+        if (bcrypt.compare(dto.oldPassword, user.password)) {
+            await this.userRepository.save({
+                password: dto.newPassword
+            })
 
-    private async searchUserByEmail(email: string): Promise<IUser> {
-        return await this.userRepository.findOne({where: {email}})
+            const updatedUser = await this.searchUserHelper(dto.id, dto);
+
+            return {
+                status: HttpStatus.OK,
+                message: 'update_user_success',
+                data: updatedUser
+
+            }
+        } else {
+            return {
+                status: HttpStatus.NOT_FOUND,
+                message: 'update_user_not_found',
+                data: null
+            }
+        }
+    }
+
+    //----------------------------------------------------------------------------------------------------//
+    private async searchUserHelper<T extends string | number>(value: T, dto): Promise<IUser> {
+        return await this.userRepository.findOneBy({[value]: dto[value]})
     }
 
     private static async compareEncryptedPassword(password: string, passwordFromDb: string): Promise<boolean> {
