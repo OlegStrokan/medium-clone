@@ -171,7 +171,7 @@ export class UserService {
     }
 
     //----------------------------------------------------------------------------------------------------//
-    private async searchUserHelper<T extends string | number>(value: T, dto): Promise<IUser> {
+    private async searchUserHelper(value, dto): Promise<IUser> {
         return await this.userRepository.findOneBy({[value]: dto[value]})
     }
 

@@ -1,24 +1,24 @@
 import {Entity, PrimaryGeneratedColumn, Column, Repository} from "typeorm";
 
 
-@Entity({name: 'user'})
+@Entity({ name: 'user' })
 export class UserEntity extends Repository<UserEntity> {
     @PrimaryGeneratedColumn()
-    id: string;
+    readonly id: string;
 
     @Column()
-    email: string;
+    readonly email: string;
 
     @Column()
-    password: string;
+    readonly password: string;
 
     @Column()
-    username: string;
+    readonly username: string;
 
     @Column()
-    fullname: string;
+    readonly fullname: string;
 
     @Column()
-    isConfirmed: boolean;
+    readonly isConfirmed: boolean;
 }
 
