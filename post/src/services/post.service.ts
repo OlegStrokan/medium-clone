@@ -6,7 +6,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {PostEntity} from "../repository/post.entity";
 import {Repository} from "typeorm";
 import {IPostUpdate} from "../interfaces/post-update.interface";
-import {IPostSearchResponse} from "../interfaces/post-search-response.interface";
+import {IPostResponse} from "../interfaces/post-response.interface";
 import {IPostDelete} from "../interfaces/post-delete.interface";
 
 @Injectable()
@@ -16,8 +16,43 @@ export class PostService {
     ) {
     }
 
+    public async getPost(id: string): Promise<IPostResponse<IPost>> {
+        const post = await this.postRepository.findOneBy({id});
+        if (post) {
+            return {
+                status: HttpStatus.OK,
+                message: 'get_post_success',
+                data: post
+            }
+        } else {
+            return {
+                status: HttpStatus.NOT_FOUND,
+                message: 'get_post_not_found',
+                data: null
+            }
+        }
+    }
+
+    public async getPostsByUser(userId: string): Promise<IPostResponse<IPost[]>> {
+        // TODO if user exist
+        const posts = await this.postRepository.findBy({ userId })
+        if (posts) {
+            return {
+                status: HttpStatus.CREATED,
+                message: 'get_posts_by_user_success',
+                data: posts,
+            }
+        } else {
+            return {
+                status: HttpStatus.CREATED,
+                message: 'get_posts_by_user_not_found',
+                data: null
+            }
+        }
+    }
+
     public async create(dto: IPostCreate): Promise<IPostCreateResponse> {
-        // TODO if userId exist or no
+        // TODO if user exist
 
         if (true) {
             try {
@@ -48,7 +83,7 @@ export class PostService {
         }
     }
 
-    public async update(dto: IPostUpdate): Promise<IPostSearchResponse> {
+    public async update(dto: IPostUpdate): Promise<IPostResponse<IPost>> {
         const post = await this.searchPostHelper(dto.id, dto);
 
         if (post) {
@@ -80,7 +115,7 @@ export class PostService {
         }
     }
 
-    public async delete(dto: IPostDelete): Promise<IPostSearchResponse> {
+    public async delete(dto: IPostDelete): Promise<IPostResponse<IPost>> {
         try {
             const post = await this.searchPostHelper(dto.id, dto);
             if (post) {
