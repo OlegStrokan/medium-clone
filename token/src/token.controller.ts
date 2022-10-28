@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
-import { TokenService } from './token.service';
+import { TokenService } from './services/token.service';
 
 @Controller()
 export class TokenController {
