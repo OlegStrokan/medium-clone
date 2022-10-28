@@ -5,5 +5,5 @@ export class GetUserByIdResponseDto {
     data: {
         user: IUser;
     }
-    errors: {[key: string]: any}:
+    errors: {[key: string]: any}
 }
