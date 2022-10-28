@@ -6,6 +6,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {TokenEntity} from "../repository/token.entity";
 import {ITokenResponse} from "../interfaces/token-response.interface";
 import {Query} from "typeorm/driver/Query";
+import {ITokenDestroyResponse} from "../interfaces/token-destroy-response";
 
 @Injectable()
 export class TokenService {
@@ -34,11 +35,25 @@ export class TokenService {
         }
     }
 
-    public async deleteTokenForUserId(userId: string): Promise<DeleteResult> {
-        return this.tokenRepository.delete({ userId })
+    public async destroyToken(userId: string): Promise<ITokenDestroyResponse> {
+        try {
+            await this.tokenRepository.delete({ userId })
+            return {
+                status: HttpStatus.OK,
+                message: 'token_destroy_success',
+                errors: null,
+
+            }
+        } catch (e) {
+            return {
+                status: HttpStatus.BAD_REQUEST,
+                message: 'token_destroy_bad_request',
+                errors: e.errors,
+            }
+        }
     }
 
-    public async decodeToken(token: string): Promise<{ userId: string }> {
+    public async decodeToken(token: string): Promise<ITokenResponse> {
         const tokenModel = await this.tokenRepository.findOneBy({ token});
         if (tokenModel) {
             try {
@@ -48,14 +63,24 @@ export class TokenService {
                 }
 
                 if (!tokenData || tokenData.exp <= Math.floor(+new Date() / 1000)) {
-                  return null
+                  return {
+                      status: HttpStatus.UNAUTHORIZED,
+                      message: 'token_decode_unauthorized',
+                      data: null
+                  }
                 } else {
                     return {
-                        userId: tokenData.userId
+                        status: HttpStatus.OK,
+                        message: 'token_decode_success',
+                        data: tokenData.userId
                     }
                 }
             } catch (e) {
-                return null;
+                return {
+                    status: HttpStatus.UNAUTHORIZED,
+                    message: 'token_decode_unauthorized',
+                    data: null
+                };
             }
         }
     }
