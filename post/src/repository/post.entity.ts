@@ -1,6 +1,6 @@
 import {Column, Entity, PrimaryGeneratedColumn, Repository} from "typeorm";
 
-@Entity({ name: 'post '})
+@Entity({ name: 'post'})
 export class PostEntity extends Repository<PostEntity> {
     @PrimaryGeneratedColumn()
     readonly id: string;
