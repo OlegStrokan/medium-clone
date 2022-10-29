@@ -29,7 +29,7 @@ export class UserController {
 
 
     @Get()
-    public async getUserByToken(@Req() request: IAuthorizedRequest): Promise<GetUserByIdResponseDto> {
+    public async getUserById(@Req() request: IAuthorizedRequest): Promise<GetUserByIdResponseDto> {
         const userInfo = request.user;
 
         const userResponse: IServiceUserCreateResponse = await firstValueFrom(
