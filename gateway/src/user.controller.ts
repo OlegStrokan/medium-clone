@@ -17,6 +17,7 @@ import {IServiceTokenDestroyResponse} from "./interfaces/token/service-token-des
 import {UpdateUserDto} from "./interfaces/user/dto/update-user.dto";
 import {IServiceUserUpdateResponse} from "./interfaces/user/service-user-update-response.interface";
 import {UpdateUserResponseDto} from "./interfaces/user/dto/update-user-response";
+import {IServiceUserSearchResponse} from "./interfaces/user/service-user-search-response.interface";
 
 @Controller('users')
 @ApiTags('users')
@@ -32,14 +33,14 @@ export class UserController {
     public async getUserById(@Req() request: IAuthorizedRequest): Promise<GetUserByIdResponseDto> {
         const userInfo = request.user;
 
-        const userResponse: IServiceUserCreateResponse = await firstValueFrom(
+        const userResponse: IServiceUserSearchResponse = await firstValueFrom(
             this.userService.send(MESSAGE_PATTERN.GET_USER_BY_ID, userInfo.id)
         );
 
         return {
             message: userResponse.message,
             data: {
-                user: userResponse.user,
+                user: userResponse.data,
             },
             errors: null
         }
@@ -64,13 +65,13 @@ export class UserController {
         }
 
         const createTokenResponse: IServiceTokenCreateResponse = await firstValueFrom(
-            this.tokenService.send(MESSAGE_PATTERN.TOKEN_CREATE, {userId: createUserResponse.user.id})
+            this.tokenService.send(MESSAGE_PATTERN.TOKEN_CREATE, {userId: createUserResponse.data.id})
         )
 
         return {
             message: createUserResponse.message,
             data: {
-                user: createUserResponse.user,
+                user: createUserResponse.data,
                 token: createTokenResponse.token
             },
             errors: null
@@ -101,7 +102,7 @@ export class UserController {
 
     @Post('/login')
     public async loginUser(@Body() dto: LoginUserDto): Promise<LoginUserResponseDto> {
-        const getUserResponse: IServiceUserCreateResponse = await firstValueFrom(
+        const getUserResponse: IServiceUserSearchResponse = await firstValueFrom(
             this.userService.send(MESSAGE_PATTERN.USER_SEARCH_BY_CREDENTIALS, dto)
         )
 
@@ -114,7 +115,7 @@ export class UserController {
         }
 
         const createTokenResponse: IServiceTokenCreateResponse = await firstValueFrom(
-            this.tokenService.send(MESSAGE_PATTERN.TOKEN_CREATE, getUserResponse.user.id)
+            this.tokenService.send(MESSAGE_PATTERN.TOKEN_CREATE, getUserResponse.data.id)
         )
 
         return {
