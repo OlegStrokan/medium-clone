@@ -1,9 +1,5 @@
-import {IPost} from "../post.interface";
+import {CreatePostDto} from "./create-post.dto";
 
-export class CreatePostResponseDto{
-   message: string;
-   data: {
-      post: IPost;
-   }
-   errors: { [key: string]: any}
+export class UpdatePostDto extends CreatePostDto{
+   id: string
 }

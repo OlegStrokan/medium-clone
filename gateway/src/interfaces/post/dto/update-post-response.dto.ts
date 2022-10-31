@@ -1,7 +1,7 @@
 import {IPost} from "../post.interface";
 
-export class CreatePostResponseDto {
+export class UpdatePostResponseDto {
     message: string;
     data: IPost;
-    errors: null;
+    errors: { [key: string]: any };
 }
