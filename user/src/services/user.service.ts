@@ -1,15 +1,15 @@
 import {HttpStatus, Injectable} from '@nestjs/common';
-import {IUser} from 'src/interfaces/user.interface';
+import {IUser} from 'src/interfaces/IUser';
 import {InjectRepository} from "@nestjs/typeorm";
 import {UserEntity} from "../repository/user.entity";
 import {Repository} from "typeorm";
-import {IUserCreate} from "../interfaces/user-create.interface";
-import {IUserCreateResponse} from "../interfaces/user-create-response.interface";
-import {IUserSearch} from "../interfaces/user-search.interface";
-import {IUserSearchResponse} from "../interfaces/user-search-response.interface";
+import {UserCreateDto} from "../interfaces/dto/UserCreateDto";
+import {IUserCreateResponse} from "../interfaces/IUserCreateResponse";
+import {IUserResponse} from "../interfaces/IUserResponse";
 import * as bcrypt from 'bcrypt'
-import {IUserUpdate} from "../interfaces/user-update.interface";
-import {IUserUpdatePassword} from "../interfaces/user-update-password.interface";
+import {UserUpdatePasswordDto} from "../interfaces/dto/UserUpdatePasswordDto";
+import {UserSearchDto} from "../interfaces/dto/UserSearchDto";
+import {UserUpdateDto} from "../interfaces/dto/UserUpdateDto";
 
 @Injectable()
 export class UserService {
@@ -19,7 +19,7 @@ export class UserService {
     ) {
     }
 
-    public async createUser(dto: IUserCreate): Promise<IUserCreateResponse> {
+    public async createUser(dto: UserCreateDto): Promise<IUserCreateResponse> {
         if (dto) {
             const existUser = await this.searchUserHelper(dto.email, dto);
 
@@ -65,7 +65,7 @@ export class UserService {
     }
 
     //login
-    public async searchUserByCredentials(dto: IUserSearch): Promise<IUserSearchResponse> {
+    public async searchUserByCredentials(dto: UserSearchDto): Promise<IUserResponse> {
         if (dto.email && dto.password) {
             const user = await this.searchUserHelper(dto.email, dto);
 
@@ -99,7 +99,7 @@ export class UserService {
         }
     }
 
-    public async searchUserById(id: string): Promise<IUserSearchResponse> {
+    public async searchUserById(id: string): Promise<IUserResponse> {
         const user: IUser = await this.userRepository.findOneBy({id});
         if (user) {
             return {
@@ -117,7 +117,7 @@ export class UserService {
 
     }
 
-    public async updateUser(dto: IUserUpdate): Promise<IUserSearchResponse> {
+    public async updateUser(dto: UserUpdateDto): Promise<IUserResponse> {
         const user = await this.searchUserHelper(dto.id, dto);
 
         if (user) {
@@ -146,7 +146,7 @@ export class UserService {
 
     }
 
-    public async updatePassword(dto: IUserUpdatePassword): Promise<IUserSearchResponse> {
+    public async updatePassword(dto: UserUpdatePasswordDto): Promise<IUserResponse> {
         const user = await this.searchUserHelper(dto.id, dto);
         if (bcrypt.compare(dto.oldPassword, user.password)) {
             await this.userRepository.save({

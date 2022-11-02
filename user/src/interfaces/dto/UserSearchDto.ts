@@ -1,4 +1,4 @@
-export interface IUserSearch {
+export class UserSearchDto {
     email: string;
     password: string;
 }
