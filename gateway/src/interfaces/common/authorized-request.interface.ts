@@ -1,4 +1,4 @@
-import {IUser} from "../user/user.interface";
+import {IUser} from "../user/IUser";
 
 export interface IAuthorizedRequest extends Request {
     user?: IUser;

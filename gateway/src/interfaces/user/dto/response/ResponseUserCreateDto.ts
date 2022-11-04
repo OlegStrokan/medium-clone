@@ -1,4 +1,4 @@
-import {IUser} from "../user.interface";
+import {IUser} from "../../IUser";
 
 export class CreateUserResponseDto {
     message: string;
@@ -8,3 +8,4 @@ export class CreateUserResponseDto {
     }
     errors: { [key: string]: any }
 }
+

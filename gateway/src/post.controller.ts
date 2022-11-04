@@ -6,15 +6,14 @@ import {firstValueFrom} from "rxjs";
 import {MESSAGE_PATTERN} from "./interfaces/common/enum/message-patterns.enum";
 import {IPost} from "./interfaces/post/post.interface";
 import {IServicePostCreateResponse} from "./interfaces/post/service-post-create-response.interface";
-import {CreatePostDto} from "./interfaces/post/dto/create-post.dto";
-import {GetPostDto} from "./interfaces/post/dto/get-post.dto";
-import {UpdateUserDto} from "./interfaces/user/dto/update-user.dto";
-import {CreatePostResponseDto} from "./interfaces/post/dto/create-post-response.dto";
-import {UpdatePostResponseDto} from "./interfaces/post/dto/update-post-response.dto";
+import {CreatePost} from "./interfaces/post/dto/CreatePost";
+import {GetPost} from "./interfaces/post/dto/GetPost";
+import {UserUpdateDto} from "./interfaces/user/dto/UserUpdateDto";
+import {CreatePostResponseDto} from "./interfaces/post/response-dto/CreatePostResponse.dto";
+import {UpdatePostResponseDto} from "./interfaces/post/dto/UpdatePostResponse.dto";
 import {IServicePostUpdateResponse} from "./interfaces/post/service-post-update-response.interface";
 import {IServicePostDeleteResponse} from "./interfaces/post/service-post-delete-response.interface";
-import * as Path from "path";
-import {DeletePostResponseDto} from "./interfaces/post/dto/delete-post-response.dto";
+import {DeletePostResponse} from "./interfaces/post/dto/DeletePostResponse";
 
 @Controller()
 export class UsersController {
@@ -22,7 +21,7 @@ export class UsersController {
     }
 
     @Get('/:id')
-    public async getPostById(@Param('id') id: string): Promise<GetPostDto<IPost>> {
+    public async getPostById(@Param('id') id: string): Promise<GetPost<IPost>> {
         const postResponse: IServicePostSearchResponse<IPost> = await firstValueFrom(
             this.postService.send(MESSAGE_PATTERN.GET_POST_BY_ID, id)
         )
@@ -37,7 +36,7 @@ export class UsersController {
     }
 
     @Get('/:userId')
-    public async getPostByUser(@Param('userId') userId: string): Promise<GetPostDto<IPost | IPost[]>> {
+    public async getPostByUser(@Param('userId') userId: string): Promise<GetPost<IPost | IPost[]>> {
         const postResponse: IServicePostSearchResponse<IPost[] | IPost> = await firstValueFrom(
             this.postService.send(MESSAGE_PATTERN.GET_POSTS_BY_USER, userId)
         )
@@ -53,7 +52,7 @@ export class UsersController {
 
 
     @Post()
-    public async createPost(@Body() dto: CreatePostDto): Promise<CreatePostResponseDto> {
+    public async createPost(@Body() dto: CreatePost): Promise<CreatePostResponseDto> {
         const postResponse: IServicePostCreateResponse = await firstValueFrom(
             this.postService.send(MESSAGE_PATTERN.CREATE_POST, dto)
         )
@@ -74,7 +73,7 @@ export class UsersController {
     }
 
     @Patch()
-    public async updatePost(@Body() dto: UpdateUserDto): Promise<UpdatePostResponseDto> {
+    public async updatePost(@Body() dto: UserUpdateDto): Promise<UpdatePostResponseDto> {
         const postResponse: IServicePostUpdateResponse = await firstValueFrom(
             this.postService.send(MESSAGE_PATTERN.UPDATE_POST, dto)
         )
@@ -95,7 +94,7 @@ export class UsersController {
     }
 
     @Delete()
-    public async deletePost(id: string): Promise<DeletePostResponseDto> {
+    public async deletePost(id: string): Promise<DeletePostResponse> {
         const postResponse: IServicePostDeleteResponse = await firstValueFrom(
             this.postService.send(MESSAGE_PATTERN.DELETE_POST, id)
         )

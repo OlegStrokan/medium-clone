@@ -1,6 +1,6 @@
-import {IUser} from "../user.interface";
+import {IUser} from "../../IUser";
 
-export class GetUserByIdResponseDto {
+export class ResponseUserGetByIdDto {
     message: string;
     data: {
         user: IUser;

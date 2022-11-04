@@ -1,6 +1,6 @@
-import {IUser} from "../user.interface";
+import {IUser} from "../../IUser";
 
-export class UpdateUserResponseDto {
+export class ResponseUserUpdateDto {
     message: string;
     data: IUser | null;
     errors: { [key: string]: any }

@@ -1,6 +1,6 @@
-import {IUser} from "./user.interface";
+import {IUser} from "./IUser";
 
-export interface IServiceUserCreateResponse {
+export interface IServiceUserCreate {
     status: number;
     message: string;
     data: IUser | null;

@@ -1,4 +1,4 @@
-export class LoginUserResponseDto {
+export class ResponseUserLoginDto {
     message: string;
     data: {
         token: string

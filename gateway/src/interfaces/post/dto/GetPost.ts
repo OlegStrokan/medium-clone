@@ -1,4 +1,4 @@
-export class GetPostDto<T> {
+export class GetPost<T> {
     message: string;
     data: {
         post: T | null

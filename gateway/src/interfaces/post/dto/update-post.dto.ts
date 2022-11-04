@@ -1,5 +1,5 @@
-import {CreatePostDto} from "./create-post.dto";
+import {CreatePost} from "./CreatePost";
 
-export class UpdatePostDto extends CreatePostDto{
+export class UpdatePostDto extends CreatePost{
    id: string
 }
