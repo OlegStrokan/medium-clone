@@ -1,12 +1,12 @@
 import {HttpStatus, Injectable} from '@nestjs/common';
 import {DeleteResult, Repository} from "typeorm";
-import {IToken} from "../interfaces/token.interface";
+import {IToken} from "../interfaces/IToken";
 import {JwtService} from "@nestjs/jwt";
 import {InjectRepository} from "@nestjs/typeorm";
 import {TokenEntity} from "../repository/token.entity";
-import {ITokenResponse} from "../interfaces/token-response.interface";
+import {ResponseTokenDto} from "../interfaces/response-dto/ResponseTokenDto";
 import {Query} from "typeorm/driver/Query";
-import {ITokenDestroyResponse} from "../interfaces/token-destroy-response";
+import {ResponseTokenDestroyDto} from "../interfaces/response-dto/ResponseTokenDestroyDto";
 
 @Injectable()
 export class TokenService {
@@ -16,7 +16,7 @@ export class TokenService {
     ) {
     }
 
-    public async createToken(userId: string): Promise<ITokenResponse> {
+    public async createToken(userId: string): Promise<ResponseTokenDto> {
         try {
             const tokenValue = this.jwtService.sign({userId})
             await this.tokenRepository.save({userId, token: tokenValue})
@@ -35,7 +35,7 @@ export class TokenService {
         }
     }
 
-    public async destroyToken(userId: string): Promise<ITokenDestroyResponse> {
+    public async destroyToken(userId: string): Promise<ResponseTokenDestroyDto> {
         try {
             await this.tokenRepository.delete({ userId })
             return {
@@ -53,7 +53,7 @@ export class TokenService {
         }
     }
 
-    public async decodeToken(token: string): Promise<ITokenResponse> {
+    public async decodeToken(token: string): Promise<ResponseTokenDto> {
         const tokenModel = await this.tokenRepository.findOneBy({ token});
         if (tokenModel) {
             try {

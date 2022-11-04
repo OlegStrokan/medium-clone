@@ -4,8 +4,8 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {UserEntity} from "../repository/user.entity";
 import {Repository} from "typeorm";
 import {UserCreateDto} from "../interfaces/dto/UserCreateDto";
-import {IUserCreateResponse} from "../interfaces/IUserCreateResponse";
-import {IUserResponse} from "../interfaces/IUserResponse";
+import {ResponseUserCreateDto} from "../interfaces/response-dto/ResponseUserCreateDto";
+import {ResponseUserDto} from "../interfaces/response-dto/ResponseUserDto";
 import * as bcrypt from 'bcrypt'
 import {UserUpdatePasswordDto} from "../interfaces/dto/UserUpdatePasswordDto";
 import {UserSearchDto} from "../interfaces/dto/UserSearchDto";
@@ -19,7 +19,7 @@ export class UserService {
     ) {
     }
 
-    public async createUser(dto: UserCreateDto): Promise<IUserCreateResponse> {
+    public async createUser(dto: UserCreateDto): Promise<ResponseUserCreateDto> {
         if (dto) {
             const existUser = await this.searchUserHelper(dto.email, dto);
 
@@ -65,7 +65,7 @@ export class UserService {
     }
 
     //login
-    public async searchUserByCredentials(dto: UserSearchDto): Promise<IUserResponse> {
+    public async searchUserByCredentials(dto: UserSearchDto): Promise<ResponseUserDto> {
         if (dto.email && dto.password) {
             const user = await this.searchUserHelper(dto.email, dto);
 
@@ -99,7 +99,7 @@ export class UserService {
         }
     }
 
-    public async searchUserById(id: string): Promise<IUserResponse> {
+    public async searchUserById(id: string): Promise<ResponseUserDto> {
         const user: IUser = await this.userRepository.findOneBy({id});
         if (user) {
             return {
@@ -117,7 +117,7 @@ export class UserService {
 
     }
 
-    public async updateUser(dto: UserUpdateDto): Promise<IUserResponse> {
+    public async updateUser(dto: UserUpdateDto): Promise<ResponseUserDto> {
         const user = await this.searchUserHelper(dto.id, dto);
 
         if (user) {
@@ -146,7 +146,7 @@ export class UserService {
 
     }
 
-    public async updatePassword(dto: UserUpdatePasswordDto): Promise<IUserResponse> {
+    public async updatePassword(dto: UserUpdatePasswordDto): Promise<ResponseUserDto> {
         const user = await this.searchUserHelper(dto.id, dto);
         if (bcrypt.compare(dto.oldPassword, user.password)) {
             await this.userRepository.save({

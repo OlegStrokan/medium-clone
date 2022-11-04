@@ -1,4 +1,4 @@
-export interface ICreateRole {
+export class CreateRoleDto {
     value: string;
     description: string;
 }

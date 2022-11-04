@@ -1,13 +1,13 @@
 import {HttpStatus, Injectable} from '@nestjs/common';
-import {IPostCreateResponse} from "../interfaces/post-create-response.interface";
-import {IPostCreate} from "../interfaces/post-create.interface";
-import {IPost} from "../interfaces/post.interface";
+import {IPostCreateResponse} from "../interfaces/response-dto/ResponsePostCreateDto";
+import {PostCreateDto} from "../interfaces/dto/PostCreateDto";
+import {IPost} from "../interfaces/IPost";
 import {InjectRepository} from "@nestjs/typeorm";
 import {PostEntity} from "../repository/post.entity";
 import {Repository} from "typeorm";
-import {IPostUpdate} from "../interfaces/post-update.interface";
-import {IPostResponse} from "../interfaces/post-response.interface";
-import {IPostDelete} from "../interfaces/post-delete.interface";
+import {PostUpdateDto} from "../interfaces/dto/PostUpdateDto";
+import {ResponsePostDto} from "../interfaces/response-dto/ResponsePostDto";
+import {PostDeleteDto} from "../interfaces/dto/PostDeleteDto";
 
 @Injectable()
 export class PostService {
@@ -16,7 +16,7 @@ export class PostService {
     ) {
     }
 
-    public async getPost(id: string): Promise<IPostResponse<IPost>> {
+    public async getPost(id: string): Promise<ResponsePostDto<IPost>> {
         const post = await this.postRepository.findOneBy({id});
         if (post) {
             return {
@@ -33,7 +33,7 @@ export class PostService {
         }
     }
 
-    public async getPostsByUser(userId: string): Promise<IPostResponse<IPost[]>> {
+    public async getPostsByUser(userId: string): Promise<ResponsePostDto<IPost[]>> {
         // TODO if user exist
         const posts = await this.postRepository.findBy({ userId })
         if (posts) {
@@ -51,7 +51,7 @@ export class PostService {
         }
     }
 
-    public async create(dto: IPostCreate): Promise<IPostCreateResponse> {
+    public async create(dto: PostCreateDto): Promise<IPostCreateResponse> {
         // TODO if user exist
 
         if (true) {
@@ -83,7 +83,7 @@ export class PostService {
         }
     }
 
-    public async update(dto: IPostUpdate): Promise<IPostResponse<IPost>> {
+    public async update(dto: PostUpdateDto): Promise<ResponsePostDto<IPost>> {
         const post = await this.searchPostHelper(dto.id, dto);
 
         if (post) {
@@ -115,7 +115,7 @@ export class PostService {
         }
     }
 
-    public async delete(dto: IPostDelete): Promise<IPostResponse<IPost>> {
+    public async delete(dto: PostDeleteDto): Promise<ResponsePostDto<IPost>> {
         try {
             const post = await this.searchPostHelper(dto.id, dto);
             if (post) {

@@ -1,8 +1,8 @@
 import {Controller, HttpStatus} from '@nestjs/common';
 import {PermissionService} from './services/permission.service';
 import {MessagePattern} from "@nestjs/microservices";
-import {IPermissionParams} from "./interfaces/permission-params.interface";
-import {IPermissionCheckResponse} from "./interfaces/permission-check-response.interface";
+import {IPermissionParams} from "./interfaces/dto/PermissionParamsDto";
+import {IPermissionCheckResponse} from "./interfaces/response-dto/ResponsePermissionCheckDto";
 import {permissions} from "./constants/permissions";
 
 @Controller()

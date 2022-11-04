@@ -1,6 +1,6 @@
-import {IUser} from "./IUser";
+import {IUser} from "../IUser";
 
-export interface IUserResponse {
+export class ResponseUserDto {
     status: number;
     message: string;
     data: IUser | null;

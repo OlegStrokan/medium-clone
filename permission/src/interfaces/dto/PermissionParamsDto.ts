@@ -1,4 +1,4 @@
-import {IUser} from "./user.interface";
+import {IUser} from "../IUser";
 
 export interface IPermissionParams {
     user: IUser,

@@ -2,10 +2,10 @@ import {HttpStatus, Injectable} from '@nestjs/common';
 import {InjectRepository} from "@nestjs/typeorm";
 import {RoleEntity} from "../repository/role.entity";
 import {Repository} from "typeorm";
-import {ICreateRole} from "../interfaces/create-role.interface";
-import {IRoleCreateResponse} from "../interfaces/user-create-response.interface";
-import {IRole} from "../interfaces/role.interface";
-import {IRoleSearchResponse} from "../interfaces/user-search-response.interface";
+import {CreateRoleDto} from "../interfaces/dto/CreateRoleDto";
+import {ResponseRoleCreateDto} from "../interfaces/response-dto/ResponseRoleCreateDto";
+import {IRole} from "../interfaces/IRole";
+import {ResponseRoleSearchDto} from "../interfaces/response-dto/ResponseRoleSearchDto";
 
 @Injectable()
 export class RoleService {
@@ -13,7 +13,7 @@ export class RoleService {
     constructor(@InjectRepository(RoleEntity) private readonly roleRepository: Repository<RoleEntity>) {
     }
 
-    public async create(dto: ICreateRole): Promise<IRoleCreateResponse> {
+    public async create(dto: CreateRoleDto): Promise<ResponseRoleCreateDto> {
         if (dto) {
             const role = await this.roleRepository.findOne({where: {value: dto.value}})
             if (role) {
@@ -56,7 +56,7 @@ export class RoleService {
         }
     }
 
-    public async getRoleByValue(value: string): Promise<IRoleSearchResponse<IRole>> {
+    public async getRoleByValue(value: string): Promise<ResponseRoleSearchDto<IRole>> {
         if (value) {
             const newValue = await this.roleRepository.findOne({where: {value}})
             if (newValue) {
@@ -75,7 +75,7 @@ export class RoleService {
         }
     }
 
-    public async getRoles(): Promise<IRoleSearchResponse<IRole[]>> {
+    public async getRoles(): Promise<ResponseRoleSearchDto<IRole[]>> {
             const roles = await this.roleRepository.find();
             if (roles) {
                 return {

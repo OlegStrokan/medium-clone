@@ -1,6 +1,6 @@
-import {IRole} from "./role.interface";
+import {IRole} from "../IRole";
 
-export interface IRoleCreateResponse {
+export class ResponseRoleCreateDto {
     status: number;
     message: string;
     data: IRole | null;

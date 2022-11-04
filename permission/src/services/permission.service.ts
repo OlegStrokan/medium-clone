@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import {IPermissionService} from "../interfaces/permission-service.interface";
-import {IUser} from "../interfaces/user.interface";
+import {IPermissionService} from "../interfaces/IPermissionService";
+import {IUser} from "../interfaces/IUser";
 
 @Injectable()
 export class PermissionService implements IPermissionService {

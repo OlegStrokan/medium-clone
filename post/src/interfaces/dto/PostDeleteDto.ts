@@ -1,5 +1,5 @@
 
-export interface IPostDelete {
+export class PostDeleteDto {
     id: string;
     ownerId: string;
 }
