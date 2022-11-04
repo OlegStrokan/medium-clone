@@ -1,0 +1,35 @@
+version: '3.0'
+
+services:
+  main:
+    container_name: main
+    build:
+      context: .
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "8000:8000"
+      - "9229:9229"
+    command: yarn start:dev
+    depends_on:
+      - postgres
+    restart: always
+
+  postgres:
+    container_name: postgres
+    image: postgres:13
+    env_file:
+      - .env
+    environment:
+      PG_DATA: /var/lib/postgresql/data
+    ports:
+      - "5432:5433"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  pgdata:
