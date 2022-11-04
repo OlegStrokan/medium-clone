@@ -1,7 +1,5 @@
 export class ResponseUserLoginDto {
     message: string;
-    data: {
-        token: string
-    }
+    data: string;
     errors: { [key: string]: any }
 }

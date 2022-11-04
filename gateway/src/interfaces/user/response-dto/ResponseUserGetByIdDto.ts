@@ -1,9 +1,7 @@
-import {IUser} from "../../IUser";
+import {IUser} from "../IUser";
 
 export class ResponseUserGetByIdDto {
     message: string;
-    data: {
-        user: IUser;
-    }
+    data: IUser | null;
     errors: { [key: string]: any };
 }

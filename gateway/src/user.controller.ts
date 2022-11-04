@@ -2,21 +2,21 @@ import {Body, Controller, Get, HttpException, HttpStatus, Inject, Patch, Post, P
 import {ApiTags} from "@nestjs/swagger";
 import {SERVICE} from "./interfaces/common/enum/microservices.enum";
 import {ClientProxy} from "@nestjs/microservices";
-import {IAuthorizedRequest} from "./interfaces/common/authorized-request.interface";
+import {IAuthorizedRequest} from "./interfaces/common/IAuthorizedRequest";
 import {firstValueFrom} from "rxjs";
 import {MESSAGE_PATTERN} from "./interfaces/common/enum/message-patterns.enum";
 import {IServiceUserCreate} from "./interfaces/user/IServiceUserCreate";
-import {ResponseUserGetByIdDto} from "./interfaces/user/dto/response/ResponseUserGetByIdDto";
+import {ResponseUserGetByIdDto} from "./interfaces/user/response-dto/ResponseUserGetByIdDto";
 import {UserCreateDto} from "./interfaces/user/dto/UserCreateDto";
-import {CreateUserResponseDto} from "./interfaces/user/dto/response/ResponseUserCreateDto";
-import {IServiceTokenCreateResponse} from "./interfaces/token/service-token-create-response.interface";
+import {CreateUserResponseDto} from "./interfaces/user/response-dto/ResponseUserCreateDto";
+import {IServiceTokenCreate} from "./interfaces/token/IServiceTokenCreate";
 import {UserLoginDto} from "./interfaces/user/dto/UserLoginDto";
-import {ResponseUserLoginDto} from "./interfaces/user/dto/response/ResponseUserLoginDto";
-import {ResponseUserLogoutDto} from "./interfaces/user/dto/response/ResponseUserLogoutDto";
-import {IServiceTokenDestroyResponse} from "./interfaces/token/service-token-destroy-response.interface";
+import {ResponseUserLoginDto} from "./interfaces/user/response-dto/ResponseUserLoginDto";
+import {ResponseUserLogoutDto} from "./interfaces/user/response-dto/ResponseUserLogoutDto";
+import {IServiceTokenDestroy} from "./interfaces/token/IServicetokenDestroy";
 import {UserUpdateDto} from "./interfaces/user/dto/UserUpdateDto";
 import {IServiceUserUpdate} from "./interfaces/user/IServiceUserUpdate";
-import {ResponseUserUpdateDto} from "./interfaces/user/dto/response/ResponseUserUpdateDto";
+import {ResponseUserUpdateDto} from "./interfaces/user/response-dto/ResponseUserUpdateDto";
 import {IServiceUserSearch} from "./interfaces/user/IServiceUserSearch";
 
 @Controller('users')
@@ -39,9 +39,7 @@ export class UserController {
 
         return {
             message: userResponse.message,
-            data: {
-                user: userResponse.data,
-            },
+            data: userResponse.data,
             errors: null
         }
     }
@@ -64,7 +62,7 @@ export class UserController {
             )
         }
 
-        const createTokenResponse: IServiceTokenCreateResponse = await firstValueFrom(
+        const createTokenResponse: IServiceTokenCreate = await firstValueFrom(
             this.tokenService.send(MESSAGE_PATTERN.TOKEN_CREATE, {userId: createUserResponse.data.id})
         )
 
@@ -114,15 +112,13 @@ export class UserController {
             }, HttpStatus.UNAUTHORIZED)
         }
 
-        const createTokenResponse: IServiceTokenCreateResponse = await firstValueFrom(
+        const createTokenResponse: IServiceTokenCreate = await firstValueFrom(
             this.tokenService.send(MESSAGE_PATTERN.TOKEN_CREATE, getUserResponse.data.id)
         )
 
         return {
             message: createTokenResponse.message,
-            data: {
-                token: createTokenResponse.token
-            },
+            data:  createTokenResponse.token,
             errors: null
         }
     }
@@ -130,7 +126,7 @@ export class UserController {
     @Put('/logout')
     public async logoutUser(@Req() dto: IAuthorizedRequest): Promise<ResponseUserLogoutDto> {
         const userInfo = dto.user;
-        const destroyTokenResponse: IServiceTokenDestroyResponse = await firstValueFrom(
+        const destroyTokenResponse: IServiceTokenDestroy = await firstValueFrom(
             this.tokenService.send(MESSAGE_PATTERN.TOKEN_DESTROY, {userId: userInfo.id})
         )
 

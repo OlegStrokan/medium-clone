@@ -1,4 +1,4 @@
-import {IUser} from "../../IUser";
+import {IUser} from "../IUser";
 
 export class CreateUserResponseDto {
     message: string;

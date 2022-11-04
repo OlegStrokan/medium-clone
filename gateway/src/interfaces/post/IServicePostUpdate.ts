@@ -1,6 +1,6 @@
-import {IPost} from "./post.interface";
+import {IPost} from "./IPost";
 
-export interface IServicePostUpdateResponse {
+export interface IServicePostUpdate {
     message: string;
     status; string;
     data: IPost| null;

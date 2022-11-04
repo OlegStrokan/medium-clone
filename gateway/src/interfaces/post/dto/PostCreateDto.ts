@@ -1,4 +1,4 @@
-export class CreatePost {
+export class PostCreateDto {
     title: string;
     content: string;
 }
