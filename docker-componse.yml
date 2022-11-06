@@ -3,28 +3,72 @@ version: '3.0'
 services:
   gateway:
     build: ./gateway
+    container_name: gateway
     env_file:
       - ./gateway/.env
+    volumes:
+      - .:/gateway/app
+      - /gateway/app/node_modules
+    ports:
+      - ${API_GATEWAY_PORT}:8000
+    command: yarn start:dev
+    depends_on:
+      - user
+      - post
+    restart: always
+
+  user:
+    build: ./user
+    container_name: user
+    env_file:
+      - ./user/.env
+    volumes:
+      - .:/post/app
+      - /post/app/node_modules
+    ports:
+      - ${USER_SERVICE_PORT}:8000
+    command: yarn start:dev
+    depends_on:
+      - user_db
+    restart: always
+
+  user_db:
+    image: postgres:13
+    container_name: user_db
+    env_file:
+      - ./user/.env
+    environment:
+      PG_DATA: /var/lib/postgresql/data
+    ports:
+      - 5432:${POSTGRES_PORT}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
+  post:
+    build: ./post
+    container_name: post
+    env_file:
+      - ./post/.env
     volumes:
       - .:/app
       - /app/node_modules
     ports:
-      - "8000:8000"
-      - "9229:9229"
+      - ${PORT}:8000
     command: yarn start:dev
     depends_on:
-      - postgres
+      - post_db
     restart: always
 
-  postgres:
-    container_name: postgres
+  post_db:
     image: postgres:13
+    container_name: post_db
     env_file:
-      - .env
+      - ./post/.env
     environment:
       PG_DATA: /var/lib/postgresql/data
     ports:
-      - "5432:5433"
+      - 5432:${POSTGRES_PORT}
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: always
@@ -40,7 +84,13 @@ services:
     networks:
       - rabbitmq_go_net
 
+volumes:
+  postgres:
+  pgdata:
+
 networks:
   rabbitmq_go_net:
+    driver: bridge
+  postgres:
     driver: bridge
 

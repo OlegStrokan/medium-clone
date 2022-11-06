@@ -31,14 +31,13 @@ class DbConfigService {
         return {
             type: 'postgres',
             host: this.getValue('POSTGRES_HOST'),
-            port: this.getValue('PORTGRES_PORT'),
+            port: Number(this.getValue('PORTGRES_PORT')),
             username: this.getValue('PORTGRES_USER'),
             password: this.getValue('PORTGRES_PASSWORD'),
             database: this.getValue('PORTGRES_DATABASE'),
 
             models: ['**/*.model{.ts,.js}'],
             migrations: ['src/migration/*.ts'],
-
             cli: {
                 migrationDir: 'src/migration',
             },
