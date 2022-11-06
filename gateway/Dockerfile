@@ -1,6 +1,6 @@
 FROM node:16
 
-WORKDIR /app
+WORKDIR /app/gateway
 
 COPY package.json ./
 COPY yarn.lock ./
