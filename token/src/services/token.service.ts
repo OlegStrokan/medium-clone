@@ -1,11 +1,9 @@
 import {HttpStatus, Injectable} from '@nestjs/common';
-import {DeleteResult, Repository} from "typeorm";
-import {IToken} from "../interfaces/IToken";
+import { Repository} from "typeorm";
 import {JwtService} from "@nestjs/jwt";
 import {InjectRepository} from "@nestjs/typeorm";
 import {TokenEntity} from "../repository/token.entity";
 import {ResponseTokenDto} from "../interfaces/response-dto/ResponseTokenDto";
-import {Query} from "typeorm/driver/Query";
 import {ResponseTokenDestroyDto} from "../interfaces/response-dto/ResponseTokenDestroyDto";
 
 @Injectable()

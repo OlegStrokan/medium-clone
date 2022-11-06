@@ -16,7 +16,7 @@ import {IServicePostDelete} from "./interfaces/post/IServicePostDelete";
 import {ResponsePostDelete} from "./interfaces/post/response-dto/ResponsePostDelete";
 
 @Controller()
-export class UsersController {
+export class PostController {
     constructor(@Inject(SERVICE.POST) private readonly postService: ClientProxy) {
     }
 

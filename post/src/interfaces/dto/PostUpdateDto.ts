@@ -1,6 +1,5 @@
 import {PostCreateDto} from "./PostCreateDto";
-import {Omit} from "../helpers/Omit";
 
-export class PostUpdateDto extends Omit(PostCreateDto, ['userId']) {
+export class PostUpdateDto extends PostCreateDto {
     id: string;
 }
