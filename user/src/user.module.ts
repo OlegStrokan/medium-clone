@@ -21,6 +21,14 @@ import {ClientProxyFactory} from "@nestjs/microservices";
               return ClientProxyFactory.create(mailerServiceOptions)
           },
           inject: [ConfigService]
+      },
+      {
+          provide: 'ROLE_SERVICE',
+          useFactory: (configService: ConfigService) => {
+              const roleServiceOptions = configService.get('roleService');
+              return ClientProxyFactory.create(roleServiceOptions)
+          },
+          inject: [ConfigService]
       }
   ],
 })

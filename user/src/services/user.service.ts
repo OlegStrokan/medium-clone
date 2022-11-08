@@ -13,13 +13,15 @@ import {UserUpdateDto} from "../interfaces/dto/UserUpdateDto";
 import {ClientProxy} from "@nestjs/microservices";
 import {UserSendEmailDto} from "../interfaces/dto/UserSendEmailDto";
 import {firstValueFrom} from "rxjs";
+import {ResponseRoleGetDto} from "../interfaces/response-dto/ResponseRoleGetDto";
 
 @Injectable()
 export class UserService {
 
     constructor(
-        @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
-        @Inject('MAILER_SERVICE') private readonly mailerServiceClient: ClientProxy
+        @InjectRepository(UserEntity) private readonly userRepository: Repository<IUser>,
+        @Inject('MAILER_SERVICE') private readonly mailerServiceClient: ClientProxy,
+        @Inject('ROLE_SERVICE') private readonly roleServiceClient: ClientProxy,
     ) {
     }
 
@@ -42,6 +44,9 @@ export class UserService {
             } else {
                 try {
                     const newUser = await this.userRepository.create(dto);
+                    const roles: ResponseRoleGetDto = await firstValueFrom(
+                        this.roleServiceClient.send('GET_ROLE', 'user')
+                    )
                     await this.userRepository.save(newUser);
                     await firstValueFrom(
                         this.mailerServiceClient.send('MAIL_SEND', {
@@ -52,7 +57,9 @@ export class UserService {
                     return {
                         status: HttpStatus.CREATED,
                         message: 'user_create_success',
-                        data: newUser,
+                        data: {
+                            ...newUser, roles: roles.data,
+                        },
                         errors: null
                     }
                 } catch (e) {
