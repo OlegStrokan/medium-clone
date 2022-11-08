@@ -1,6 +1,5 @@
-import {Controller, Inject, Post} from '@nestjs/common';
+import {Controller} from '@nestjs/common';
 import {UserService} from './services/user.service';
-import {ClientProxy} from "@nestjs/microservices";
 import {ResponseUserCreateDto} from "./interfaces/response-dto/ResponseUserCreateDto";
 import {UserCreateDto} from "./interfaces/dto/UserCreateDto";
 import {ResponseUserDto} from "./interfaces/response-dto/ResponseUserDto";
@@ -10,10 +9,7 @@ import {UserUpdateDto} from "./interfaces/dto/UserUpdateDto";
 
 @Controller()
 export class UserController {
-    constructor(
-        private readonly userService: UserService,
-        @Inject('MAILER_SERVICE') private readonly mailerServiceClient: ClientProxy
-    ) {
+    constructor(private readonly userService: UserService) {
     }
 
     public async createUser(dto: UserCreateDto): Promise<ResponseUserCreateDto> {

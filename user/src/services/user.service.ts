@@ -1,4 +1,4 @@
-import {HttpStatus, Injectable} from '@nestjs/common';
+import {HttpStatus, Inject, Injectable} from '@nestjs/common';
 import {IUser} from 'src/interfaces/IUser';
 import {InjectRepository} from "@nestjs/typeorm";
 import {UserEntity} from "../repository/user.entity";
@@ -10,12 +10,15 @@ import * as bcrypt from 'bcrypt'
 import {UserUpdatePasswordDto} from "../interfaces/dto/UserUpdatePasswordDto";
 import {UserSearchDto} from "../interfaces/dto/UserSearchDto";
 import {UserUpdateDto} from "../interfaces/dto/UserUpdateDto";
+import {ClientProxy} from "@nestjs/microservices";
+import {UserSendEmailDto} from "../interfaces/dto/UserSendEmailDto";
 
 @Injectable()
 export class UserService {
 
     constructor(
-        @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>
+        @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>,
+        @Inject('MAILER_SERVICE') private readonly mailerServiceClient: ClientProxy
     ) {
     }
 
@@ -39,6 +42,14 @@ export class UserService {
                 try {
                     const newUser = await this.userRepository.create(dto);
                     await this.userRepository.save(newUser);
+                    this.mailerServiceClient
+                        .send('MAIL_SEND', {
+                            to: dto.email,
+                            subject: 'Email confirmation',
+                            html: `<div>This is test data for email</div>`,
+                        } as UserSendEmailDto)
+
+
                     return {
                         status: HttpStatus.CREATED,
                         message: 'user_create_success',
