@@ -5,7 +5,7 @@ services:
     build: ./gateway
     container_name: gateway
     env_file:
-      - ./gateway/.env
+      - .env
     volumes:
       - .:/gateway/app
       - /gateway/app/node_modules
@@ -14,17 +14,26 @@ services:
     command: yarn start:dev
     depends_on:
       - user
+      - user_db
       - post
+      - post_db
+      - token
+      - token_db
+      - role
+      - role_db
+      - permission
+      - mailer
+      - rabbitmq
     restart: always
 
   user:
     build: ./user
     container_name: user
     env_file:
-      - ./user/.env
+      - .env
     volumes:
-      - .:/post/app
-      - /post/app/node_modules
+      - .:/user/app
+      - /user/app/node_modules
     ports:
       - ${USER_SERVICE_PORT}:8000
     command: yarn start:dev
@@ -36,11 +45,11 @@ services:
     image: postgres:13
     container_name: user_db
     env_file:
-      - ./user/.env
+      - .env
     environment:
       PG_DATA: /var/lib/postgresql/data
     ports:
-      - 5432:${POSTGRES_PORT}
+      - 5432:${USER_POSTGRES_PORT}
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: always
@@ -49,12 +58,12 @@ services:
     build: ./post
     container_name: post
     env_file:
-      - ./post/.env
+      - .env
     volumes:
-      - .:/app
-      - /app/node_modules
+      - .:/post/app
+      - /post/app/node_modules
     ports:
-      - ${PORT}:8000
+      - ${POST_SERVICE_PORT}:8000
     command: yarn start:dev
     depends_on:
       - post_db
@@ -64,20 +73,107 @@ services:
     image: postgres:13
     container_name: post_db
     env_file:
-      - ./post/.env
+      - .env
     environment:
       PG_DATA: /var/lib/postgresql/data
     ports:
-      - 5432:${POSTGRES_PORT}
+      - 5432:${POST_POSTGRES_PORT}
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: always
 
+  token:
+    build: ./token
+    container_name: token
+    env_file:
+      - .env
+    volumes:
+      - .:/token/app
+      - /token/app/node_modules
+    ports:
+      - ${TOKEN_SERVICE_PORT}:8000
+    command: yarn start:dev
+    depends_on:
+      - token_db
+    restart: always
+
+  token_db:
+    image: postgres:13
+    container_name: token_db
+    env_file:
+      - .env
+    environment:
+      PG_DATA: /var/lib/postgresql/data
+    ports:
+      - 5432:${TOKEN_POSTGRES_PORT}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
+
+  role:
+    build: ./role
+    container_name: role
+    env_file:
+      - .env
+    volumes:
+      - .:/role/app
+      - /role/app/node_modules
+    ports:
+      - ${ROLE_SERVICE_PORT}:8000
+    command: yarn start:dev
+    depends_on:
+      - role_db
+    restart: always
+
+  role_db:
+    image: postgres:13
+    container_name: roles_db
+    env_file:
+      - .env
+    environment:
+      PG_DATA: /var/lib/postgresql/data
+    ports:
+      - 5432:${ROLE_POSTGRES_PORT}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
+
+  permission:
+    build: ./permission
+    container_name: permission
+    env_file:
+      - .env
+    volumes:
+      - .:/permission/app
+      - /permission/app/node_modules
+    ports:
+      - ${PERMISSION_SERVICE_PORT}:8000
+    command: yarn start:dev
+    restart: always
+
+  mailer:
+    build: ./mailer
+    container_name: mailer
+    env_file:
+      - .env
+    volumes:
+      - .:/mailer/app
+      - /mailer/app/node_modules
+    ports:
+      - ${MAILER_SERVICE_PORT}:8000
+    command: dotnet aspnetapp.dll
+    restart: always
+
+
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: rabbitmq
+    env_file:
+      - .env
     ports:
-      - "5672:5672"
+      - ${RABBIT_MQ_PORT}:${RABBIT_MQ_PORT}
     volumes:
       - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
       - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
