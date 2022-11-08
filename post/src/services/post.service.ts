@@ -1,4 +1,4 @@
-import {HttpStatus, Injectable} from '@nestjs/common';
+import {HttpStatus, Inject, Injectable} from '@nestjs/common';
 import {IPostCreateResponse} from "../interfaces/response-dto/ResponsePostCreateDto";
 import {PostCreateDto} from "../interfaces/dto/PostCreateDto";
 import {IPost} from "../interfaces/IPost";
@@ -8,11 +8,15 @@ import {Repository} from "typeorm";
 import {PostUpdateDto} from "../interfaces/dto/PostUpdateDto";
 import {ResponsePostDto} from "../interfaces/response-dto/ResponsePostDto";
 import {PostDeleteDto} from "../interfaces/dto/PostDeleteDto";
+import {ClientProxy} from "@nestjs/microservices";
+import {firstValueFrom} from "rxjs";
+import {ResponseUserSearchDto} from "../interfaces/response-dto/ResponseUserSearchDto";
 
 @Injectable()
 export class PostService {
     constructor(
-        @InjectRepository(PostEntity) private readonly postRepository: Repository<PostEntity>
+        @InjectRepository(PostEntity) private readonly postRepository: Repository<PostEntity>,
+        @Inject('USER_SERVICE') private readonly mailerServiceClient: ClientProxy
     ) {
     }
 
@@ -34,27 +38,45 @@ export class PostService {
     }
 
     public async getPostsByUser(userId: string): Promise<ResponsePostDto<IPost[]>> {
-        // TODO if user exist
-        const posts = await this.postRepository.findBy({ userId })
-        if (posts) {
+
+        const userResponse: ResponseUserSearchDto = await firstValueFrom(this.mailerServiceClient.send('SEARCH_USER_BY_ID', userId))
+
+        if (userResponse.status !== HttpStatus.OK) {
             return {
-                status: HttpStatus.CREATED,
-                message: 'get_posts_by_user_success',
-                data: posts,
-            }
-        } else {
-            return {
-                status: HttpStatus.CREATED,
+                status: HttpStatus.NOT_FOUND,
                 message: 'get_posts_by_user_not_found',
                 data: null
+            }
+        } else {
+
+            const posts = await this.postRepository.findBy({userId})
+            if (posts) {
+                return {
+                    status: HttpStatus.CREATED,
+                    message: 'get_posts_by_user_success',
+                    data: posts,
+                }
+            } else {
+                return {
+                    status: HttpStatus.NOT_FOUND,
+                    message: 'get_posts_by_user_not_found',
+                    data: null
+                }
             }
         }
     }
 
     public async create(dto: PostCreateDto): Promise<IPostCreateResponse> {
-        // TODO if user exist
+        const userResponse: ResponseUserSearchDto = await firstValueFrom(this.mailerServiceClient.send('SEARCH_USER_BY_ID', dto.userId))
 
-        if (true) {
+        if (userResponse.status !== HttpStatus.OK) {
+            return {
+                status: HttpStatus.NOT_FOUND,
+                message: 'get_posts_by_user_not_found',
+                data: null,
+                errors: null,
+            }
+        } else {
             try {
                 const post = this.postRepository.create(dto)
                 await this.postRepository.save(post);
@@ -72,13 +94,6 @@ export class PostService {
                     data: null,
                     errors: e.errors
                 }
-            }
-        } else {
-            return {
-                status: HttpStatus.BAD_REQUEST,
-                message: 'post_create_bad_request',
-                data: null,
-                errors: null,
             }
         }
     }
@@ -126,8 +141,7 @@ export class PostService {
                         message: 'delete_post_success',
                         data: null
                     }
-                }
-                else {
+                } else {
                     return {
                         status: HttpStatus.FORBIDDEN,
                         message: 'delete_post_forbidden',

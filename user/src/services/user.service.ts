@@ -12,6 +12,7 @@ import {UserSearchDto} from "../interfaces/dto/UserSearchDto";
 import {UserUpdateDto} from "../interfaces/dto/UserUpdateDto";
 import {ClientProxy} from "@nestjs/microservices";
 import {UserSendEmailDto} from "../interfaces/dto/UserSendEmailDto";
+import {firstValueFrom} from "rxjs";
 
 @Injectable()
 export class UserService {
@@ -42,14 +43,12 @@ export class UserService {
                 try {
                     const newUser = await this.userRepository.create(dto);
                     await this.userRepository.save(newUser);
-                    this.mailerServiceClient
-                        .send('MAIL_SEND', {
+                    await firstValueFrom(
+                        this.mailerServiceClient.send('MAIL_SEND', {
                             to: dto.email,
                             subject: 'Email confirmation',
                             html: `<div>This is test data for email</div>`,
-                        } as UserSendEmailDto)
-
-
+                        } as UserSendEmailDto))
                     return {
                         status: HttpStatus.CREATED,
                         message: 'user_create_success',
