@@ -38,7 +38,7 @@ class DbConfigService {
             entities: ['**/*.entity{.ts,.js}'],
             migrations: ['src/migration/*.ts'],
             migrationsTableName: "user",
-            ssl: this.isProduction()
+            ssl: this.isProduction(),
         }
     }
 }

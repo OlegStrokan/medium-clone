@@ -39,7 +39,6 @@ class DbConfigService {
             migrations: ['src/migration/*.ts'],
             migrationsTableName: "post",
             ssl: this.isProduction(),
-
         }
     }
 }
