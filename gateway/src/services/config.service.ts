@@ -22,8 +22,15 @@ export class ConfigService {
         };
         this.envConfig.taskService = {
             options: {
-                port: process.env.TASK_SERVICE_PORT,
-                host: process.env.TASK_SERVICE_HOST,
+                port: process.env.POST_SERVICE_PORT,
+                host: process.env.POST_SERVICE_HOST,
+            },
+            transport: Transport.RMQ,
+        };
+        this.envConfig.taskService = {
+            options: {
+                port: process.env.ROLE_POSTGRES_PORT,
+                host: process.env.ROLE_POSTGRES_USER,
             },
             transport: Transport.RMQ,
         };

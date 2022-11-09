@@ -29,6 +29,7 @@ yarn.lock
 .c9/
 *.launch
 .settings/
+.env
 *.sublime-workspace
 
 # IDE - VSCode

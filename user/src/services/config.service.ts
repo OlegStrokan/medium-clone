@@ -17,6 +17,13 @@ export class ConfigService {
             },
             transport: Transport.RMQ
         }
+            this.envConfig.roleService = {
+            options: {
+                port: process.env.ROLE_SERVICE_PORT,
+                host: process.env.ROLE_SERVICE_HOST,
+            },
+            transport: Transport.RMQ
+        }
     }
 
     get(key: string): any {

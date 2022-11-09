@@ -19,30 +19,27 @@ class DbConfigService {
     }
 
     public getPort() {
-        return this.getValue('PORT', true)
+        return this.getValue('POST_SERVICE_PORT', true)
     }
 
     public isProduction() {
-        const mode = this.getValue('MODE', false)
+        const mode = this.getValue('POST_MODE', false)
         return mode != 'DEV';
     }
 
     public getTypeOrmConfig(): TypeOrmModuleOptions {
         return {
             type: 'postgres',
-            host: this.getValue('POSTGRES_HOST'),
-            port: this.getValue('PORTGRES_PORT'),
-            username: this.getValue('PORTGRES_USER'),
-            password: this.getValue('PORTGRES_PASSWORD'),
-            database: this.getValue('PORTGRES_DATABASE'),
-
-            models: ['**/*.model{.ts,.js}'],
+            host: this.getValue('POST_POSTGRES_HOST'),
+            port: parseInt(this.getValue('POST_PORTGRES_PORT')),
+            username: this.getValue('POST_PORTGRES_USER'),
+            password: this.getValue('POST_PORTGRES_PASSWORD'),
+            database: this.getValue('POST_PORTGRES_DATABASE'),
+            entities: ['**/*.entity{.ts,.js}'],
             migrations: ['src/migration/*.ts'],
+            migrationsTableName: "post",
+            ssl: this.isProduction(),
 
-            cli: {
-                migrationDir: 'src/migration',
-            },
-            ssl: this.isProduction()
         }
     }
 }
@@ -50,11 +47,11 @@ class DbConfigService {
 
 const dbConfigService = new DbConfigService(process.env)
     .ensureValues([
-        'POSTGRES_HOST',
-        'PORTGRES_PORT',
-        'PORTGRES_USER',
-        'PORTGRES_PASSWORD',
-        'PORTGRES_DATABASE',
+        'POST_POSTGRES_HOST',
+        'POST_PORTGRES_PORT',
+        'POST_PORTGRES_USER',
+        'POST_PORTGRES_PASSWORD',
+        'POST_PORTGRES_DATABASE',
         ]
 
     )
