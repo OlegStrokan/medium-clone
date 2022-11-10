@@ -24,6 +24,9 @@ services:
     env_file:
       - .env
     environment:
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_DATABASE: "users"
+      POSTGRES_USER: "user"
       PG_DATA: /var/lib/postgresql/data
     ports:
       - "5432:5433"
