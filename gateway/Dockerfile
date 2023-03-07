@@ -5,9 +5,10 @@ WORKDIR /app/gateway
 COPY package.json ./
 COPY yarn.lock ./
 
-RUN yarn install
+RUN yarn global add @nestjs/cli
+RUN yarn
 
-COPY . .
+COPY ./src .
 
 
 CMD ["yarn", "start:dev"]

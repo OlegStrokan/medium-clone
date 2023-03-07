@@ -6,12 +6,14 @@ import {dbConfigService} from "./services/db-config.service";
 import {ConfigService} from "./services/config.service";
 import {ClientProxyFactory} from "@nestjs/microservices";
 import { ConfigModule } from "@nestjs/config";
+import {UserEntity} from "./repository/user.entity";
 
 @Module({
   imports: [
       TypeOrmModule.forRoot(dbConfigService.getTypeOrmConfig()),
+      TypeOrmModule.forFeature([UserEntity]),
       ConfigModule.forRoot({
-          envFilePath: '.env',
+          envFilePath: 'env',
       }),
   ],
   controllers: [UserController],

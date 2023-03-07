@@ -8,7 +8,7 @@ class DbConfigService {
     private getValue(key: string, throwOnMissing = true): string {
         const value = this.env[key];
         if (!value && throwOnMissing) {
-            throw new Error(`config error - missing env.${key}`)
+            console.log(`config error - missing env.${key}`, key)
         }
         return value;
     }
@@ -30,15 +30,15 @@ class DbConfigService {
     public getTypeOrmConfig(): TypeOrmModuleOptions {
         return {
             type: 'postgres',
-            host: this.getValue('USER_POSTGRES_HOST'),
-            port: parseInt(this.getValue('USER_PORTGRES_PORT')),
-            username: this.getValue('USER_PORTGRES_USER'),
-            password: this.getValue('USER_PORTGRES_PASSWORD'),
-            database: this.getValue('USER_PORTGRES_DATABASE'),
-            entities: ['**/*.entity{.ts,.js}'],
+            host: 'postgres',
+            port: 5433,
+            username: 'user',
+            password: 'password',
+            database: 'user',
+            entities: ['**/*.entity{.ts}'],
             migrations: ['src/migration/*.ts'],
             migrationsTableName: "user",
-            ssl: this.isProduction(),
+            ssl: false
         }
     }
 }
@@ -47,10 +47,10 @@ class DbConfigService {
 const dbConfigService = new DbConfigService(process.env)
     .ensureValues([
         'USER_POSTGRES_HOST',
-        'USER_PORTGRES_PORT',
-        'USER_PORTGRES_USER',
-        'USER_PORTGRES_PASSWORD',
-        'USER_PORTGRES_DATABASE',
+        'USER_POSTGRES_PORT',
+        'USER_POSTGRES_USER',
+        'USER_POSTGRES_PASSWORD',
+        'USER_POSTGRES_DATABASE',
         ]
 
     )

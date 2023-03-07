@@ -1,13 +1,15 @@
 FROM node:16
 
+RUN mkdir -p /app/user
 WORKDIR /app/user
 
 COPY package.json ./
 COPY yarn.lock ./
 
-RUN yarn install
+RUN yarn global add @nestjs/cli
+RUN yarn
 
-COPY . .
+COPY ./src .
 
 
 CMD ["yarn", "start:dev"]

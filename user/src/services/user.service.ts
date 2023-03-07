@@ -193,7 +193,7 @@ export class UserService {
     }
 
     private static async compareEncryptedPassword(password: string, passwordFromDb: string): Promise<boolean> {
-        return bcrypt.compare(password, passwordFromDb)
+        return await bcrypt.compare(password, passwordFromDb)
 
     }
 }

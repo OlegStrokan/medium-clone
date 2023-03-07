@@ -5,7 +5,7 @@ services:
   gateway:
     container_name: gateway
     build:
-      dockerfile: ../gateway/Dockerfile
+      dockerfile: ./gateway/Dockerfile
       context: .
     env_file:
       - .env
@@ -24,8 +24,8 @@ services:
   user:
     container_name: user
     build:
-     dockerfile: ./Dockerfile
-     context: .
+      dockerfile: ./user/Dockerfile
+      context: .
     env_file:
       - .env
     volumes:
@@ -53,7 +53,7 @@ services:
     ports:
       - "5433:5433"
     expose:
-          - "5433"
+      - "5433"
     volumes:
       - pgdata:/var/lib/postgresql/data
     command: -p 5433
