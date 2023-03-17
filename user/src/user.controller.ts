@@ -1,12 +1,25 @@
-import { Controller, Get } from '@nestjs/common';
-import { UserService } from './user.service';
+import {Body, Controller, Get, Param} from '@nestjs/common';
+import { UserService } from './services/user.service';
+import {IUser} from "./interfaces/IUser";
 
-@Controller()
+@Controller('users')
 export class UserController {
-  constructor(private readonly appService: UserService) {}
+  constructor(private readonly userService: UserService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+
+  async getUsers(): Promise<IUser[]> {
+    return this.userService.getUser();
+  }
+
+  async createUser(@Body() userData: IUser): Promise<IUser> {
+    return this.userService.createUser(userData);
+  }
+
+  async updateUser(@Param('id') id: number, @Body() userData: Partial<IUser>): Promise<IUser> {
+    return this.userService.updateUser(id, userData);
+  }
+
+  async deleteUser(@Param('id') id: number): Promise<void> {
+    return this.userService.deleteUser(id);
   }
 }
