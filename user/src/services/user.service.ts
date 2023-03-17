@@ -32,6 +32,51 @@ export class UserService {
     }
   }
 
+  async createUser(userData: CreateUserDto): Promise<UserResponseDto> {
+
+    if  (userData) {
+      const existingUser = await this.getUserByEmail(userData.email);
+
+      if (existingUser) {
+        return {
+          status: HttpStatus.CONFLICT,
+          message: MessageEnums.CONFLICT,
+          data: null,
+          errors: {
+            message: 'User with this email already exist'
+          }
+        }
+      } else {
+        try {
+          const hashPassword = await this.hashPassword(userData.password)
+          const newUser = await this.userRepository.create({...userData, password: hashPassword});
+          await this.userRepository.save(newUser);
+
+          const user = await this.getUserByEmail(userData.email);
+
+          return {
+            status: HttpStatus.CREATED,
+            message: MessageEnums.CREATED,
+            data: user
+          }
+
+        } catch (error) {
+          return {
+            status: HttpStatus.PRECONDITION_FAILED,
+            message: MessageEnums.PRECONDITION_FAILED,
+            data: null,
+          }
+        }
+      }
+    } else {
+      return {
+        status: HttpStatus.BAD_REQUEST,
+        message: MessageEnums.BAD_REQUEST,
+        data: null
+      }
+    }
+
+  }
 
   async updateUser(id: number, userData: Partial<IUser>): Promise<IUser> {
     const user = await this.userRepository.findOneOrFail(id);
