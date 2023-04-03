@@ -3,7 +3,7 @@ import * as bcrypt from 'bcrypt';
 import {IUser} from "../interfaces/IUser";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
-import {UserEntity} from "../repository/user.entity";
+import {UserRepository} from "../repository/user.repository";
 import {UserResponseDto} from "../interfaces/response-dtos/user-response.dto";
 import {MessageEnums} from "../interfaces/message-enums/message.enums";
 import {CreateUserDto} from "../interfaces/request-dtos/create-user.dto";
@@ -11,12 +11,12 @@ import {CreateUserDto} from "../interfaces/request-dtos/create-user.dto";
 Injectable()
 export class UserService {
   constructor(
-      @InjectRepository(UserEntity)
-      private readonly userRepository: Repository<IUser>,
+      @InjectRepository(UserRepository)
+      public readonly userRepository: Repository<IUser>,
   ) {}
 
   async getUser(id: string): Promise<UserResponseDto> {
-    const user =  await this.getUserById(id);
+    const user = await this.getUserById(id);
     if (!user) {
       return {
         status: HttpStatus.NOT_FOUND,
@@ -48,7 +48,7 @@ export class UserService {
         }
       } else {
         try {
-          const hashPassword = await this.hashPassword(userData.password)
+          const hashPassword = await UserService.hashPassword(userData.password)
           const newUser = await this.userRepository.create({...userData, password: hashPassword});
           await this.userRepository.save(newUser);
 
@@ -78,10 +78,10 @@ export class UserService {
 
   }
 
-  async updateUser(id: number, userData: Partial<IUser>): Promise<IUser> {
-    const user = await this.userRepository.findOneOrFail(id);
+  async updateUser(id: number, userData: Partial<IUser>) {
+   /* const user = await this.userRepository.findOneOrFail(id);
     Object.assign(user, userData);
-    return this.userRepository.save(user);
+    return this.userRepository.save(user);*/
   }
 
   async deleteUser(id: number): Promise<void> {
@@ -97,7 +97,7 @@ export class UserService {
     return this.userRepository.findOneBy({ email })
   }
 
-  private async hashPassword(password: string): Promise<string> {
+  private static async hashPassword(password: string): Promise<string> {
     const salt = await bcrypt.genSalt(10)
     return await bcrypt.hash(password, salt);
   }

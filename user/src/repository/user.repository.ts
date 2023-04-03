@@ -8,7 +8,7 @@ export interface IUserCreationAttributes {
     password: string;
 }
 
-export class UserEntity extends Repository<UserEntity> implements IUserCreationAttributes {
+export class UserRepository extends Repository<UserRepository> implements IUserCreationAttributes {
 
     @PrimaryGeneratedColumn()
     id: string;
