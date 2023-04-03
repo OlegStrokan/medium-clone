@@ -39,11 +39,18 @@ describe('UserService', () => {
         userRepository = module.get<UserRepository>(UserRepository)
     });
 
+    describe('getUserByEmail', () => {
+        it('should return a user with status 200 when the user exists', async () => {
+
+            jest.spyOn(userService.userRepository, 'findOneBy').mockResolvedValue(testUser);
+
+            const result: IUser = await userService['getUserByEmail'](testUser.email)
+
+            expect(result).toEqual(testUser);
+        });
+    })
 
     describe('getUserById', () => {
-
-
-
         it('should return a user with status 200 when the user exists', async () => {
 
             jest.spyOn(userService.userRepository, 'findOneBy').mockResolvedValue(testUser);
@@ -73,6 +80,26 @@ describe('UserService', () => {
             expect(result.status).toEqual(HttpStatus.NOT_FOUND)
             expect(result.message).toEqual(MessageEnums.NOT_FOUND)
             expect(result.data).toBeNull()
+        });
+    })
+    describe('createUser', () => {
+        const user: CreateUserDto = {
+            email: "testuser@gmail.com",
+            firstName: "Oleh",
+            lastName: "Strokan",
+            password: "258120Oleg"
+
+        }
+        it('should create a new user if email is not already in use ', async() => {
+            jest.spyOn(userService as any, 'getUserByEmail').mockResolvedValue(null)
+            jest.spyOn(userService.userRepository, 'create').mockReturnValue(testUser)
+            jest.spyOn(userService.userRepository, 'save').mockResolvedValue(testUser)
+
+            const result: UserResponseDto = await userService.createUser(user)
+
+            expect(result.status).toEqual(HttpStatus.CREATED)
+            expect(result.message).toEqual(MessageEnums.CREATED)
+            expect(result.data.email).toBe(testUser.email)
         });
     })
 })

@@ -50,9 +50,7 @@ export class UserService {
         try {
           const hashPassword = await UserService.hashPassword(userData.password)
           const newUser = await this.userRepository.create({...userData, password: hashPassword});
-          await this.userRepository.save(newUser);
-
-          const user = await this.getUserByEmail(userData.email);
+          const user = await this.userRepository.save(newUser);
 
           return {
             status: HttpStatus.CREATED,
