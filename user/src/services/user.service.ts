@@ -7,6 +7,8 @@ import {UserRepository} from "../repository/user.repository";
 import {UserResponseDto} from "../interfaces/response-dtos/user-response.dto";
 import {MessageEnums} from "../interfaces/message-enums/message.enums";
 import {CreateUserDto} from "../interfaces/request-dtos/create-user.dto";
+import {UpdateUserDto} from "../interfaces/request-dtos/update-user.dto";
+import {AllExceptionsFilter} from "./exception.service";
 
 Injectable()
 export class UserService {
@@ -14,6 +16,7 @@ export class UserService {
       @InjectRepository(UserRepository)
       public readonly userRepository: Repository<IUser>,
   ) {}
+
 
   async getUser(id: string): Promise<UserResponseDto> {
     const user = await this.getUserById(id);
@@ -32,10 +35,10 @@ export class UserService {
     }
   }
 
-  async createUser(userData: CreateUserDto): Promise<UserResponseDto> {
+  async createUser(dto: CreateUserDto): Promise<UserResponseDto> {
 
-    if  (userData) {
-      const existingUser = await this.getUserByEmail(userData.email);
+    if  (dto) {
+      const existingUser = await this.getUserByEmail(dto.email);
 
       if (existingUser) {
         return {
@@ -48,8 +51,8 @@ export class UserService {
         }
       } else {
         try {
-          const hashPassword = await UserService.hashPassword(userData.password)
-          const newUser = await this.userRepository.create({...userData, password: hashPassword});
+          const hashPassword = await UserService.hashPassword(dto.password)
+          const newUser = await this.userRepository.create({...dto, password: hashPassword});
           const user = await this.userRepository.save(newUser);
 
           return {
@@ -76,14 +79,55 @@ export class UserService {
 
   }
 
-  async updateUser(id: number, userData: Partial<IUser>) {
-   /* const user = await this.userRepository.findOneOrFail(id);
-    Object.assign(user, userData);
-    return this.userRepository.save(user);*/
+  async updateUser(dto: UpdateUserDto): Promise<UserResponseDto> {
+
+    const user = await this.userRepository.findOneOrFail({ where: { id: dto.id }});
+
+    if (!user) {
+      return {
+        status: HttpStatus.NOT_FOUND,
+        message: MessageEnums.NOT_FOUND,
+        data: null,
+      }
+    } else {
+      try {
+        Object.assign(user, dto);
+        const updatedUser = await this.userRepository.save(user);
+
+        return {
+          status: HttpStatus.CREATED,
+          message: MessageEnums.CREATED,
+          data: updatedUser
+        }
+
+      } catch (e) {
+        return {
+          status: HttpStatus.OK,
+          message: MessageEnums.PRECONDITION_FAILED,
+          data: null,
+        }
+      }
+    }
   }
 
-  async deleteUser(id: number): Promise<void> {
-    await this.userRepository.delete(id);
+  async deleteUser(id: string): Promise<UserResponseDto> {
+
+    const user = this.userRepository.findOneOrFail({ where: { id }})
+
+    if (!user) {
+      return {
+        status: HttpStatus.NOT_FOUND,
+        message: MessageEnums.NOT_FOUND,
+        data: null
+      }
+    }
+      await this.userRepository.delete(id);
+
+    return {
+      status: HttpStatus.NO_CONTENT,
+      message: MessageEnums.NO_CONTENT,
+      data: null
+    }
   }
 
 

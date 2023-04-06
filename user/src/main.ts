@@ -12,6 +12,7 @@ async function bootstrap() {
       },
   );
   app.useGlobalFilters(new AllExceptionsFilter())
+    app.useGlobalPipes(new ValidationPipe());
   await app.listen();
 }
 bootstrap();

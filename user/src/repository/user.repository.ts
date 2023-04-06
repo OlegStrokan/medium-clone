@@ -2,8 +2,8 @@ import {Column, PrimaryGeneratedColumn, Repository} from "typeorm";
 
 
 export interface IUserCreationAttributes {
-    firstName: string;
-    lastName: string;
+    fullName: string;
+    userName: string;
     email: string;
     password: string;
 }
@@ -14,10 +14,10 @@ export class UserRepository extends Repository<UserRepository> implements IUserC
     id: string;
 
     @Column({ nullable: false})
-    firstName: string;
+    fullName: string;
 
     @Column({ nullable: false })
-    lastName: string;
+    userName: string;
 
     @Column({ nullable: false})
     email: string;
