@@ -6,17 +6,18 @@ import {IUser} from "../interfaces/IUser";
 import {UserResponseDto} from "../interfaces/response-dtos/user-response.dto";
 import {HttpStatus} from "@nestjs/common";
 import {MessageEnums} from "../interfaces/message-enums/message.enums";
+import {UpdateUserDto} from "../interfaces/request-dtos/update-user.dto";
 
 describe('UserService', () => {
     let userService: UserService
     let userRepository: UserRepository
 
     const testUser = {
-            id: '20392039',
-            email: 'test@example.com',
-            password: 'password',
-            firstName: 'Oleh',
-            lastName: 'Strokan'
+        id: '20392039',
+        email: 'test@example.com',
+        password: 'password',
+        fullName: "Oleh Strokan",
+        userName: "stroka01",
     }
 
     beforeEach(async () => {
@@ -24,12 +25,13 @@ describe('UserService', () => {
             providers: [
                 UserService,
                 {
-                provide: UserRepository,
+                    provide: UserRepository,
                     useValue: {
                         create: jest.fn(),
                         save: jest.fn(),
                         findOne: jest.fn(),
                         findOneBy: jest.fn(),
+                        findOneOrFail: jest.fn()
                     }
                 }
             ]
@@ -85,12 +87,12 @@ describe('UserService', () => {
     describe('createUser', () => {
         const user: CreateUserDto = {
             email: "testuser@gmail.com",
-            firstName: "Oleh",
-            lastName: "Strokan",
+            fullName: "Oleh Strokan",
+            userName: "stroka01",
             password: "258120Oleg"
 
         }
-        it('should create a new user if email is not already in use ', async() => {
+        it('should create a new user if email is not already in use ', async () => {
             jest.spyOn(userService as any, 'getUserByEmail').mockResolvedValue(null)
             jest.spyOn(userService.userRepository, 'create').mockReturnValue(testUser)
             jest.spyOn(userService.userRepository, 'save').mockResolvedValue(testUser)
@@ -100,6 +102,55 @@ describe('UserService', () => {
             expect(result.status).toEqual(HttpStatus.CREATED)
             expect(result.message).toEqual(MessageEnums.CREATED)
             expect(result.data.email).toBe(testUser.email)
+        });
+    })
+    describe('updateUser', () => {
+
+        const updateUserDto: UpdateUserDto = {
+            id: '1',
+            email: 'test@test.com',
+            fullName: 'Oleh Strokan',
+            userName: 'User',
+        };
+
+        const existingUser = {
+            id: '1',
+            email: 'old@test.com',
+            fullName: 'Olejandro Stroka',
+            userName: 'stroka01',
+        }
+
+        const updatedUser = {
+            id: '1',
+            email: 'test@test.com',
+            fullName: 'Oleh Strokan',
+            userName: 'stroka02',
+        };
+
+        it('should update a user if user already exist', async () => {
+
+            jest.spyOn(userService.userRepository, 'findOneOrFail').mockResolvedValue(existingUser)
+            jest.spyOn(userService.userRepository, 'save').mockResolvedValue(updatedUser)
+
+            const result = await userService.updateUser(updateUserDto);
+
+            expect(result).toEqual({
+                status: HttpStatus.CREATED,
+                message: MessageEnums.CREATED,
+                data: updatedUser,
+            });
+        })
+        it('should return not found error when user not exist',  async () => {
+            jest.spyOn(userService.userRepository, 'findOneOrFail').mockResolvedValue(null)
+            jest.spyOn(userService.userRepository, 'save').mockResolvedValue(updatedUser)
+
+            const result = await userService.updateUser(updateUserDto)
+
+            expect(result).toEqual({
+                status: HttpStatus.NOT_FOUND,
+                message: MessageEnums.NOT_FOUND,
+                data: null
+            })
         });
     })
 })
