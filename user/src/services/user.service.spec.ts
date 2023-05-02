@@ -5,9 +5,9 @@ import {CreateUserDto} from "../interfaces/request-dtos/create-user.dto";
 import {IUser} from "../interfaces/IUser";
 import {UserResponseDto} from "../interfaces/response-dtos/user-response.dto";
 import {HttpStatus} from "@nestjs/common";
-import {MessageEnums} from "../interfaces/message-enums/message.enums";
+import {MessageEnum} from "../interfaces/message-enums/message.enum";
 import {UpdateUserDto} from "../interfaces/request-dtos/update-user.dto";
-import {DeleteResult} from "typeorm";
+import {DeleteResult, EntityNotFoundError} from "typeorm";
 
 describe('UserService', () => {
     let userService: UserService
@@ -75,7 +75,7 @@ describe('UserService', () => {
             const result: UserResponseDto = await userService.getUser(testUser.id)
 
             expect(result.status).toEqual(HttpStatus.OK)
-            expect(result.message).toEqual(MessageEnums.OK)
+            expect(result.message).toEqual(MessageEnum.OK)
             expect(result.data).toEqual(testUser)
         });
         it('should return 404 not found when user does not exist', async () => {
@@ -85,7 +85,7 @@ describe('UserService', () => {
             const result: UserResponseDto = await userService.getUser(testUser.id);
 
             expect(result.status).toEqual(HttpStatus.NOT_FOUND)
-            expect(result.message).toEqual(MessageEnums.NOT_FOUND)
+            expect(result.message).toEqual(MessageEnum.NOT_FOUND)
             expect(result.data).toBeNull()
         });
     })
@@ -106,7 +106,7 @@ describe('UserService', () => {
             const result: UserResponseDto = await userService.createUser(user)
 
             expect(result.status).toEqual(HttpStatus.CREATED)
-            expect(result.message).toEqual(MessageEnums.CREATED)
+            expect(result.message).toEqual(MessageEnum.CREATED)
             expect(result.data.email).toBe(testUser.email)
         });
     })
@@ -143,7 +143,7 @@ describe('UserService', () => {
 
             expect(result).toEqual({
                 status: HttpStatus.CREATED,
-                message: MessageEnums.CREATED,
+                message: MessageEnum.CREATED,
                 data: updatedUser,
             });
         })
@@ -155,7 +155,7 @@ describe('UserService', () => {
 
             expect(result).toEqual({
                 status: HttpStatus.NOT_FOUND,
-                message: MessageEnums.NOT_FOUND,
+                message: MessageEnum.NOT_FOUND,
                 data: null
             })
         });
@@ -177,23 +177,56 @@ describe('UserService', () => {
 
             expect(result).toEqual({
                 status: HttpStatus.NO_CONTENT,
-                message: MessageEnums.NO_CONTENT,
+                message: MessageEnum.NO_CONTENT,
                 data: null
             })
         });
 
         it('should return not found error', async () => {
             jest.spyOn(userService.userRepository, 'findOneOrFail').mockResolvedValue(null)
+            jest.spyOn(userService.userRepository, 'delete').mockResolvedValue({ affected: 1 } as DeleteResult)
 
 
             const result = await userService.deleteUser(existingUser.id)
 
             expect(result).toEqual({
                 status: HttpStatus.NOT_FOUND,
-                message: MessageEnums.NOT_FOUND,
+                message: MessageEnum.NOT_FOUND,
                 data: null
             })
         });
-
     })
+
+    describe('deleteUser', () => {
+        const id = '123';
+
+        it('should delete user and return NO_CONTENT status', async () => {
+            const deleteSpy = jest.spyOn(userService.userRepository, 'delete').mockResolvedValue(undefined);
+            const findOneOrFailSpy = jest.spyOn(userService.userRepository, 'findOneOrFail').mockRejectedValue(new Error());
+
+            const result = await userService.deleteUser(id);
+
+            expect(findOneOrFailSpy).toHaveBeenCalledWith({ where: { id }});
+            expect(deleteSpy).toHaveBeenCalledWith(id);
+            expect(result).toEqual({
+                status: HttpStatus.NO_CONTENT,
+                message: MessageEnum.NO_CONTENT,
+                data: null
+            });
+        });
+
+        it('should return NOT_FOUND status when user is not found', async () => {
+            const findOneOrFailSpy = jest.spyOn(userService.userRepository, 'findOneOrFail').mockRejectedValue(new Error());
+
+            const result = await userService.deleteUser(id);
+
+            expect(findOneOrFailSpy).toHaveBeenCalledWith({ where: { id }});
+            expect(result).toEqual({
+                status: HttpStatus.NOT_FOUND,
+                message: MessageEnum.NOT_FOUND,
+                data: null
+            });
+        });
+    });
+
 })

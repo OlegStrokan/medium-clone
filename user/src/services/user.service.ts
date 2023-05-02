@@ -5,9 +5,10 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {UserRepository} from "../repository/user.repository";
 import {UserResponseDto} from "../interfaces/response-dtos/user-response.dto";
-import {MessageEnums} from "../interfaces/message-enums/message.enums";
+import {MessageEnum} from "../interfaces/message-enums/message.enum";
 import {CreateUserDto} from "../interfaces/request-dtos/create-user.dto";
 import {UpdateUserDto} from "../interfaces/request-dtos/update-user.dto";
+import {UsersResponseDto} from "../interfaces/response-dtos/users-response.dto";
 
 Injectable()
 export class UserService {
@@ -23,22 +24,41 @@ export class UserService {
       if (!user) {
         return {
           status: HttpStatus.NOT_FOUND,
-          message: MessageEnums.NOT_FOUND,
+          message: MessageEnum.NOT_FOUND,
           data: null,
         }
       }
 
       return {
         status: HttpStatus.OK,
-        message: MessageEnums.OK,
+        message: MessageEnum.OK,
         data: user
       }
     }
     catch (e) {
         return {
           status: HttpStatus.PRECONDITION_FAILED,
-          message: MessageEnums.PRECONDITION_FAILED,
+          message: MessageEnum.PRECONDITION_FAILED,
           data: null
+      }
+    }
+  }
+
+
+  async getUsers(): Promise<UsersResponseDto> {
+    try {
+      const users = await this.userRepository.find();
+
+      return {
+        status: HttpStatus.OK,
+        message: MessageEnum.OK,
+        data: users
+      }
+    } catch (e) {
+      return {
+        status: HttpStatus.PRECONDITION_FAILED,
+        message: MessageEnum.PRECONDITION_FAILED,
+        data: null
       }
     }
   }
@@ -51,7 +71,7 @@ export class UserService {
       if (existingUser) {
         return {
           status: HttpStatus.CONFLICT,
-          message: MessageEnums.CONFLICT,
+          message: MessageEnum.CONFLICT,
           data: null,
           errors: {
             message: 'User with this email already exist'
@@ -65,14 +85,14 @@ export class UserService {
 
           return {
             status: HttpStatus.CREATED,
-            message: MessageEnums.CREATED,
+            message: MessageEnum.CREATED,
             data: user
           }
 
         } catch (error) {
           return {
             status: HttpStatus.PRECONDITION_FAILED,
-            message: MessageEnums.PRECONDITION_FAILED,
+            message: MessageEnum.PRECONDITION_FAILED,
             data: null,
           }
         }
@@ -80,7 +100,7 @@ export class UserService {
     } else {
       return {
         status: HttpStatus.NOT_FOUND,
-        message: MessageEnums.NOT_FOUND,
+        message: MessageEnum.NOT_FOUND,
         data: null
       }
     }
@@ -94,7 +114,7 @@ export class UserService {
     if (!user) {
       return {
         status: HttpStatus.NOT_FOUND,
-        message: MessageEnums.NOT_FOUND,
+        message: MessageEnum.NOT_FOUND,
         data: null,
       }
     } else {
@@ -104,14 +124,14 @@ export class UserService {
 
         return {
           status: HttpStatus.CREATED,
-          message: MessageEnums.CREATED,
+          message: MessageEnum.CREATED,
           data: updatedUser
         }
 
       } catch (e) {
         return {
           status: HttpStatus.PRECONDITION_FAILED,
-          message: MessageEnums.PRECONDITION_FAILED,
+          message: MessageEnum.PRECONDITION_FAILED,
           data: null,
         }
       }
@@ -122,10 +142,10 @@ export class UserService {
 
     const user = this.userRepository.findOneOrFail({where: {id}})
 
-    if (user) {
+    if (!user) {
       return {
         status: HttpStatus.NOT_FOUND,
-        message: MessageEnums.NOT_FOUND,
+        message: MessageEnum.NOT_FOUND,
         data: null
       }
     }
@@ -134,7 +154,7 @@ export class UserService {
 
       return {
         status: HttpStatus.NO_CONTENT,
-        message: MessageEnums.NO_CONTENT,
+        message: MessageEnum.NO_CONTENT,
         data: null
       }
   }

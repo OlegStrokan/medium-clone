@@ -1,4 +1,4 @@
-export enum MessageEnums {
+export enum MessageEnum {
     'NOT_FOUND' = 'user_search_not_found',
     'NO_CONTENT' = 'user_delete_success',
     'OK' = 'user_search_ok',
