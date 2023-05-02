@@ -6,6 +6,7 @@ import {CreateUserDto} from "./interfaces/request-dtos/create-user.dto";
 import {UpdateUserDto} from "./interfaces/request-dtos/update-user.dto";
 import {MessagePattern} from "@nestjs/microservices";
 import {MessagePatternEnum} from "./interfaces/message-enums/message-pattern.enum";
+import {UsersResponseDto} from "./interfaces/response-dtos/users-response.dto";
 
 @Controller('users')
 export class UserController {
@@ -18,8 +19,8 @@ export class UserController {
   }
 
   @MessagePattern(MessagePatternEnum.GET_USERS)
-  async getUsers(id: string): Promise<UserResponseDto> {
-    return this.userService.getUser(id);
+  async getUsers(): Promise<UsersResponseDto> {
+    return this.userService.getUsers();
   }
 
   @MessagePattern(MessagePatternEnum.CREATE_USER)

@@ -67,6 +67,17 @@ describe('UserService', () => {
         });
     })
 
+    describe('getUserByEmail', () => {
+        it('should return a user with status 200 when the user exists', async () => {
+
+            jest.spyOn(userService.userRepository, 'findOneBy').mockResolvedValue(testUser)
+
+            const result: IUser = await userService['getUserByEmail'](testUser.email)
+
+            expect(result).toEqual(testUser)
+        })
+    })
+
     describe('getUser', () => {
         it('should return user with status OK when user exists', async () => {
 
@@ -92,7 +103,7 @@ describe('UserService', () => {
 
     describe('createUser', () => {
         const user: CreateUserDto = {
-            email: "",
+            email: "oleh@gmail.com",
             fullName: "Oleh Strokan",
             userName: "stroka01",
             password: "258120Oleg"
@@ -147,7 +158,7 @@ describe('UserService', () => {
                 data: updatedUser,
             });
         })
-        it('should return not found error when user not exist',  async () => {
+        it('should return not found error when user not exist', async () => {
             jest.spyOn(userService.userRepository, 'findOneOrFail').mockResolvedValue(null)
             jest.spyOn(userService.userRepository, 'save').mockResolvedValue(updatedUser)
 
@@ -171,7 +182,7 @@ describe('UserService', () => {
 
         it('should delete user if user exist', async () => {
             jest.spyOn(userService.userRepository, 'findOneOrFail').mockResolvedValue(existingUser)
-            jest.spyOn(userService.userRepository, 'delete').mockResolvedValue({ affected: 1 } as DeleteResult)
+            jest.spyOn(userService.userRepository, 'delete').mockResolvedValue({affected: 1} as DeleteResult)
 
             const result = await userService.deleteUser(existingUser.id)
 
@@ -184,7 +195,7 @@ describe('UserService', () => {
 
         it('should return not found error', async () => {
             jest.spyOn(userService.userRepository, 'findOneOrFail').mockResolvedValue(null)
-            jest.spyOn(userService.userRepository, 'delete').mockResolvedValue({ affected: 1 } as DeleteResult)
+            jest.spyOn(userService.userRepository, 'delete').mockResolvedValue({affected: 1} as DeleteResult)
 
 
             const result = await userService.deleteUser(existingUser.id)
@@ -206,7 +217,7 @@ describe('UserService', () => {
 
             const result = await userService.deleteUser(id);
 
-            expect(findOneOrFailSpy).toHaveBeenCalledWith({ where: { id }});
+            expect(findOneOrFailSpy).toHaveBeenCalledWith({where: {id}});
             expect(deleteSpy).toHaveBeenCalledWith(id);
             expect(result).toEqual({
                 status: HttpStatus.NO_CONTENT,
@@ -220,7 +231,7 @@ describe('UserService', () => {
 
             const result = await userService.deleteUser(id);
 
-            expect(findOneOrFailSpy).toHaveBeenCalledWith({ where: { id }});
+            expect(findOneOrFailSpy).toHaveBeenCalledWith({where: {id}});
             expect(result).toEqual({
                 status: HttpStatus.NOT_FOUND,
                 message: MessageEnum.NOT_FOUND,

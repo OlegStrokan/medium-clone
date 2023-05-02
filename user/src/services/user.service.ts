@@ -17,7 +17,6 @@ export class UserService {
       public readonly userRepository: Repository<IUser>,
   ) {}
 
-
   async getUser(id: string): Promise<UserResponseDto> {
     try {
       const user = await this.getUserById(id);
@@ -43,7 +42,6 @@ export class UserService {
       }
     }
   }
-
 
   async getUsers(): Promise<UsersResponseDto> {
     try {
@@ -158,7 +156,6 @@ export class UserService {
         data: null
       }
   }
-
 
   private async getUserById(id: string): Promise<IUser>  {
     return this.userRepository.findOneBy({ id })
