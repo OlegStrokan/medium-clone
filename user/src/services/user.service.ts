@@ -8,7 +8,6 @@ import {UserResponseDto} from "../interfaces/response-dtos/user-response.dto";
 import {MessageEnums} from "../interfaces/message-enums/message.enums";
 import {CreateUserDto} from "../interfaces/request-dtos/create-user.dto";
 import {UpdateUserDto} from "../interfaces/request-dtos/update-user.dto";
-import {AllExceptionsFilter} from "./exception.service";
 
 Injectable()
 export class UserService {
@@ -19,18 +18,27 @@ export class UserService {
 
 
   async getUser(id: string): Promise<UserResponseDto> {
-    const user = await this.getUserById(id);
-    if (!user) {
-      return {
-        status: HttpStatus.NOT_FOUND,
-        message: MessageEnums.NOT_FOUND,
-        data: null,
+    try {
+      const user = await this.getUserById(id);
+      if (!user) {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          message: MessageEnums.NOT_FOUND,
+          data: null,
+        }
       }
-    } else {
+
       return {
         status: HttpStatus.OK,
         message: MessageEnums.OK,
         data: user
+      }
+    }
+    catch (e) {
+        return {
+          status: HttpStatus.PRECONDITION_FAILED,
+          message: MessageEnums.PRECONDITION_FAILED,
+          data: null
       }
     }
   }
@@ -71,8 +79,8 @@ export class UserService {
       }
     } else {
       return {
-        status: HttpStatus.BAD_REQUEST,
-        message: MessageEnums.BAD_REQUEST,
+        status: HttpStatus.NOT_FOUND,
+        message: MessageEnums.NOT_FOUND,
         data: null
       }
     }
@@ -102,7 +110,7 @@ export class UserService {
 
       } catch (e) {
         return {
-          status: HttpStatus.OK,
+          status: HttpStatus.PRECONDITION_FAILED,
           message: MessageEnums.PRECONDITION_FAILED,
           data: null,
         }
@@ -112,22 +120,23 @@ export class UserService {
 
   async deleteUser(id: string): Promise<UserResponseDto> {
 
-    const user = this.userRepository.findOneOrFail({ where: { id }})
+    const user = this.userRepository.findOneOrFail({where: {id}})
 
-    if (!user) {
+    if (user) {
       return {
         status: HttpStatus.NOT_FOUND,
         message: MessageEnums.NOT_FOUND,
         data: null
       }
     }
+
       await this.userRepository.delete(id);
 
-    return {
-      status: HttpStatus.NO_CONTENT,
-      message: MessageEnums.NO_CONTENT,
-      data: null
-    }
+      return {
+        status: HttpStatus.NO_CONTENT,
+        message: MessageEnums.NO_CONTENT,
+        data: null
+      }
   }
 
 
