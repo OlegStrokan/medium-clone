@@ -7,6 +7,7 @@ import {UserResponseDto} from "../interfaces/response-dtos/user-response.dto";
 import {HttpStatus} from "@nestjs/common";
 import {MessageEnums} from "../interfaces/message-enums/message.enums";
 import {UpdateUserDto} from "../interfaces/request-dtos/update-user.dto";
+import {DeleteResult} from "typeorm";
 
 describe('UserService', () => {
     let userService: UserService
@@ -15,10 +16,11 @@ describe('UserService', () => {
     const testUser = {
         id: '20392039',
         email: 'test@example.com',
-        password: 'password',
+        password: 'pas099sword',
         fullName: "Oleh Strokan",
         userName: "stroka01",
     }
+
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
@@ -29,6 +31,7 @@ describe('UserService', () => {
                     useValue: {
                         create: jest.fn(),
                         save: jest.fn(),
+                        delete: jest.fn(),
                         findOne: jest.fn(),
                         findOneBy: jest.fn(),
                         findOneOrFail: jest.fn()
@@ -40,6 +43,7 @@ describe('UserService', () => {
         userService = module.get<UserService>(UserService)
         userRepository = module.get<UserRepository>(UserRepository)
     });
+
 
     describe('getUserByEmail', () => {
         it('should return a user with status 200 when the user exists', async () => {
@@ -62,6 +66,7 @@ describe('UserService', () => {
             expect(result).toEqual(testUser);
         });
     })
+
     describe('getUser', () => {
         it('should return user with status OK when user exists', async () => {
 
@@ -84,9 +89,10 @@ describe('UserService', () => {
             expect(result.data).toBeNull()
         });
     })
+
     describe('createUser', () => {
         const user: CreateUserDto = {
-            email: "testuser@gmail.com",
+            email: "",
             fullName: "Oleh Strokan",
             userName: "stroka01",
             password: "258120Oleg"
@@ -104,6 +110,7 @@ describe('UserService', () => {
             expect(result.data.email).toBe(testUser.email)
         });
     })
+
     describe('updateUser', () => {
 
         const updateUserDto: UpdateUserDto = {
@@ -152,5 +159,41 @@ describe('UserService', () => {
                 data: null
             })
         });
+    })
+
+    describe('deleteUser', () => {
+        const existingUser = {
+            id: '1',
+            email: 'old@test.com',
+            fullName: 'Olejandro Stroka',
+            userName: 'stroka01',
+        }
+
+        it('should delete user if user exist', async () => {
+            jest.spyOn(userService.userRepository, 'findOneOrFail').mockResolvedValue(existingUser)
+            jest.spyOn(userService.userRepository, 'delete').mockResolvedValue({ affected: 1 } as DeleteResult)
+
+            const result = await userService.deleteUser(existingUser.id)
+
+            expect(result).toEqual({
+                status: HttpStatus.NO_CONTENT,
+                message: MessageEnums.NO_CONTENT,
+                data: null
+            })
+        });
+
+        it('should return not found error', async () => {
+            jest.spyOn(userService.userRepository, 'findOneOrFail').mockResolvedValue(null)
+
+
+            const result = await userService.deleteUser(existingUser.id)
+
+            expect(result).toEqual({
+                status: HttpStatus.NOT_FOUND,
+                message: MessageEnums.NOT_FOUND,
+                data: null
+            })
+        });
+
     })
 })
