@@ -1,5 +1,5 @@
 import {UserService} from "./user.service";
-import {UserRepository} from "../repository/user.repository";
+import {UserEntity} from "../repository/user.entity";
 import {TestingModule, Test} from "@nestjs/testing";
 import {CreateUserDto} from "../interfaces/request-dtos/create-user.dto";
 import {IUser} from "../interfaces/IUser";
@@ -11,7 +11,7 @@ import {DeleteResult, EntityNotFoundError} from "typeorm";
 
 describe('UserService', () => {
     let userService: UserService
-    let userRepository: UserRepository
+    let userRepository: UserEntity
 
     const testUser = {
         id: '20392039',
@@ -27,7 +27,7 @@ describe('UserService', () => {
             providers: [
                 UserService,
                 {
-                    provide: UserRepository,
+                    provide: UserEntity,
                     useValue: {
                         create: jest.fn(),
                         save: jest.fn(),
@@ -41,7 +41,7 @@ describe('UserService', () => {
         }).compile()
 
         userService = module.get<UserService>(UserService)
-        userRepository = module.get<UserRepository>(UserRepository)
+        userRepository = module.get<UserEntity>(UserEntity)
     });
 
 

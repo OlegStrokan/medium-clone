@@ -3,7 +3,7 @@ import * as bcrypt from 'bcrypt';
 import {IUser} from "../interfaces/IUser";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
-import {UserRepository} from "../repository/user.repository";
+import {UserEntity} from "../repository/user.entity";
 import {UserResponseDto} from "../interfaces/response-dtos/user-response.dto";
 import {MessageEnum} from "../interfaces/message-enums/message.enum";
 import {CreateUserDto} from "../interfaces/request-dtos/create-user.dto";
@@ -13,8 +13,8 @@ import {UsersResponseDto} from "../interfaces/response-dtos/users-response.dto";
 Injectable()
 export class UserService {
   constructor(
-      @InjectRepository(UserRepository)
-      public readonly userRepository: Repository<IUser>,
+      @InjectRepository(UserEntity)
+      public readonly userRepository: Repository<UserEntity>,
   ) {}
 
   async getUser(id: string): Promise<UserResponseDto> {

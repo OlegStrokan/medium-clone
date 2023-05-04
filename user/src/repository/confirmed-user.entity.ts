@@ -1,6 +1,6 @@
 import {Column, PrimaryGeneratedColumn, Repository} from "typeorm";
 
-export class ConfirmedUserRepository extends Repository<ConfirmedUserRepository> {
+export class ConfirmedUserEntity extends Repository<ConfirmedUserEntity> {
     @PrimaryGeneratedColumn( )
     id: string;
 

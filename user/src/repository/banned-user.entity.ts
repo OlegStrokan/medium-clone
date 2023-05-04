@@ -1,6 +1,6 @@
 import {Column, PrimaryGeneratedColumn, Repository} from "typeorm";
 
-export class BannedUserRepository extends Repository<BannedUserRepository> {
+export class BannedUserEntity extends Repository<BannedUserEntity> {
     @PrimaryGeneratedColumn( )
     id: string;
 
