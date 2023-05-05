@@ -13,27 +13,27 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
 
-  @MessagePattern(MessagePatternEnum.GET_USER)
+  @MessagePattern(MessagePatternEnum.USER_GET_BY_ID)
   async getUser(id: string): Promise<UserResponseDto> {
     return this.userService.getUser(id);
   }
 
-  @MessagePattern(MessagePatternEnum.GET_USERS)
+  @MessagePattern(MessagePatternEnum.USER_GET)
   async getUsers(): Promise<UsersResponseDto> {
     return this.userService.getUsers();
   }
 
-  @MessagePattern(MessagePatternEnum.CREATE_USER)
+  @MessagePattern(MessagePatternEnum.USER_CREATE)
   async createUser(@Body() userData: CreateUserDto): Promise<UserResponseDto> {
     return this.userService.createUser(userData);
   }
 
-  @MessagePattern(MessagePatternEnum.UPDATE_USER)
+  @MessagePattern(MessagePatternEnum.USER_UPDATE)
   async updateUser(userData: UpdateUserDto): Promise<UserResponseDto> {
     return this.userService.updateUser(userData);
   }
 
-  @MessagePattern(MessagePatternEnum.DELETE_USER)
+  @MessagePattern(MessagePatternEnum.USER_DELETE)
   async deleteUser(id: string): Promise<UserResponseDto> {
     return this.userService.deleteUser(id);
   }

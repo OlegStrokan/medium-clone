@@ -2,7 +2,7 @@ import {HttpStatus, Injectable} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import {IUser} from "../interfaces/IUser";
 import {InjectRepository} from "@nestjs/typeorm";
-import {Repository} from "typeorm";
+import {EntityNotFoundError, Repository} from "typeorm";
 import {UserEntity} from "../repository/user.entity";
 import {UserResponseDto} from "../interfaces/response-dtos/user-response.dto";
 import {MessageEnum} from "../interfaces/message-enums/message.enum";
@@ -14,12 +14,14 @@ Injectable()
 export class UserService {
   constructor(
       @InjectRepository(UserEntity)
-      public readonly userRepository: Repository<UserEntity>,
+      public readonly userRepository: Repository<UserEntity>
   ) {}
 
   async getUser(id: string): Promise<UserResponseDto> {
+
+
     try {
-      const user = await this.getUserById(id);
+      const user = await this.userRepository.findOneBy({id});
       if (!user) {
         return {
           status: HttpStatus.NOT_FOUND,
@@ -35,16 +37,27 @@ export class UserService {
       }
     }
     catch (e) {
+      console.log(e)
+      if (e instanceof EntityNotFoundError) {
         return {
-          status: HttpStatus.PRECONDITION_FAILED,
-          message: MessageEnum.PRECONDITION_FAILED,
-          data: null
+          status: HttpStatus.NOT_FOUND,
+          message: MessageEnum.NOT_FOUND,
+          data: null,
+        };
       }
+
+      return {
+        status: HttpStatus.PRECONDITION_FAILED,
+        message: MessageEnum.PRECONDITION_FAILED,
+        data: e,
+      };
     }
   }
 
   async getUsers(): Promise<UsersResponseDto> {
+
     try {
+      console.log(this.userRepository)
       const users = await this.userRepository.find();
 
       return {
@@ -64,7 +77,7 @@ export class UserService {
   async createUser(dto: CreateUserDto): Promise<UserResponseDto> {
 
     if  (dto) {
-      const existingUser = await this.getUserByEmail(dto.email);
+      const existingUser = await this.searchUserHelper(dto.email, dto);
 
       if (existingUser) {
         return {
@@ -157,12 +170,8 @@ export class UserService {
       }
   }
 
-  private async getUserById(id: string): Promise<IUser>  {
-    return this.userRepository.findOneBy({ id })
-  }
-
-  private async getUserByEmail(email: string): Promise<IUser>  {
-    return this.userRepository.findOneBy({ email })
+  private async searchUserHelper(value, dto): Promise<IUser> {
+    return await this.userRepository.findOneBy({[value]: dto[value]})
   }
 
   private static async hashPassword(password: string): Promise<string> {
@@ -171,7 +180,7 @@ export class UserService {
   }
 
   private async validateUser(email: string, password: string): Promise<IUser> {
-    const user = await this.getUserByEmail(email);
+    const user = await this.searchUserHelper(email, email);
 
     if  (user && await bcrypt.compare(password, user.password)) {
       return user

@@ -1,4 +1,4 @@
-import {Column, PrimaryGeneratedColumn, Repository} from "typeorm";
+import {Column, Entity, PrimaryGeneratedColumn, Repository} from "typeorm";
 
 
 export interface IUserCreationAttributes {
@@ -8,6 +8,7 @@ export interface IUserCreationAttributes {
     password: string;
 }
 
+@Entity('users')
 export class UserEntity extends Repository<UserEntity> implements IUserCreationAttributes {
 
     @PrimaryGeneratedColumn()

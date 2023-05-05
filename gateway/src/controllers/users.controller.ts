@@ -1,8 +1,11 @@
-import {Controller, Get, Inject, Param, Post} from "@nestjs/common";
+import {Body, Controller, Get, Inject, Param, Post} from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
 import {firstValueFrom} from "rxjs";
-import {IGetUserResponse} from "../interfaces/user/IGetUserResponse";
-import {IGetUsersResponse} from "../interfaces/user/IGetUsersResponse";
+import {MessagePatternEnum} from "../interfaces/user/message-pattern.enum";
+import {IUser} from "../interfaces/user/IUser";
+import {IGetItemResponse} from "../interfaces/user/response/IGetItemResponse";
+import {IGetItemServiceResponse} from "../interfaces/user/service-response/IGetItemServiceResponse";
+import {CreateUserDto} from "../interfaces/user/dto/create-user.dto";
 
 
 @Controller('users')
@@ -13,30 +16,39 @@ export class UsersController {
 
 
     @Get('/:id')
-    public async getUser(@Param('id') id: string): Promise<IGetUserResponse> {
-        const userResponse: IGetUserResponse = await firstValueFrom(
-            this.userServiceClient.send('get_user_by_id', id)
+    public async getUser(@Param('id') id: string): Promise<IGetItemResponse<IUser>> {
+        const userResponse: IGetItemServiceResponse<IUser> = await firstValueFrom(
+            this.userServiceClient.send(MessagePatternEnum.USER_GET_BY_ID, id)
         )
-
+            console.log(userResponse)
         return {
-            status: userResponse.status,
-            message: userResponse.message,
             data: userResponse.data,
-            errors: null
+            errors: userResponse.errors
         }
     }
 
     @Get("")
-    public async getUsers(): Promise<IGetUsersResponse> {
-        const userResponse: IGetUsersResponse = await firstValueFrom(
-            this.userServiceClient.send('get_users', null)
+    public async getUsers(): Promise<IGetItemResponse<IUser[]>> {
+        const userResponse: IGetItemServiceResponse<IUser[]> = await firstValueFrom(
+            this.userServiceClient.send(MessagePatternEnum.USER_GET, 'test')
+        )
+        console.log(userResponse)
+
+        return {
+            data: userResponse.data,
+            errors: userResponse.errors
+        }
+    }
+
+    @Post("")
+    public async createUser(@Body() dto: CreateUserDto): Promise<IGetItemResponse<IUser>> {
+        const userResponse: IGetItemServiceResponse<IUser> = await firstValueFrom(
+            this.userServiceClient.send(MessagePatternEnum.USER_CREATE, dto)
         )
 
         return {
-            status: userResponse.status,
-            message: userResponse.message,
             data: userResponse.data,
-            errors: null
+            errors: userResponse.errors
         }
     }
 

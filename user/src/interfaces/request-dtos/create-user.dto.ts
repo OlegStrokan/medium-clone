@@ -1,6 +1,7 @@
 import {IsNotEmpty, IsString, Length} from "class-validator";
 
 export class CreateUserDto {
+    // TODO - update validation
     @IsString({ message: 'Full name must be a string' })
     @IsNotEmpty({ message: 'Full name can\'t be empty'})
     fullName: string;

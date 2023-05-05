@@ -8,6 +8,7 @@ import {BannedUserEntity} from "./repository/banned-user.entity";
 
 @Module({
   imports: [
+      TypeOrmModule.forFeature([UserEntity, ConfirmedUserEntity, BannedUserEntity]),
     TypeOrmModule.forRoot({
       type: "postgres",
       host: 'localhost',
@@ -23,6 +24,6 @@ import {BannedUserEntity} from "./repository/banned-user.entity";
     }),
   ],
   controllers: [UserController],
-  providers: [UserService, UserEntity, ConfirmedUserEntity, BannedUserEntity],
+  providers: [UserService],
 })
 export class UserModule {}

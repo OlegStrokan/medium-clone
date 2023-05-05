@@ -1,7 +1,7 @@
 export enum MessagePatternEnum {
-    'GET_USERS' = 'get_users',
-    'GET_USER' = 'get_user_by_id',
-    'CREATE_USER' = 'MESSAGE_CREATE_USER',
-    'UPDATE_USER' = 'MESSAGE_UPDATE_USER',
-    'DELETE_USER' = 'MESSAGE_DELETE_USER',
+    'USER_GET' = 'user_get',
+    'USER_GET_BY_ID' = 'user_get_by_id',
+    'USER_CREATE' = 'user_create',
+    'USER_UPDATE' = 'user_update',
+    'USER_DELETE' = 'user_delete',
 }
