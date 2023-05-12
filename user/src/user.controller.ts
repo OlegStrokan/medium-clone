@@ -1,6 +1,5 @@
-import {Body, Controller, Get, Param} from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { UserService } from './services/user.service';
-import {IUser} from "./interfaces/IUser";
 import {UserResponseDto} from "./interfaces/response-dtos/user-response.dto";
 import {CreateUserDto} from "./interfaces/request-dtos/create-user.dto";
 import {UpdateUserDto} from "./interfaces/request-dtos/update-user.dto";
@@ -24,7 +23,7 @@ export class UserController {
   }
 
   @MessagePattern(MessagePatternEnum.USER_CREATE)
-  async createUser(@Body() userData: CreateUserDto): Promise<UserResponseDto> {
+  async createUser(userData: CreateUserDto): Promise<UserResponseDto> {
     return this.userService.createUser(userData);
   }
 

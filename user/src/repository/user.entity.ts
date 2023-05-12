@@ -1,3 +1,4 @@
+import { Transform } from "class-transformer";
 import {Column, Entity, PrimaryGeneratedColumn, Repository} from "typeorm";
 
 
@@ -23,6 +24,7 @@ export class UserEntity extends Repository<UserEntity> implements IUserCreationA
     @Column({ nullable: false})
     email: string;
 
+    @Transform(({ value }) => value.trim())
     @Column({ nullable: false})
     password: string;
 

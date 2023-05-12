@@ -15,13 +15,14 @@ export class UserService {
   constructor(
       @InjectRepository(UserEntity)
       public readonly userRepository: Repository<UserEntity>
-  ) {}
+  ) {
+  }
 
   async getUser(id: string): Promise<UserResponseDto> {
 
 
     try {
-      const user = await this.userRepository.findOneBy({id});
+      const user = await this.searchUserHelper(id, 'id');
       if (!user) {
         return {
           status: HttpStatus.NOT_FOUND,
@@ -35,17 +36,7 @@ export class UserService {
         message: MessageEnum.OK,
         data: user
       }
-    }
-    catch (e) {
-      console.log(e)
-      if (e instanceof EntityNotFoundError) {
-        return {
-          status: HttpStatus.NOT_FOUND,
-          message: MessageEnum.NOT_FOUND,
-          data: null,
-        };
-      }
-
+    } catch (e) {
       return {
         status: HttpStatus.PRECONDITION_FAILED,
         message: MessageEnum.PRECONDITION_FAILED,
@@ -57,7 +48,6 @@ export class UserService {
   async getUsers(): Promise<UsersResponseDto> {
 
     try {
-      console.log(this.userRepository)
       const users = await this.userRepository.find();
 
       return {
@@ -75,46 +65,36 @@ export class UserService {
   }
 
   async createUser(dto: CreateUserDto): Promise<UserResponseDto> {
+    const existingUser = await this.searchUserHelper(dto.email, 'email');
 
-    if  (dto) {
-      const existingUser = await this.searchUserHelper(dto.email, dto);
-
-      if (existingUser) {
-        return {
-          status: HttpStatus.CONFLICT,
-          message: MessageEnum.CONFLICT,
-          data: null,
-          errors: {
-            message: 'User with this email already exist'
-          }
-        }
-      } else {
-        try {
-          const hashPassword = await UserService.hashPassword(dto.password)
-          const newUser = await this.userRepository.create({...dto, password: hashPassword});
-          const user = await this.userRepository.save(newUser);
-
-          return {
-            status: HttpStatus.CREATED,
-            message: MessageEnum.CREATED,
-            data: user
-          }
-
-        } catch (error) {
-          return {
-            status: HttpStatus.PRECONDITION_FAILED,
-            message: MessageEnum.PRECONDITION_FAILED,
-            data: null,
-          }
-        }
-      }
-    } else {
+    if (existingUser) {
       return {
-        status: HttpStatus.NOT_FOUND,
-        message: MessageEnum.NOT_FOUND,
-        data: null
+        status: HttpStatus.CONFLICT,
+        message: MessageEnum.CONFLICT,
+        data: null,
+        errors: {
+          message: 'User with this email already exist'
+        }
       }
     }
+      try {
+        const hashPassword = await UserService.hashPassword(dto.password)
+        const newUser = await this.userRepository.create({...dto, password: hashPassword});
+        const user = await this.userRepository.save(newUser);
+
+        return {
+          status: HttpStatus.CREATED,
+          message: MessageEnum.CREATED,
+          data: user
+        }
+
+      } catch (error) {
+        return {
+          status: HttpStatus.PRECONDITION_FAILED,
+          message: MessageEnum.PRECONDITION_FAILED,
+          data: null,
+        }
+      }
 
   }
 
@@ -170,8 +150,8 @@ export class UserService {
       }
   }
 
-  private async searchUserHelper(value, dto): Promise<IUser> {
-    return await this.userRepository.findOneBy({[value]: dto[value]})
+  private async searchUserHelper(dto, value): Promise<IUser> {
+    return await this.userRepository.findOneBy({[value]: dto})
   }
 
   private static async hashPassword(password: string): Promise<string> {
@@ -180,7 +160,7 @@ export class UserService {
   }
 
   private async validateUser(email: string, password: string): Promise<IUser> {
-    const user = await this.searchUserHelper(email, email);
+    const user = await this.searchUserHelper(email, 'email');
 
     if  (user && await bcrypt.compare(password, user.password)) {
       return user

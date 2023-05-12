@@ -14,13 +14,11 @@ export class UsersController {
         @Inject('user_service') private readonly userServiceClient: ClientProxy
     ) {}
 
-
     @Get('/:id')
     public async getUser(@Param('id') id: string): Promise<IGetItemResponse<IUser>> {
         const userResponse: IGetItemServiceResponse<IUser> = await firstValueFrom(
             this.userServiceClient.send(MessagePatternEnum.USER_GET_BY_ID, id)
         )
-            console.log(userResponse)
         return {
             data: userResponse.data,
             errors: userResponse.errors
@@ -32,7 +30,6 @@ export class UsersController {
         const userResponse: IGetItemServiceResponse<IUser[]> = await firstValueFrom(
             this.userServiceClient.send(MessagePatternEnum.USER_GET, 'test')
         )
-        console.log(userResponse)
 
         return {
             data: userResponse.data,
@@ -51,5 +48,4 @@ export class UsersController {
             errors: userResponse.errors
         }
     }
-
 }
