@@ -73,7 +73,7 @@ export class UserService {
         message: MessageEnum.CONFLICT,
         data: null,
         errors: {
-          message: 'User with this email already exist'
+          messages: ['User with this email already exist']
         }
       }
     }
