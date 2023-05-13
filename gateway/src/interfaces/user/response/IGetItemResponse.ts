@@ -1,4 +1,6 @@
+import {IError} from "../IError";
+
 export interface IGetItemResponse<T> {
     data: T | null,
-    errors: { [key: string]: any};
+    errors: IError
 }
