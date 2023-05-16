@@ -1,6 +1,5 @@
 import {NestFactory} from '@nestjs/core';
-import {Transport, MicroserviceOptions, RmqOptions} from '@nestjs/microservices';
-import {AllExceptionsFilter} from "./services/exception.service";
+import {Transport, MicroserviceOptions } from '@nestjs/microservices';
 import {ValidationPipe} from "@nestjs/common";
 import {UserModule} from "./user.module";
 

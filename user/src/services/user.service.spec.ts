@@ -2,12 +2,11 @@ import {UserService} from "./user.service";
 import {UserEntity} from "../repository/user.entity";
 import {TestingModule, Test} from "@nestjs/testing";
 import {CreateUserDto} from "../interfaces/request-dtos/create-user.dto";
-import {IUser} from "../interfaces/IUser";
 import {UserResponseDto} from "../interfaces/response-dtos/user-response.dto";
 import {HttpStatus} from "@nestjs/common";
 import {MessageEnum} from "../interfaces/message-enums/message.enum";
 import {UpdateUserDto} from "../interfaces/request-dtos/update-user.dto";
-import {DeleteResult, EntityNotFoundError} from "typeorm";
+import {DeleteResult} from "typeorm";
 
 describe('UserService', () => {
     let userService: UserService
@@ -45,43 +44,11 @@ describe('UserService', () => {
     });
 
 
-    describe('getUserByEmail', () => {
-        it('should return a user with status 200 when the user exists', async () => {
-
-            jest.spyOn(userService.userRepository, 'findOneBy').mockResolvedValue(testUser);
-
-            const result: IUser = await userService['getUserByEmail'](testUser.email)
-
-            expect(result).toEqual(testUser);
-        });
-    })
-
-    describe('getUserById', () => {
-        it('should return a user with status 200 when the user exists', async () => {
-
-            jest.spyOn(userService.userRepository, 'findOneBy').mockResolvedValue(testUser);
-
-            const result: IUser = await userService['getUserById'](testUser.id)
-
-            expect(result).toEqual(testUser);
-        });
-    })
-
-    describe('getUserByEmail', () => {
-        it('should return a user with status 200 when the user exists', async () => {
-
-            jest.spyOn(userService.userRepository, 'findOneBy').mockResolvedValue(testUser)
-
-            const result: IUser = await userService['getUserByEmail'](testUser.email)
-
-            expect(result).toEqual(testUser)
-        })
-    })
 
     describe('getUser', () => {
         it('should return user with status OK when user exists', async () => {
 
-            jest.spyOn(userService as any, 'getUserById').mockResolvedValue(testUser)
+            jest.spyOn(userService as any, 'searchUserHelper').mockResolvedValue(testUser)
 
             const result: UserResponseDto = await userService.getUser(testUser.id)
 
@@ -91,7 +58,7 @@ describe('UserService', () => {
         });
         it('should return 404 not found when user does not exist', async () => {
 
-            jest.spyOn(userService as any, 'getUserById').mockResolvedValue(null);
+            jest.spyOn(userService as any, 'searchUserHelper').mockResolvedValue(null);
 
             const result: UserResponseDto = await userService.getUser(testUser.id);
 
@@ -110,7 +77,7 @@ describe('UserService', () => {
 
         }
         it('should create a new user if email is not already in use ', async () => {
-            jest.spyOn(userService as any, 'getUserByEmail').mockResolvedValue(null)
+            jest.spyOn(userService as any, 'searchUserHelper').mockResolvedValue(null)
             jest.spyOn(userService.userRepository, 'create').mockReturnValue(testUser)
             jest.spyOn(userService.userRepository, 'save').mockResolvedValue(testUser)
 
@@ -153,8 +120,8 @@ describe('UserService', () => {
             const result = await userService.updateUser(updateUserDto);
 
             expect(result).toEqual({
-                status: HttpStatus.CREATED,
-                message: MessageEnum.CREATED,
+                status: HttpStatus.OK,
+                message: MessageEnum.OK,
                 data: updatedUser,
             });
         })
@@ -180,62 +147,55 @@ describe('UserService', () => {
             userName: 'stroka01',
         }
 
-        it('should delete user if user exist', async () => {
-            jest.spyOn(userService.userRepository, 'findOneOrFail').mockResolvedValue(existingUser)
-            jest.spyOn(userService.userRepository, 'delete').mockResolvedValue({affected: 1} as DeleteResult)
+        it('should delete a user and return NO_CONTENT response', async () => {
 
-            const result = await userService.deleteUser(existingUser.id)
+            userRepository.findOneOrFail = jest.fn().mockResolvedValue({ id: existingUser.id });
+            userRepository.delete = jest.fn().mockResolvedValue(undefined);
 
+
+            const result: UserResponseDto = await userService.deleteUser(existingUser.id);
+
+
+            expect(userRepository.findOneOrFail).toHaveBeenCalledWith({ where: { id: existingUser.id } });
+            expect(userRepository.delete).toHaveBeenCalledWith(existingUser.id);
             expect(result).toEqual({
                 status: HttpStatus.NO_CONTENT,
                 message: MessageEnum.NO_CONTENT,
-                data: null
-            })
-        });
-
-        it('should return not found error', async () => {
-            jest.spyOn(userService.userRepository, 'findOneOrFail').mockResolvedValue(null)
-            jest.spyOn(userService.userRepository, 'delete').mockResolvedValue({affected: 1} as DeleteResult)
-
-
-            const result = await userService.deleteUser(existingUser.id)
-
-            expect(result).toEqual({
-                status: HttpStatus.NOT_FOUND,
-                message: MessageEnum.NOT_FOUND,
-                data: null
-            })
-        });
-    })
-
-    describe('deleteUser', () => {
-        const id = '123';
-
-        it('should delete user and return NO_CONTENT status', async () => {
-            const deleteSpy = jest.spyOn(userService.userRepository, 'delete').mockResolvedValue(undefined);
-            const findOneOrFailSpy = jest.spyOn(userService.userRepository, 'findOneOrFail').mockRejectedValue(new Error());
-
-            const result = await userService.deleteUser(id);
-
-            expect(findOneOrFailSpy).toHaveBeenCalledWith({where: {id}});
-            expect(deleteSpy).toHaveBeenCalledWith(id);
-            expect(result).toEqual({
-                status: HttpStatus.NO_CONTENT,
-                message: MessageEnum.NO_CONTENT,
-                data: null
+                data: null,
             });
         });
 
-        it('should return NOT_FOUND status when user is not found', async () => {
-            const findOneOrFailSpy = jest.spyOn(userService.userRepository, 'findOneOrFail').mockRejectedValue(new Error());
+        it('should return NOT_FOUND response when user does not exist', async () => {
+            // Mock the user repository methods
+            userRepository.findOneOrFail = jest.fn().mockRejectedValue(undefined);
 
-            const result = await userService.deleteUser(id);
+            // Call the deleteUser method
+            const result: UserResponseDto = await userService.deleteUser(existingUser.id);
 
-            expect(findOneOrFailSpy).toHaveBeenCalledWith({where: {id}});
+            // Check the result
+            expect(userRepository.findOneOrFail).toHaveBeenCalledWith({ where: { id: existingUser.id } });
             expect(result).toEqual({
                 status: HttpStatus.NOT_FOUND,
                 message: MessageEnum.NOT_FOUND,
-                data: null
+                data: null,
+            });
+        });
+
+        it('should return PRECONDITION_FAILED response when deletion fails', async () => {
+            // Mock the user repository methods
+            userRepository.findOneOrFail = jest.fn().mockResolvedValue({ id: existingUser.id });
+            userRepository.delete = jest.fn().mockRejectedValue(undefined);
+
+            // Call the deleteUser method
+            const result: UserResponseDto = await userService.deleteUser(existingUser.id);
+
+            // Check the result
+            expect(userRepository.findOneOrFail).toHaveBeenCalledWith({ where: { id: existingUser.id } });
+            expect(userRepository.delete).toHaveBeenCalledWith(existingUser.id);
+            expect(result).toEqual({
+                status: HttpStatus.PRECONDITION_FAILED,
+                message: MessageEnum.PRECONDITION_FAILED,
+                data: null,
             });
         });
     });

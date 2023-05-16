@@ -11,160 +11,171 @@ import {UpdateUserDto} from "../interfaces/request-dtos/update-user.dto";
 import {UsersResponseDto} from "../interfaces/response-dtos/users-response.dto";
 
 Injectable()
+
 export class UserService {
-  constructor(
-      @InjectRepository(UserEntity)
-      public readonly userRepository: Repository<UserEntity>
-  ) {
-  }
-
-  async getUser(id: string): Promise<UserResponseDto> {
-
-
-    try {
-      const user = await this.searchUserHelper(id, 'id');
-      if (!user) {
-        return {
-          status: HttpStatus.NOT_FOUND,
-          message: MessageEnum.NOT_FOUND,
-          data: null,
-        }
-      }
-
-      return {
-        status: HttpStatus.OK,
-        message: MessageEnum.OK,
-        data: user
-      }
-    } catch (e) {
-      return {
-        status: HttpStatus.PRECONDITION_FAILED,
-        message: MessageEnum.PRECONDITION_FAILED,
-        data: e,
-      };
-    }
-  }
-
-  async getUsers(): Promise<UsersResponseDto> {
-
-    try {
-      const users = await this.userRepository.find();
-
-      return {
-        status: HttpStatus.OK,
-        message: MessageEnum.OK,
-        data: users
-      }
-    } catch (e) {
-      return {
-        status: HttpStatus.PRECONDITION_FAILED,
-        message: MessageEnum.PRECONDITION_FAILED,
-        data: null
-      }
-    }
-  }
-
-  async createUser(dto: CreateUserDto): Promise<UserResponseDto> {
-    const existingUser = await this.searchUserHelper(dto.email, 'email');
-
-    if (existingUser) {
-      return {
-        status: HttpStatus.CONFLICT,
-        message: MessageEnum.CONFLICT,
-        data: null,
-        errors: {
-          messages: ['User with this email already exist']
-        }
-      }
-    }
-      try {
-        const hashPassword = await UserService.hashPassword(dto.password)
-        const newUser = await this.userRepository.create({...dto, password: hashPassword});
-        const user = await this.userRepository.save(newUser);
-
-        return {
-          status: HttpStatus.CREATED,
-          message: MessageEnum.CREATED,
-          data: user
-        }
-
-      } catch (error) {
-        return {
-          status: HttpStatus.PRECONDITION_FAILED,
-          message: MessageEnum.PRECONDITION_FAILED,
-          data: null,
-        }
-      }
-
-  }
-
-  async updateUser(dto: UpdateUserDto): Promise<UserResponseDto> {
-
-    const user = await this.userRepository.findOneOrFail({ where: { id: dto.id }});
-
-    if (!user) {
-      return {
-        status: HttpStatus.NOT_FOUND,
-        message: MessageEnum.NOT_FOUND,
-        data: null,
-      }
-    } else {
-      try {
-        Object.assign(user, dto);
-        const updatedUser = await this.userRepository.save(user);
-
-        return {
-          status: HttpStatus.CREATED,
-          message: MessageEnum.CREATED,
-          data: updatedUser
-        }
-
-      } catch (e) {
-        return {
-          status: HttpStatus.PRECONDITION_FAILED,
-          message: MessageEnum.PRECONDITION_FAILED,
-          data: null,
-        }
-      }
-    }
-  }
-
-  async deleteUser(id: string): Promise<UserResponseDto> {
-
-    const user = this.userRepository.findOneOrFail({where: {id}})
-
-    if (!user) {
-      return {
-        status: HttpStatus.NOT_FOUND,
-        message: MessageEnum.NOT_FOUND,
-        data: null
-      }
+    constructor(
+        @InjectRepository(UserEntity)
+        public readonly userRepository: Repository<IUser>
+    ) {
     }
 
-      await this.userRepository.delete(id);
+    async getUser(id: string): Promise<UserResponseDto> {
 
-      return {
-        status: HttpStatus.NO_CONTENT,
-        message: MessageEnum.NO_CONTENT,
-        data: null
-      }
-  }
 
-  private async searchUserHelper(dto, value): Promise<IUser> {
-    return await this.userRepository.findOneBy({[value]: dto})
-  }
+        try {
+            const user = await this.searchUserHelper(id, 'id');
+            if (!user) {
+                return {
+                    status: HttpStatus.NOT_FOUND,
+                    message: MessageEnum.NOT_FOUND,
+                    data: null,
+                }
+            }
 
-  private static async hashPassword(password: string): Promise<string> {
-    const salt = await bcrypt.genSalt(10)
-    return await bcrypt.hash(password, salt);
-  }
-
-  private async validateUser(email: string, password: string): Promise<IUser> {
-    const user = await this.searchUserHelper(email, 'email');
-
-    if  (user && await bcrypt.compare(password, user.password)) {
-      return user
+            return {
+                status: HttpStatus.OK,
+                message: MessageEnum.OK,
+                data: user
+            }
+        } catch (e) {
+            return {
+                status: HttpStatus.PRECONDITION_FAILED,
+                message: MessageEnum.PRECONDITION_FAILED,
+                data: e,
+            };
+        }
     }
-    return null
-  }
+
+    async getUsers(): Promise<UsersResponseDto> {
+
+        try {
+            const users = await this.userRepository.find();
+
+            return {
+                status: HttpStatus.OK,
+                message: MessageEnum.OK,
+                data: users
+            }
+        } catch (e) {
+            return {
+                status: HttpStatus.PRECONDITION_FAILED,
+                message: MessageEnum.PRECONDITION_FAILED,
+                data: null
+            }
+        }
+    }
+
+    async createUser(dto: CreateUserDto): Promise<UserResponseDto> {
+        const existingUser = await this.searchUserHelper(dto.email, 'email');
+
+        if (existingUser) {
+            return {
+                status: HttpStatus.CONFLICT,
+                message: MessageEnum.CONFLICT,
+                data: null,
+                errors: {
+                    messages: ['User with this email already exist']
+                }
+            }
+        }
+        try {
+            const hashPassword = await UserService.hashPassword(dto.password)
+            const newUser = await this.userRepository.create({...dto, password: hashPassword});
+            const user = await this.userRepository.save(newUser);
+
+            return {
+                status: HttpStatus.CREATED,
+                message: MessageEnum.CREATED,
+                data: user
+            }
+
+        } catch (error) {
+            return {
+                status: HttpStatus.PRECONDITION_FAILED,
+                message: MessageEnum.PRECONDITION_FAILED,
+                data: null,
+            }
+        }
+
+    }
+
+    async updateUser(dto: UpdateUserDto): Promise<UserResponseDto> {
+
+        const user = await this.userRepository.findOneOrFail({where: {id: dto.id}});
+
+        if (!user) {
+            return {
+                status: HttpStatus.NOT_FOUND,
+                message: MessageEnum.NOT_FOUND,
+                data: null,
+            }
+        } else {
+            try {
+                Object.assign(user, dto);
+                const updatedUser = await this.userRepository.save(user);
+
+                return {
+                    status: HttpStatus.OK,
+                    message: MessageEnum.OK,
+                    data: updatedUser
+                }
+
+            } catch (e) {
+                return {
+                    status: HttpStatus.PRECONDITION_FAILED,
+                    message: MessageEnum.PRECONDITION_FAILED,
+                    data: null,
+                }
+            }
+        }
+    }
+
+    async deleteUser(id: string): Promise<UserResponseDto> {
+        try {
+
+            const user = this.userRepository.findOneOrFail({where: {id}})
+
+            if (user) {
+
+                await this.userRepository.delete(id);
+
+                return {
+                    status: HttpStatus.NO_CONTENT,
+                    message: MessageEnum.NO_CONTENT,
+                    data: null
+                }
+            }
+
+            return {
+                status: HttpStatus.NOT_FOUND,
+                message: MessageEnum.NOT_FOUND,
+                data: null
+            }
+
+        } catch (e) {
+            return {
+                status: HttpStatus.PRECONDITION_FAILED,
+                message: MessageEnum.PRECONDITION_FAILED,
+                data: null,
+            }
+        }
+    }
+
+    private async searchUserHelper(dto, value): Promise<IUser> {
+        return await this.userRepository.findOneBy({[value]: dto})
+    }
+
+    private static async hashPassword(password: string): Promise<string> {
+        const salt = await bcrypt.genSalt(10)
+        return await bcrypt.hash(password, salt);
+    }
+
+    private async validateUser(email: string, password: string): Promise<IUser> {
+        const user = await this.searchUserHelper(email, 'email');
+
+        if (user && await bcrypt.compare(password, user.password)) {
+            return user
+        }
+        return null
+    }
 }
