@@ -2,24 +2,19 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="807b27c0-11f0-41eb-86e0-15d9bef32358" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/mailer/Dtos/EmailDataDto.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mailer/Services/IMailerService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mailer/Services/MailerServices.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mailer/Controllers/WeatherForecastController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/mailer/Controllers/MailerController.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/token/Controllers/WeatherForecastController.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/token/Program.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/token/Properties/launchSettings.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/token/WeatherForecast.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/token/appsettings.Development.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/token/appsettings.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/token/token.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.medium-clone.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.medium-clone.dir/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/mailer/Controllers/MailerController.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Users/stroka01/Development/medium-clone/mailer/Controllers/WeatherForecastController.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/mailer/Dtos/EmailDataDto.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/mailer/Program.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/mailer/Services/IMailerService.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/mailer/Services/MailerServices.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/mailer/WeatherForecast.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -39,7 +34,7 @@
     "WebServerToolWindowFactoryState": "false",
     "nodejs_package_manager_path": "yarn",
     "settings.editor.selected.configurable": "preferences.build.unityPlugin",
-    "ts.external.directory.path": "/Users/stroka01/Development/medium-clone/frontend/node_modules/typescript/lib",
+    "ts.external.directory.path": "/Users/stroka01/Development/medium-clone/user/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -53,6 +48,7 @@
       <updated>1666468605204</updated>
       <workItem from="1666468607764" duration="957000" />
       <workItem from="1666469710269" duration="1982000" />
+      <workItem from="1684231528198" duration="492000" />
     </task>
     <servers />
   </component>
