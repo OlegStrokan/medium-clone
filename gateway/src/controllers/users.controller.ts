@@ -14,49 +14,55 @@ import {IError} from "../interfaces/user/IError";
 export class UsersController {
     constructor(
         @Inject('user_service') private readonly userServiceClient: ClientProxy
-    ) {}
+    ) {
+    }
 
     @Get('/:id')
-    public async getUser(@Param('id') id: number): Promise<IGetItemResponse<IUser>> {
+    public async getUser(@Param('id') id: number): Promise<IGetItemResponse<IUser> | GenericHttpException> {
         const userResponse: IGetItemServiceResponse<IUser> = await firstValueFrom(
             this.userServiceClient.send(MessagePatternEnum.USER_GET_BY_ID, id)
         )
-        return {
-            data: userResponse.data,
-            errors: userResponse.errors
+        if (userResponse.status === HttpStatus.OK) {
+            return {
+                data: userResponse.data,
+            }
+        } else if (userResponse.status === HttpStatus.NOT_FOUND) {
+            return new GenericHttpException<IError>(404, 'Not Found')
+        } else {
+            return new GenericHttpException<IError>(412, 'Precondition failed')
         }
     }
 
     @Get("")
-    public async getUsers(): Promise<IGetItemResponse<IUser[]> | GenericHttpException<IError>> {
+    public async getUsers(): Promise<IGetItemResponse<IUser[]> | GenericHttpException> {
         const userResponse: IGetItemServiceResponse<IUser[]> = await firstValueFrom(
             this.userServiceClient.send(MessagePatternEnum.USER_GET, 'test')
         )
 
         if (userResponse.status === HttpStatus.OK) {
             return {
-                data: userResponse.data,
-                errors: null
+                data: userResponse.data
             }
-        } else if (userResponse.status === HttpStatus.NOT_FOUND) {
-            return new GenericHttpException<IError>(404, 'Not Found')
+        } else {
+            return new GenericHttpException<IError>(412, 'Precondition failed')
         }
 
-        return {
-            data: userResponse.data,
-            errors: userResponse.errors
-        }
     }
 
     @Post("")
-    public async createUser(@Body() dto: CreateUserDto): Promise<IGetItemResponse<IUser>> {
+    public async createUser(@Body() dto: CreateUserDto): Promise<IGetItemResponse<IUser> | GenericHttpException> {
         const userResponse: IGetItemServiceResponse<IUser> = await firstValueFrom(
             this.userServiceClient.send(MessagePatternEnum.USER_CREATE, dto)
         )
 
-        return {
-            data: userResponse.data,
-            errors: userResponse.errors
+        if (userResponse.status === HttpStatus.CREATED) {
+            return {
+                data: userResponse.data,
+            }
+        } else if (userResponse.status === HttpStatus.CONFLICT) {
+            return new GenericHttpException<IError>(409, userResponse.message)
+        } else {
+            return new GenericHttpException<IError>(412, 'Precondition failed')
         }
     }
 }
