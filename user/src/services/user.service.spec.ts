@@ -176,7 +176,7 @@ describe('UserService', () => {
             expect(result).toEqual({
                 status: HttpStatus.NOT_FOUND,
                 message: MessageEnum.NOT_FOUND,
-                data: null,
+                data: 'Test for hooks',
             });
         });
 
