@@ -6,7 +6,6 @@ import {UserResponseDto} from "../interfaces/response-dtos/user-response.dto";
 import {HttpStatus} from "@nestjs/common";
 import {MessageEnum} from "../interfaces/message-enums/message.enum";
 import {UpdateUserDto} from "../interfaces/request-dtos/update-user.dto";
-import {DeleteResult} from "typeorm";
 
 describe('UserService', () => {
     let userService: UserService
@@ -149,14 +148,14 @@ describe('UserService', () => {
 
         it('should delete a user and return NO_CONTENT response', async () => {
 
-            userRepository.findOneOrFail = jest.fn().mockResolvedValue({ id: existingUser.id });
+            userRepository.findOneBy = jest.fn().mockResolvedValue({ id: existingUser.id });
             userRepository.delete = jest.fn().mockResolvedValue(undefined);
 
 
             const result: UserResponseDto = await userService.deleteUser(existingUser.id);
 
 
-            expect(userRepository.findOneOrFail).toHaveBeenCalledWith({ where: { id: existingUser.id } });
+            expect(userRepository.findOneBy).toHaveBeenCalledWith({ id: existingUser.id });
             expect(userRepository.delete).toHaveBeenCalledWith(existingUser.id);
             expect(result).toEqual({
                 status: HttpStatus.NO_CONTENT,
@@ -166,14 +165,14 @@ describe('UserService', () => {
         });
 
         it('should return NOT_FOUND response when user does not exist', async () => {
-            // Mock the user repository methods
-            userRepository.findOneOrFail = jest.fn().mockRejectedValue(undefined);
 
-            // Call the deleteUser method
+            userRepository.findOneBy = jest.fn().mockRejectedValue(undefined);
+
+
             const result: UserResponseDto = await userService.deleteUser(existingUser.id);
 
-            // Check the result
-            expect(userRepository.findOneOrFail).toHaveBeenCalledWith({ where: { id: existingUser.id } });
+
+            expect(userRepository.findOneBy).toHaveBeenCalledWith({ id: existingUser.id });
             expect(result).toEqual({
                 status: HttpStatus.NOT_FOUND,
                 message: MessageEnum.NOT_FOUND,
@@ -182,15 +181,15 @@ describe('UserService', () => {
         });
 
         it('should return PRECONDITION_FAILED response when deletion fails', async () => {
-            // Mock the user repository methods
-            userRepository.findOneOrFail = jest.fn().mockResolvedValue({ id: existingUser.id });
+
+            userRepository.findOneBy = jest.fn().mockResolvedValue({ id: existingUser.id });
             userRepository.delete = jest.fn().mockRejectedValue(undefined);
 
-            // Call the deleteUser method
+
             const result: UserResponseDto = await userService.deleteUser(existingUser.id);
 
-            // Check the result
-            expect(userRepository.findOneOrFail).toHaveBeenCalledWith({ where: { id: existingUser.id } });
+
+            expect(userRepository.findOneBy).toHaveBeenCalledWith({ id: existingUser.id });
             expect(userRepository.delete).toHaveBeenCalledWith(existingUser.id);
             expect(result).toEqual({
                 status: HttpStatus.PRECONDITION_FAILED,

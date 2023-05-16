@@ -133,24 +133,26 @@ export class UserService {
     async deleteUser(id: string): Promise<UserResponseDto> {
         try {
 
-            const user = this.userRepository.findOneOrFail({where: {id}})
+            const user = this.searchUserHelper(id, 'id')
 
-            if (user) {
-
-                await this.userRepository.delete(id);
+            if (!user) {
 
                 return {
-                    status: HttpStatus.NO_CONTENT,
-                    message: MessageEnum.NO_CONTENT,
+                    status: HttpStatus.NOT_FOUND,
+                    message: MessageEnum.NOT_FOUND,
                     data: null
                 }
             }
 
+            await this.userRepository.delete(id);
+
             return {
-                status: HttpStatus.NOT_FOUND,
-                message: MessageEnum.NOT_FOUND,
+                status: HttpStatus.NO_CONTENT,
+                message: MessageEnum.NO_CONTENT,
                 data: null
             }
+
+
 
         } catch (e) {
             return {
