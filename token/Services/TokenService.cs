@@ -3,6 +3,7 @@ using token.Data;
 using token.Dtos;
 using token.Models;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
@@ -19,31 +20,116 @@ public class TokenService : ITokenService
         _dbContext = dbContext;
         _configuration = configuration;
     }
-    
-    public ResponseTokenDto CreateToken(string userId)
+
+    public ResponseTokenDto<string> CreateToken(string userId)
     {
-        var tokenValue = Guid.NewGuid().ToString();
-        var token = new Token()
+        try
         {
-            Value = tokenValue,
-            UserId = userId
-        };
+            var tokenValue = Guid.NewGuid().ToString();
+            var token = new Token()
+            {
+                Value = tokenValue,
+                UserId = userId
+            };
+
+            _dbContext.Tokens.Add(token);
+            _dbContext.SaveChanges();
+
+            var jwtToken = GenerateJwtToken(token);
+
+            return new ResponseTokenDto<string>()
+            {
+                Status = HttpStatusCode.Created,
+                Message = "token_creation_success",
+                Data = jwtToken,
+                Errors = null
+            };
+        }
+        catch (Exception exception)
+        {
+            return new ResponseTokenDto<string>()
+            {
+                Status = HttpStatusCode.PreconditionFailed,
+                Message = "token_creation_failed",
+                Data = null,
+                Errors = exception
+            };
+        }
     }
 
-    public ResponseTokenDto DestroyToken(string userId)
+    public ResponseTokenDto<string> DestroyToken(string tokenValue)
     {
-        
+        try
+        {
+            var token = _dbContext.Tokens.FirstOrDefault(t => t.Value == tokenValue);
+            if (token != null)
+            {
+                _dbContext.Tokens.Remove(token);
+                _dbContext.SaveChanges();
+            }
+
+            return new ResponseTokenDto<string>()
+            {
+                Status = HttpStatusCode.OK,
+                Message = "token_destroying_success",
+                Data = null,
+                Errors = null
+            };
+        }
+        catch (Exception exception)
+        {
+            return new ResponseTokenDto<string>()
+            {
+                Status = HttpStatusCode.PreconditionFailed,
+                Message = "token_creation_failed",
+                Data = null,
+                Errors = exception
+            };
+        }
     }
 
-    public ResponseTokenDto DecodeToken(string token)
+    public ResponseTokenDto<Token> DecodeToken(string tokenValue)
     {
-       
+        try
+        {
+            var token = _dbContext.Tokens.FirstOrDefault(t => t.Value == tokenValue);
+
+            if (token == null)
+            {
+                return new ResponseTokenDto<Token>()
+                {
+                    Status = HttpStatusCode.NotFound,
+                    Message = "token_decode_not_found",
+                    Data = null,
+                    Errors = null
+                };
+            }
+
+            return new ResponseTokenDto<Token>()
+            {
+                Status = HttpStatusCode.OK,
+                Message = "token_decode_success",
+                Data = token,
+                Errors = null,
+            };
+
+        }
+        catch (Exception exception)
+        {
+            return new ResponseTokenDto<Token>()
+            {
+                Status = HttpStatusCode.PreconditionFailed,
+                Message = "token_creation_failed",
+                Data = null,
+                Errors = exception
+            };
+        }
     }
 
 
     private string GenerateJwtToken(Token token)
     {
-        var tokenHandler  = new  JwtSecurityTokenHandler();
+        var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_configuration["JwtSecret"]);
         var tokenDescriptor = new SecurityTokenDescriptor()
         {
@@ -59,6 +145,5 @@ public class TokenService : ITokenService
 
         var createdToken = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(createdToken);
-
     }
 }

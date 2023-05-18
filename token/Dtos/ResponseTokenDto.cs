@@ -1,10 +1,12 @@
-using token.Interfaces;
+using System.Net;
 
 namespace token.Dtos;
 
-public class ResponseTokenDto
+public class ResponseTokenDto<T>
 {
-    public int Status { get; set; }
+    public HttpStatusCode Status { get; set; }
     public string Message { get; set; }
-    public IError Errors { get; set; }
+    public Exception? Errors { get; set; }
+    
+    public T? Data { get; set; }
 }
