@@ -1,6 +1,6 @@
 
 // // using Microsoft.EntityFrameworkCore;
-// using token.Data;
+// using TokenService.Data;
 //
 // var builder = WebApplication.CreateBuilder(args);
 //
@@ -48,7 +48,10 @@ public class Startup
         
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<AppDbContext>(opt => opt.UseInMemoryDatabase("InMen"));
+            
+            
+            services.AddDbContext<AppDbContext>(options =>
+                options.UseNpgsql(Configuration.GetConnectionString("PostgreSQL")));
             services.AddScoped<ITokenService, TokenService>();
             services.AddControllers();
 
@@ -63,6 +66,12 @@ public class Startup
        
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            using (var serviceScope = app.ApplicationServices.CreateScope())
+            {
+                var dbContext = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
+                dbContext.Database.Migrate();
+            }
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage(); 
