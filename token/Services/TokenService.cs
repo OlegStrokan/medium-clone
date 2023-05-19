@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using token.Data;
 using token.Dtos;
 using token.Models;
