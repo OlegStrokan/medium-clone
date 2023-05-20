@@ -1,4 +1,4 @@
-import {IError} from "../IError";
+import {IError} from "./IError";
 
 export interface IGetItemServiceResponse<T> {
     status: number;

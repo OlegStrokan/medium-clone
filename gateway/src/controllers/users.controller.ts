@@ -2,23 +2,21 @@ import {
     Body,
     Controller, Delete,
     Get,
-    HttpException,
     HttpStatus,
     Inject,
-    NotFoundException,
     Param,
     Patch,
     Post
 } from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
 import {firstValueFrom} from "rxjs";
-import {MessagePatternEnum} from "../interfaces/user/message-pattern.enum";
+import {MessageUserEnum} from "../interfaces/user/message-user.enum";
 import {IUser} from "../interfaces/user/IUser";
-import {IGetItemResponse} from "../interfaces/user/response/IGetItemResponse";
-import {IGetItemServiceResponse} from "../interfaces/user/service-response/IGetItemServiceResponse";
+import {IGetItemResponse} from "../interfaces/IGetItemResponse";
+import {IGetItemServiceResponse} from "../interfaces/IGetItemServiceResponse";
 import {CreateUserDto} from "../interfaces/user/dto/create-user.dto";
-import {GenericHttpException} from "../helpers/IGenericHttpException";
-import {IError} from "../interfaces/user/IError";
+import {GenericHttpException} from "../helpers/GenericHttpException";
+import {IError} from "../interfaces/IError";
 import {UpdateUserDto} from "../interfaces/user/dto/update-user.dto";
 
 
@@ -32,7 +30,7 @@ export class UsersController {
     @Get('/:id')
     public async getUser(@Param('id') id: number): Promise<IGetItemResponse<IUser> | GenericHttpException> {
         const userResponse: IGetItemServiceResponse<IUser> = await firstValueFrom(
-            this.userServiceClient.send(MessagePatternEnum.USER_GET_BY_ID, id)
+            this.userServiceClient.send(MessageUserEnum.USER_GET_BY_ID, id)
         )
         if (userResponse.status === HttpStatus.OK) {
             return {
@@ -48,7 +46,7 @@ export class UsersController {
     @Get("")
     public async getUsers(): Promise<IGetItemResponse<IUser[]> | GenericHttpException> {
         const userResponse: IGetItemServiceResponse<IUser[]> = await firstValueFrom(
-            this.userServiceClient.send(MessagePatternEnum.USER_GET, 'test')
+            this.userServiceClient.send(MessageUserEnum.USER_GET, 'test')
         )
 
         if (userResponse.status === HttpStatus.OK) {
@@ -64,7 +62,7 @@ export class UsersController {
     @Post("")
     public async createUser(@Body() dto: CreateUserDto): Promise<IGetItemResponse<IUser> | GenericHttpException> {
         const userResponse: IGetItemServiceResponse<IUser> = await firstValueFrom(
-            this.userServiceClient.send(MessagePatternEnum.USER_CREATE, dto)
+            this.userServiceClient.send(MessageUserEnum.USER_CREATE, dto)
         )
 
         if (userResponse.status === HttpStatus.CREATED) {
@@ -81,7 +79,7 @@ export class UsersController {
     @Patch("")
     public async updateUser(@Body() dto: UpdateUserDto): Promise<IGetItemResponse<IUser> | GenericHttpException> {
         const userResponse: IGetItemServiceResponse<IUser> = await firstValueFrom(
-            this.userServiceClient.send(MessagePatternEnum.USER_UPDATE, dto)
+            this.userServiceClient.send(MessageUserEnum.USER_UPDATE, dto)
         )
 
         if (userResponse.status === HttpStatus.OK) {
@@ -98,7 +96,7 @@ export class UsersController {
     @Delete('/:id')
     public async deleteUser(@Param('id') id: string) {
         const userResponse: IGetItemServiceResponse<IUser> = await firstValueFrom(
-            this.userServiceClient.send(MessagePatternEnum.USER_DELETE, id)
+            this.userServiceClient.send(MessageUserEnum.USER_DELETE, id)
         )
 
         if (userResponse.status === HttpStatus.NO_CONTENT) {

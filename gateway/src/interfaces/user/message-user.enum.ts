@@ -1,4 +1,4 @@
-export enum MessagePatternEnum {
+export enum MessageUserEnum {
     'USER_GET' = 'user_get',
     'USER_GET_BY_ID' = 'user_get_by_id',
     'USER_CREATE' = 'user_create',
