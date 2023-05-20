@@ -48,8 +48,6 @@ public class Startup
         
         public void ConfigureServices(IServiceCollection services)
         {
-            
-            
             services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("PostgreSQL")));
             services.AddScoped<ITokenService, TokenService>();
@@ -71,6 +69,7 @@ public class Startup
                 var dbContext = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
                 dbContext.Database.Migrate();
             }
+            
             
             if (env.IsDevelopment())
             {
