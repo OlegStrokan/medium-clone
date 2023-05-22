@@ -17,6 +17,11 @@ export class UserController {
     return this.userService.getUser(id);
   }
 
+  @MessagePattern(MessagePatternEnum.USER_GET_BY_EMAIL)
+  async getUserByEmail(email: string): Promise<UserResponseDto> {
+    return this.userService.getUserByEmail(email);
+  }
+
   @MessagePattern(MessagePatternEnum.USER_GET)
   async getUsers(): Promise<UsersResponseDto> {
     return this.userService.getUsers();

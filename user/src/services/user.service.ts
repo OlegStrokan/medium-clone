@@ -21,20 +21,45 @@ export class UserService {
 
     async getUser(id: string): Promise<UserResponseDto> {
 
-
         try {
             const user = await this.searchUserHelper(id, 'id');
             if (!user) {
                 return {
                     status: HttpStatus.NOT_FOUND,
-                    message: MessageEnum.NOT_FOUND,
+                    message: MessageEnum.USER_NOT_FOUND_ID,
                     data: null,
                 }
             }
 
             return {
                 status: HttpStatus.OK,
-                message: MessageEnum.OK,
+                message: MessageEnum.USER_SEARCH_OK,
+                data: user
+            }
+        } catch (e) {
+            return {
+                status: HttpStatus.PRECONDITION_FAILED,
+                message: MessageEnum.PRECONDITION_FAILED,
+                data: e,
+            };
+        }
+    }
+
+    async getUserByEmail(email: string): Promise<UserResponseDto> {
+
+        try {
+            const user = await this.searchUserHelper(email, 'email');
+            if (!user) {
+                return {
+                    status: HttpStatus.NOT_FOUND,
+                    message: MessageEnum.USER_NOT_FOUND_EMAIL,
+                    data: null,
+                }
+            }
+
+            return {
+                status: HttpStatus.OK,
+                message: MessageEnum.USER_SEARCH_OK,
                 data: user
             }
         } catch (e) {
@@ -53,7 +78,7 @@ export class UserService {
 
             return {
                 status: HttpStatus.OK,
-                message: MessageEnum.OK,
+                message: MessageEnum.USER_SEARCH_OK,
                 data: users
             }
         } catch (e) {
@@ -71,10 +96,10 @@ export class UserService {
         if (existingUser) {
             return {
                 status: HttpStatus.CONFLICT,
-                message: MessageEnum.CONFLICT,
+                message: MessageEnum.USER_CONFLICT,
                 data: null,
                 errors: {
-                    messages: ['User with this email already exist']
+                    messages: [MessageEnum.USER_CONFLICT]
                 }
             }
         }
@@ -85,7 +110,7 @@ export class UserService {
 
             return {
                 status: HttpStatus.CREATED,
-                message: MessageEnum.CREATED,
+                message: MessageEnum.USER_CREATED,
                 data: user
             }
 
@@ -101,12 +126,12 @@ export class UserService {
 
     async updateUser(dto: UpdateUserDto): Promise<UserResponseDto> {
 
-        const user = await this.userRepository.findOneOrFail({where: {id: dto.id}});
+        const user = await this.searchUserHelper('id', dto.id);
 
         if (!user) {
             return {
                 status: HttpStatus.NOT_FOUND,
-                message: MessageEnum.NOT_FOUND,
+                message: MessageEnum.USER_NOT_FOUND_ID,
                 data: null,
             }
         } else {
@@ -116,7 +141,7 @@ export class UserService {
 
                 return {
                     status: HttpStatus.OK,
-                    message: MessageEnum.OK,
+                    message: MessageEnum.USER_UPDATED,
                     data: updatedUser
                 }
 
@@ -139,7 +164,7 @@ export class UserService {
 
                 return {
                     status: HttpStatus.NOT_FOUND,
-                    message: MessageEnum.NOT_FOUND,
+                    message: MessageEnum.USER_NOT_FOUND_ID,
                     data: null
                 }
             }
@@ -148,7 +173,7 @@ export class UserService {
 
             return {
                 status: HttpStatus.NO_CONTENT,
-                message: MessageEnum.NO_CONTENT,
+                message: MessageEnum.USER_DELETED,
                 data: null
             }
 
