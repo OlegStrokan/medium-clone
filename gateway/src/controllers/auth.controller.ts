@@ -20,7 +20,6 @@ export class AuthController {
     ) {
     }
 
-
     @Post("/registration")
     // TODO - change return value on create user on user microservice
     public async registration(@Body() dto: CreateUserDto): Promise<IGetItemResponse<string> | GenericHttpException> {

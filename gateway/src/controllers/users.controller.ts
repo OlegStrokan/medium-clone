@@ -37,9 +37,9 @@ export class UsersController {
                 data: userResponse.data,
             }
         } else if (userResponse.status === HttpStatus.NOT_FOUND) {
-            return new GenericHttpException<IError>(404, 'Not Found')
+            return new GenericHttpException<IError>(404, userResponse.message)
         } else {
-            return new GenericHttpException<IError>(412, 'Precondition failed')
+            return new GenericHttpException<IError>(412, userResponse.message)
         }
     }
 
@@ -54,7 +54,7 @@ export class UsersController {
                 data: userResponse.data
             }
         } else {
-            return new GenericHttpException<IError>(412, 'Precondition failed')
+            return new GenericHttpException<IError>(412, userResponse.message)
         }
 
     }
@@ -72,7 +72,7 @@ export class UsersController {
         } else if (userResponse.status === HttpStatus.CONFLICT) {
             return new GenericHttpException<IError>(409, userResponse.message)
         } else {
-            return new GenericHttpException<IError>(412, 'Precondition failed')
+            return new GenericHttpException<IError>(412, userResponse.message)
         }
     }
 
@@ -87,9 +87,9 @@ export class UsersController {
                 data: userResponse.data
             }
         } else if (userResponse.status === HttpStatus.NOT_FOUND) {
-            return new GenericHttpException<IError>(404, 'Not Found')
+            return new GenericHttpException<IError>(404, userResponse.message)
         } else {
-            return new GenericHttpException<IError>(412, 'Precondition failed')
+            return new GenericHttpException<IError>(412, userResponse.message)
         }
     }
 
@@ -104,9 +104,9 @@ export class UsersController {
                 data: userResponse.data
             }
         } else if (userResponse.status === HttpStatus.NOT_FOUND) {
-            return new GenericHttpException<IError>(404, 'Not Found')
+            return new GenericHttpException<IError>(404, userResponse.message)
         } else {
-            return new GenericHttpException<IError>(412, 'Precondition failed')
+            return new GenericHttpException<IError>(412, userResponse.message)
         }
 
     }

@@ -1,13 +1,12 @@
-import {Controller, HttpStatus, Inject, Post} from "@nestjs/common";
+import {Controller, HttpStatus, Inject } from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
 import {IGetItemServiceResponse} from "../interfaces/IGetItemServiceResponse";
-import {AST} from "eslint";
-import Token = AST.Token;
 import {firstValueFrom} from "rxjs";
 import {MessageTokenEnum} from "../interfaces/token/message-token.enum";
 import {IGetItemResponse} from "../interfaces/IGetItemResponse";
 import {GenericHttpException} from "../helpers/GenericHttpException";
 import {IError} from "../interfaces/IError";
+import {IToken} from "../interfaces/token/IToken";
 
 @Controller("token")
 export class TokenController {
@@ -16,8 +15,8 @@ export class TokenController {
     ) {
     }
 
-    public async createToken(userId: string): Promise<IGetItemResponse<Token> | GenericHttpException> {
-        const tokenServiceResponse: IGetItemServiceResponse<Token> = await firstValueFrom(
+    public async createToken(userId: string): Promise<IGetItemResponse<IToken> | GenericHttpException> {
+        const tokenServiceResponse: IGetItemServiceResponse<IToken> = await firstValueFrom(
             this.tokenServiceClient.send(MessageTokenEnum.TOKEN_CREATE, userId)
         )
 
@@ -26,7 +25,7 @@ export class TokenController {
                 data: tokenServiceResponse.data
             }
         } else {
-            return new GenericHttpException<IError>(412, 'Precondition Failed')
+            return new GenericHttpException<IError>(412, tokenServiceResponse.message)
         }
     }
 
@@ -40,7 +39,7 @@ export class TokenController {
                 data: tokenServiceResponse.data
             }
         } else {
-            return new GenericHttpException<IError>(412, 'Precondition Failed')
+            return new GenericHttpException<IError>(412, tokenServiceResponse.message)
         }
 
     }
@@ -56,11 +55,11 @@ export class TokenController {
             }
         }
         else if (tokenServiceResponse.status === HttpStatus.NOT_FOUND) {
-            return new GenericHttpException<IError>(404, 'Not Found')
+            return new GenericHttpException<IError>(404, tokenServiceResponse.message)
         }
 
         else {
-            return new GenericHttpException<IError>(412, 'Precondition Failed')
+            return new GenericHttpException<IError>(412, tokenServiceResponse.message)
         }
     }
 }
