@@ -39,7 +39,7 @@ public class TokenService : ITokenService
             return new ResponseTokenDto<string>()
             {
                 Status = HttpStatusCode.Created,
-                Message = "token_creation_success",
+                Message = "Token has been successfully created",
                 Data = jwtToken,
                 Errors = null
             };
@@ -49,7 +49,7 @@ public class TokenService : ITokenService
             return new ResponseTokenDto<string>()
             {
                 Status = HttpStatusCode.PreconditionFailed,
-                Message = "token_creation_failed",
+                Message = "Precondition failed",
                 Data = null,
                 Errors = exception
             };
@@ -70,7 +70,7 @@ public class TokenService : ITokenService
             return new ResponseTokenDto<string>()
             {
                 Status = HttpStatusCode.OK,
-                Message = "token_destroying_success",
+                Message = "Token has been successfully destroyed",
                 Data = null,
                 Errors = null
             };
@@ -80,7 +80,7 @@ public class TokenService : ITokenService
             return new ResponseTokenDto<string>()
             {
                 Status = HttpStatusCode.PreconditionFailed,
-                Message = "token_creation_failed",
+                Message = "Precondition failed",
                 Data = null,
                 Errors = exception
             };
@@ -98,7 +98,7 @@ public class TokenService : ITokenService
                 return new ResponseTokenDto<Token>()
                 {
                     Status = HttpStatusCode.NotFound,
-                    Message = "token_decode_not_found",
+                    Message = "Not found",
                     Data = null,
                     Errors = null
                 };
@@ -107,7 +107,7 @@ public class TokenService : ITokenService
             return new ResponseTokenDto<Token>()
             {
                 Status = HttpStatusCode.OK,
-                Message = "token_decode_success",
+                Message = "Token has been successfully decoded",
                 Data = token,
                 Errors = null,
             };
@@ -118,7 +118,7 @@ public class TokenService : ITokenService
             return new ResponseTokenDto<Token>()
             {
                 Status = HttpStatusCode.PreconditionFailed,
-                Message = "token_creation_failed",
+                Message = "Precondition failed",
                 Data = null,
                 Errors = exception
             };
