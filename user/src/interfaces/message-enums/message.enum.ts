@@ -1,9 +1,10 @@
 export enum MessageEnum {
-    'NOT_FOUND' = 'user_search_not_found',
-    'NO_CONTENT' = 'user_delete_success',
-    'OK' = 'user_search_ok',
-    'CONFLICT' = 'user_create_conflict',
-    'CREATED' = 'user_create_created',
-    'PRECONDITION_FAILED' = 'user_create_precondition_failed',
-    'BAD_REQUEST' = 'user_create_bad_request',
+    'USER_NOT_FOUND_EMAIL' = 'No users with this email',
+    'USER_NOT_FOUND_ID' = 'No users with this id',
+    'USER_CONFLICT' = 'User with this email already exist',
+    'USER_CREATED' = 'Your account has been successfully created',
+    'USER_UPDATED' = 'Your account has been successfully updated',
+    'USER_DELETED' = 'Your account has been successfully deleted',
+    'USER_SEARCH_OK' = 'Ok',
+    'PRECONDITION_FAILED' = 'Precondition failed',
 }
