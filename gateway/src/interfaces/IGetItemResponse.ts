@@ -1,5 +1,5 @@
-import {IError} from "./IError";
 
 export interface IGetItemResponse<T> {
-    data: T | null,
+    data?: T | null,
+    messages?: string;
 }
