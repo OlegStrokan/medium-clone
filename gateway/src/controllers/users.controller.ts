@@ -65,7 +65,7 @@ export class UsersController {
     @Post("")
     public async createUser(@Body() dto: CreateUserDto): Promise<IGetItemResponse<IUser> | GenericHttpException> {
         const userResponse: IGetItemServiceResponse<IUser> = await firstValueFrom(
-            this.userServiceClient.send(MessageUserEnum.USER_CREATE, dto)
+            this.userServiceClient.send(MessageUserEnum.USER_CREATE, JSON.stringify(dto))
         )
 
         if (userResponse.status === HttpStatus.CREATED) {
