@@ -1,11 +1,7 @@
-import {CreateUserDto} from "./create-user.dto";
-import {IsEmail, IsNotEmpty, IsString, Length} from "class-validator";
+import {IsEmail, IsNotEmpty, IsString } from "class-validator";
 import {Transform} from "class-transformer";
 
 export class UpdateUserDto {
-   @IsString({ message: 'ID name must be a string' })
-   @IsNotEmpty({ message: 'ID name can\'t be empty'})
-   id: string;
    @IsString({ message: 'Full name must be a string' })
    @IsNotEmpty({ message: 'Full name can\'t be empty'})
    fullName: string;
