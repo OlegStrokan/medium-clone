@@ -91,7 +91,8 @@ export class UserService {
     }
 
     async createUser(dto: CreateUserDto): Promise<UserResponseDto> {
-        const existingUser = await this.searchUserHelper(dto.email, 'email');
+        const existingUser = await this.userRepository.findOne({where: {email: dto.email}});
+        console.log(existingUser)
 
         if (existingUser) {
             return {
@@ -104,7 +105,9 @@ export class UserService {
             }
         }
         try {
+            console.log('test 2 ')
             const hashPassword = await UserService.hashPassword(dto.password)
+            console.log(dto, hashPassword)
             const newUser = await this.userRepository.create({...dto, password: hashPassword});
             const user = await this.userRepository.save(newUser);
 
@@ -194,7 +197,10 @@ export class UserService {
 
     private static async hashPassword(password: string): Promise<string> {
         const salt = await bcrypt.genSalt(10)
-        return await bcrypt.hash(password, salt);
+        console.log(salt, password)
+        const password2 = await bcrypt.hash(password, salt);
+        console.log(password2)
+        return password2;
     }
 
     private async validateUser(email: string, password: string): Promise<IUser> {

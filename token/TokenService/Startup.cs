@@ -50,7 +50,7 @@ public class Startup
         {
             services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("PostgreSQL")));
-            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<ITokenService, token.Services.TokenService>();
             services.AddControllers();
 
             //services.AddHostedService<MessageBusSubscriber>();

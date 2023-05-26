@@ -35,11 +35,12 @@ export class UsersController {
         if (userResponse.status === HttpStatus.OK) {
             return {
                 data: userResponse.data,
+                status: userResponse.status,
             }
         } else if (userResponse.status === HttpStatus.NOT_FOUND) {
-            return new GenericHttpException<IError>(404, userResponse.message)
+            throw new GenericHttpException<IError>(404, userResponse.message)
         } else {
-            return new GenericHttpException<IError>(412, userResponse.message)
+            throw new GenericHttpException<IError>(412, userResponse.message)
         }
     }
 
@@ -51,10 +52,11 @@ export class UsersController {
 
         if (userResponse.status === HttpStatus.OK) {
             return {
-                data: userResponse.data
+                data: userResponse.data,
+                status: userResponse.status
             }
         } else {
-            return new GenericHttpException<IError>(412, userResponse.message)
+            throw new GenericHttpException<IError>(412, userResponse.message)
         }
 
     }
@@ -68,11 +70,12 @@ export class UsersController {
         if (userResponse.status === HttpStatus.CREATED) {
             return {
                 data: userResponse.data,
+                status: userResponse.status
             }
         } else if (userResponse.status === HttpStatus.CONFLICT) {
-            return new GenericHttpException<IError>(409, userResponse.message)
+            throw new GenericHttpException<IError>(409, userResponse.message)
         } else {
-            return new GenericHttpException<IError>(412, userResponse.message)
+            throw new GenericHttpException<IError>(412, userResponse.message)
         }
     }
 
@@ -84,29 +87,30 @@ export class UsersController {
 
         if (userResponse.status === HttpStatus.OK) {
             return {
-                data: userResponse.data
+                data: userResponse.data,
+                status: userResponse.status
             }
         } else if (userResponse.status === HttpStatus.NOT_FOUND) {
-            return new GenericHttpException<IError>(404, userResponse.message)
+            throw new GenericHttpException<IError>(404, userResponse.message)
         } else {
-            return new GenericHttpException<IError>(412, userResponse.message)
+            throw new GenericHttpException<IError>(412, userResponse.message)
         }
     }
 
     @Delete('/:id')
-    public async deleteUser(@Param('id') id: string) {
+    public async deleteUser(@Param('id') id: string): Promise<IGetItemResponse<string> | GenericHttpException> {
         const userResponse: IGetItemServiceResponse<IUser> = await firstValueFrom(
             this.userServiceClient.send(MessageUserEnum.USER_DELETE, id)
         )
 
         if (userResponse.status === HttpStatus.NO_CONTENT) {
             return {
-                data: userResponse.data
+                status: userResponse.status
             }
         } else if (userResponse.status === HttpStatus.NOT_FOUND) {
-            return new GenericHttpException<IError>(404, userResponse.message)
+            throw new GenericHttpException<IError>(404, userResponse.message)
         } else {
-            return new GenericHttpException<IError>(412, userResponse.message)
+            throw new GenericHttpException<IError>(412, userResponse.message)
         }
 
     }

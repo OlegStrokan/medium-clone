@@ -20,7 +20,7 @@ export class AuthController {
     ) {
     }
 
-    @Post("/registration")
+    @Post("registration")
     // TODO - change return value on create user on user microservice
     public async registration(@Body() dto: CreateUserDto): Promise<IGetItemResponse<string> | GenericHttpException> {
         const userResponse: IGetItemServiceResponse<string> = await firstValueFrom(
@@ -29,12 +29,13 @@ export class AuthController {
 
         if (userResponse.status === HttpStatus.CREATED) {
             return {
-                messages: userResponse.message
+                status: userResponse.status,
+                message: userResponse.message,
             }
         } else if (userResponse.status === HttpStatus.CONFLICT) {
-            return new GenericHttpException<IError>(409, userResponse.message)
+             throw new GenericHttpException<IError>(409, userResponse.message)
         } else {
-            return new GenericHttpException<IError>(412, userResponse.message)
+            throw new GenericHttpException<IError>(412, userResponse.message)
         }
     }
 
@@ -46,7 +47,7 @@ export class AuthController {
         )
 
         if (userResponse.status !== HttpStatus.OK) {
-            return new GenericHttpException<IError>(401, userResponse.message)
+            throw new GenericHttpException<IError>(401, userResponse.message)
         }
 
         const tokenResponse: IGetItemServiceResponse<IToken> = await firstValueFrom(
@@ -57,7 +58,8 @@ export class AuthController {
             data: {
                 ...userResponse.data,
                 ...tokenResponse.data
-            }
+            },
+            status: userResponse.status
         }
 
     }
@@ -71,9 +73,10 @@ export class AuthController {
         if (userResponse.status === HttpStatus.OK) {
             return {
                 data: userResponse.data,
+                status: userResponse.status
             }
         } else {
-            return new GenericHttpException<IError>(412, userResponse.message);
+            throw new GenericHttpException<IError>(412, userResponse.message);
         }
 
 
