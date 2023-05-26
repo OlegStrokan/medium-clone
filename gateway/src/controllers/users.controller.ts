@@ -18,6 +18,7 @@ import {CreateUserDto} from "../interfaces/user/dto/create-user.dto";
 import {GenericHttpException} from "../helpers/GenericHttpException";
 import {IError} from "../interfaces/IError";
 import {UpdateUserDto} from "../interfaces/user/dto/update-user.dto";
+import {DeleteUserDto} from "../interfaces/user/dto/delete-user.dto";
 
 
 @Controller('users')
@@ -79,10 +80,10 @@ export class UsersController {
         }
     }
 
-    @Patch("")
-    public async updateUser(@Body() dto: UpdateUserDto): Promise<IGetItemResponse<IUser> | GenericHttpException> {
+    @Patch(":id")
+    public async updateUser(@Body() dto: UpdateUserDto, @Param('id') id: DeleteUserDto): Promise<IGetItemResponse<IUser> | GenericHttpException> {
         const userResponse: IGetItemServiceResponse<IUser> = await firstValueFrom(
-            this.userServiceClient.send(MessageUserEnum.USER_UPDATE, dto)
+            this.userServiceClient.send(MessageUserEnum.USER_UPDATE, JSON.stringify({id, ...dto}))
         )
 
         if (userResponse.status === HttpStatus.OK) {
@@ -98,7 +99,7 @@ export class UsersController {
     }
 
     @Delete('/:id')
-    public async deleteUser(@Param('id') id: string): Promise<IGetItemResponse<string> | GenericHttpException> {
+    public async deleteUser(@Param('id') id: DeleteUserDto): Promise<IGetItemResponse<string> | GenericHttpException> {
         const userResponse: IGetItemServiceResponse<IUser> = await firstValueFrom(
             this.userServiceClient.send(MessageUserEnum.USER_DELETE, id)
         )

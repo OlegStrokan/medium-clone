@@ -1,8 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { UserService } from './services/user.service';
 import {UserResponseDto} from "./interfaces/response-dtos/user-response.dto";
-import {CreateUserDto} from "./interfaces/request-dtos/create-user.dto";
-import {UpdateUserDto} from "./interfaces/request-dtos/update-user.dto";
 import {MessagePattern} from "@nestjs/microservices";
 import {MessagePatternEnum} from "./interfaces/message-enums/message-pattern.enum";
 import {UsersResponseDto} from "./interfaces/response-dtos/users-response.dto";

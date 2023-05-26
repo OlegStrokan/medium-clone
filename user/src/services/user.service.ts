@@ -126,7 +126,7 @@ export class UserService {
 
     async updateUser(dto: UpdateUserDto): Promise<UserResponseDto> {
 
-        const user = await this.searchUserHelper('id', dto.id);
+        const user = await this.searchUserHelper(dto.id, 'id');
 
         if (!user) {
             return {
