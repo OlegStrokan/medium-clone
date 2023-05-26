@@ -24,7 +24,7 @@ export class AuthController {
     // TODO - change return value on create user on user microservice
     public async registration(@Body() dto: CreateUserDto): Promise<IGetItemResponse<string> | GenericHttpException> {
         const userResponse: IGetItemServiceResponse<string> = await firstValueFrom(
-            this.userServiceClient.send(MessageUserEnum.USER_CREATE, dto)
+            this.userServiceClient.send(MessageUserEnum.USER_CREATE, JSON.stringify(dto))
         )
 
         if (userResponse.status === HttpStatus.CREATED) {

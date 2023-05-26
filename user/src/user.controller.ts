@@ -28,13 +28,13 @@ export class UserController {
   }
 
   @MessagePattern(MessagePatternEnum.USER_CREATE)
-  async createUser(userData: CreateUserDto): Promise<UserResponseDto> {
-    return this.userService.createUser(userData);
+  async createUser(jsonUserData: string): Promise<UserResponseDto> {
+    return this.userService.createUser(JSON.parse(jsonUserData));
   }
 
   @MessagePattern(MessagePatternEnum.USER_UPDATE)
-  async updateUser(userData: UpdateUserDto): Promise<UserResponseDto> {
-    return this.userService.updateUser(userData);
+  async updateUser(jsonUserData: string): Promise<UserResponseDto> {
+    return this.userService.updateUser(JSON.parse(jsonUserData));
   }
 
   @MessagePattern(MessagePatternEnum.USER_DELETE)
