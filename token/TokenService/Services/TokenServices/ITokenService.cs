@@ -3,7 +3,7 @@ using token.Models;
 
 namespace token.Services;
 
-public interface ITokenService
+public interface ITokenServices
 {
     ResponseTokenDto<string> CreateToken(string userId);
     
