@@ -1,36 +1,7 @@
 
-// // using Microsoft.EntityFrameworkCore;
-// using TokenService.Data;
-//
-// var builder = WebApplication.CreateBuilder(args);
-//
-//
-// builder.Services.AddControllers();
-// builder.Services.
-//     builder.Services.AddDbContext<AppDbContext>(opt => opt.UseInMemoryDatabase("InMem"));
-//
-//
-// builder.Services.AddEndpointsApiExplorer();
-// builder.Services.AddSwaggerGen();
-//
-// var app = builder.Build();
-//
-//
-// if (app.Environment.IsDevelopment())
-// {
-//     app.UseSwagger();
-//     app.UseSwaggerUI();
-// }
-//
-// app.UseHttpsRedirection();
-//
-// app.UseAuthorization();
-//
-// app.MapControllers();
-//
-// app.Run();
 
 using Microsoft.EntityFrameworkCore;
+
 using token.Data;
 using token.Services;
 
@@ -50,18 +21,21 @@ public class Startup
         {
             services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("PostgreSQL")));
-            services.AddScoped<ITokenService, token.Services.TokenService>();
+            services.AddTransient<ITokenServices, TokenServices>();
             services.AddControllers();
+            
+
+            // Register RabbitMQ service
+            services.AddSingleton<IRabbitMqService>(new RabbitMqService("localhost", "guest", "guest", "token_queue_service"));
 
             //services.AddHostedService<MessageBusSubscriber>();
 
-           // services.AddSingleton<IEventProcessor, EventProcessor>(); 
+            // services.AddSingleton<IEventProcessor, EventProcessor>(); 
             // services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-           // services.AddScoped<IPlatformDataClient, PlatformDataClient>();
+            // services.AddScoped<IPlatformDataClient, PlatformDataClient>();
 
         }
 
-       
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             using (var serviceScope = app.ApplicationServices.CreateScope())
