@@ -1,8 +1,11 @@
 
 
 using Microsoft.EntityFrameworkCore;
-using token.Data;
-using token.Services;
+using Newtonsoft.Json;
+using TokenService.Data;
+using TokenService.Services.RabbitMQService;
+using TokenService.Services.TokenServices;
+
 
 namespace TokenService;
 
@@ -22,23 +25,22 @@ public class Startup
                 options.UseNpgsql(Configuration.GetConnectionString("PostgreSQL")));
             services.AddTransient<ITokenServices, TokenServices>();
             services.AddControllers();
+            
+            services.AddSingleton<RabbitMqService>();
 
-            services.AddSingleton<IRabbitMqService>( new RabbitMqService("localhost", "guest", "guest", "5672", "/", "token_queue_service"));
-            //services.AddHostedService<MessageBusSubscriber>();
-
-            // services.AddSingleton<IEventProcessor, EventProcessor>(); 
-            // services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-            // services.AddScoped<IPlatformDataClient, PlatformDataClient>();
 
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, RabbitMqService rabbitMqService)
         {
             using (var serviceScope = app.ApplicationServices.CreateScope())
             {
                 var dbContext = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
                 dbContext.Database.Migrate();
             }
+            
+            rabbitMqService.StartListening(HandleMessage);
             
             
             if (env.IsDevelopment())
@@ -58,4 +60,12 @@ public class Startup
             });
             
         }
+        
+        private void HandleMessage(string message)
+        {
+            Console.WriteLine(message);
+            dynamic payload = JsonConvert.DeserializeObject(message);
+            Console.WriteLine(payload);
+        }
+
 }
