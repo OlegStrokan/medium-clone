@@ -26,7 +26,20 @@ public class Startup
             
 
             // Register RabbitMQ service
-            services.AddSingleton<IRabbitMqService>(new RabbitMqService("localhost", "guest", "guest", "token_queue_service"));
+            services.AddSingleton<IRabbitMqService>(provider =>
+            {
+                // Read the RabbitMQ connection settings from configuration
+                var configuration = provider.GetRequiredService<IConfiguration>();
+                var hostname = configuration["RabbitMQ:Hostname"];
+                var username = configuration["RabbitMQ:Username"];
+                var password = configuration["RabbitMQ:Password"];
+                var port = configuration["RabbitMQ:Port"];
+                var virtualHost = configuration["RabbitMQ:VirtualHost"];
+                var queueName = configuration["RabbitMQ:QueueName"];
+
+                // Create and return an instance of RabbitMqService
+                return new RabbitMqService(hostname, username, password, port, virtualHost, queueName);
+            });
 
             //services.AddHostedService<MessageBusSubscriber>();
 
