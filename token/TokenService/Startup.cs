@@ -65,7 +65,26 @@ public class Startup
         {
             Console.WriteLine(message);
             dynamic payload = JsonConvert.DeserializeObject(message);
-            Console.WriteLine(payload);
+            switch (payload.pattern.ToString())
+            {
+                case "token_create":
+                {
+                   Console.WriteLine(message);
+                    break;
+                }
+                case "token_destroy":
+                {
+                    Console.WriteLine(message);
+                    break;
+                }
+                    ;
+                case "token_decode":
+                {
+                    Console.WriteLine(message);
+                    break;
+                }
+            }
         }
+
 
 }

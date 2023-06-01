@@ -10,23 +10,39 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pgdata_user:/var/lib/postgresql/data
+    restart: always
+
+  token_db:
+    container_name: token_db
+    image: postgres:13
+    environment:
+      POSTGRES_USER: stroka01
+      POSTGRES_PASSWORD: token
+      POSTGRES_DB: token_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata_token:/var/lib/postgresql/data
     restart: always
 
   rabbitmq:
-      image: rabbitmq:3-management-alpine
-      container_name: 'rabbitmq'
-      ports:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    ports:
         - "5672:5672"
         - "15672:15672"
-      volumes:
+    volumes:
         - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
         - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
-      networks:
-        - rabbitmq_go_net
+    networks:
+      - rabbitmq_go_net
+
 
 volumes:
-  pgdata:
+  pgdata_user:
+  pgdata_token:
+
 
 networks:
   rabbitmq_go_net:

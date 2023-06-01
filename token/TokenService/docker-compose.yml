@@ -1,6 +1,6 @@
 version: "3.2"
 services:
-  user_db:
+  token_db:
     container_name: token_db
     image: postgres:13
     environment:

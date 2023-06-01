@@ -6,11 +6,12 @@ import {UserModule} from "./user.module";
 
 async function bootstrap() {
     const app = await NestFactory.createMicroservice<MicroserviceOptions>(UserModule, {
-        transport: Transport.TCP,
+        transport: Transport.RMQ,
         options: {
-            host: '127.0.0.1',
-            port: 8001,
-        }
+            urls: ['amqp://guest:guest@localhost:5672'],
+            queue: 'user_queue',
+            queueOptions: { durable: false },
+        },
     })
 
     app.useGlobalPipes(

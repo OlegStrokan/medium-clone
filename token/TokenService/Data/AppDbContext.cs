@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using token.Models;
 
-namespace token.Data;
+namespace TokenService.Data;
 
 public class AppDbContext : DbContext
 {
