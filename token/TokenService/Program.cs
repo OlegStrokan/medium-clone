@@ -1,7 +1,7 @@
 
-using TokenMicroservice;
 
-namespace TokenMicroservice
+
+namespace TokenService
 {
     public class Program
     {

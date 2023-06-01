@@ -26,7 +26,7 @@ public class RabbitMqService : IRabbitMqService
         using (var connection = _connectionFactory.CreateConnection())
         using (var channel = connection.CreateModel())
         {
-            channel.QueueDeclare(queue: _queueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
+            channel.QueueDeclare(queue: _queueName, durable: true, exclusive: true, autoDelete: false, arguments: null);
 
             var consumer = new EventingBasicConsumer(channel);
             consumer.Received += (model, args) =>
@@ -36,7 +36,7 @@ public class RabbitMqService : IRabbitMqService
             };
 
             channel.BasicConsume(queue: _queueName, autoAck: true, consumer: consumer);
-            Console.ReadLine();
+     
         }
     }
     
@@ -46,8 +46,8 @@ public class RabbitMqService : IRabbitMqService
         using (var channel = connection.CreateModel())
         {
             channel.QueueDeclare(queue: _queueName,
-                durable: false,
-                exclusive: false,
+                durable: true,
+                exclusive: true,
                 autoDelete: false,
                 arguments: null);
 

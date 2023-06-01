@@ -1,11 +1,10 @@
 
 
 using Microsoft.EntityFrameworkCore;
-
 using token.Data;
 using token.Services;
 
-namespace TokenMicroservice;
+namespace TokenService;
 
 public class Startup
 {
@@ -23,24 +22,8 @@ public class Startup
                 options.UseNpgsql(Configuration.GetConnectionString("PostgreSQL")));
             services.AddTransient<ITokenServices, TokenServices>();
             services.AddControllers();
-            
 
-            // Register RabbitMQ service
-            services.AddSingleton<IRabbitMqService>(provider =>
-            {
-                // Read the RabbitMQ connection settings from configuration
-                var configuration = provider.GetRequiredService<IConfiguration>();
-                var hostname = configuration["RabbitMQ:Hostname"];
-                var username = configuration["RabbitMQ:Username"];
-                var password = configuration["RabbitMQ:Password"];
-                var port = configuration["RabbitMQ:Port"];
-                var virtualHost = configuration["RabbitMQ:VirtualHost"];
-                var queueName = configuration["RabbitMQ:QueueName"];
-
-                // Create and return an instance of RabbitMqService
-                return new RabbitMqService(hostname, username, password, port, virtualHost, queueName);
-            });
-
+            services.AddSingleton<IRabbitMqService>( new RabbitMqService("localhost", "guest", "guest", "5672", "/", "token_queue_service"));
             //services.AddHostedService<MessageBusSubscriber>();
 
             // services.AddSingleton<IEventProcessor, EventProcessor>(); 
