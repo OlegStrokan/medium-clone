@@ -1,64 +1,59 @@
-using RabbitMQ.Client;
 using System.Text;
-using token.Services;
+using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+
+namespace TokenService.Services.RabbitMQService;
 
 public class RabbitMqService : IRabbitMqService
 {
-    private readonly ConnectionFactory _connectionFactory;
-    private readonly string _queueName;
+    private readonly IConnection _connection;
+    private IModel _channel;
 
-    public RabbitMqService(string hostname, string username, string password, string port, string virtualHost, string queueName)
+    public RabbitMqService()
     {
-        _connectionFactory = new ConnectionFactory
+        var factory = new ConnectionFactory
         {
-            HostName = hostname,
-            Port = int.Parse(port),
-            UserName = username,
-            Password = password,
-            VirtualHost = virtualHost
+            HostName = "localhost", // Update with your RabbitMQ server details
+            Port = 5672,
+            UserName = "guest",
+            Password = "guest"
         };
-        _queueName = queueName;
+
+        _connection = factory.CreateConnection();
+        _channel = _connection.CreateModel();
     }
 
-    public void Consume(Action<string> handleMessage)
+    public void PublishMessage(string message)
     {
-        using (var connection = _connectionFactory.CreateConnection())
-        using (var channel = connection.CreateModel())
-        {
-            channel.QueueDeclare(queue: _queueName, durable: true, exclusive: true, autoDelete: false, arguments: null);
+        _channel.QueueDeclare(queue: "token_queue", durable: false, exclusive: false, autoDelete: false, arguments: null);
 
-            var consumer = new EventingBasicConsumer(channel);
-            consumer.Received += (model, args) =>
-            {
-                var message = Encoding.UTF8.GetString(args.Body.ToArray());
-                handleMessage(message);
-            };
+        var body = Encoding.UTF8.GetBytes(message);
 
-            channel.BasicConsume(queue: _queueName, autoAck: true, consumer: consumer);
-     
-        }
+        _channel.BasicPublish(exchange: "", routingKey: "token_queue", basicProperties: null, body: body);
     }
-    
-    public void SendMessage(string message)
+
+    public void StartListening(Action<string> onMessageReceived)
     {
-        using (var connection = _connectionFactory.CreateConnection())
-        using (var channel = connection.CreateModel())
+        _channel.QueueDeclare(queue: "token_queue", durable: false, exclusive: false, autoDelete: false, arguments: null);
+
+        var consumer = new EventingBasicConsumer(_channel);
+        consumer.Received += (sender, args) =>
         {
-            channel.QueueDeclare(queue: _queueName,
-                durable: true,
-                exclusive: true,
-                autoDelete: false,
-                arguments: null);
+            var body = args.Body.ToArray();
+            var receivedMessage = Encoding.UTF8.GetString(body);
 
-            var body = Encoding.UTF8.GetBytes(message);
+            onMessageReceived?.Invoke(receivedMessage);
 
-            channel.BasicPublish(exchange: "",
-                routingKey: _queueName,
-                basicProperties: null,
-                body: body);
-        }
+            // Acknowledge the message
+            _channel.BasicAck(args.DeliveryTag, multiple: false);
+        };
+
+        _channel.BasicConsume(queue: "token_queue", autoAck: false, consumer: consumer);
     }
-    
-    
+
+    public void Dispose()
+    {
+        _channel?.Dispose();
+        _connection?.Dispose();
+    }
 }

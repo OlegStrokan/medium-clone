@@ -1,25 +1,26 @@
-using token.Data;
-using token.Dtos;
-using token.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using token.Models;
+using TokenService.Data;
+using TokenService.Dtos;
 
-namespace token.Services;
+namespace TokenService.Services.TokenServices;
 
-public class TokenService : ITokenService
+public class TokenServices : ITokenServices
 {
     private readonly AppDbContext _dbContext;
     private readonly IConfiguration _configuration;
 
-    public TokenService(IConfiguration configuration, AppDbContext dbContext)
+    public TokenServices(IConfiguration configuration, AppDbContext dbContext)
     {
         _dbContext = dbContext;
         _configuration = configuration;
     }
 
+    
     public ResponseTokenDto<string> CreateToken(string userId)
     {
         try
@@ -145,4 +146,5 @@ public class TokenService : ITokenService
         var createdToken = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(createdToken);
     }
+    
 }

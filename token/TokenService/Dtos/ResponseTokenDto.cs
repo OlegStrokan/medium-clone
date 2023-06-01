@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace token.Dtos;
+namespace TokenService.Dtos;
 
 public class ResponseTokenDto<T>
 {

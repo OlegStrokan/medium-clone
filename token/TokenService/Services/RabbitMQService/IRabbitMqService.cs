@@ -1,8 +1,8 @@
 
-namespace token.Services;
+namespace TokenService.Services.RabbitMQService;
 
-public interface IRabbitMqService
+public interface IRabbitMqService : IDisposable
 {
-    void Consume(Action<string> handleMessage);
-    void SendMessage(string message);
+    void PublishMessage(string message);
+    void StartListening(Action<string> onMessageReceived);
 }

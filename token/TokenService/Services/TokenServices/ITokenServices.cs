@@ -1,7 +1,7 @@
-using token.Dtos;
 using token.Models;
+using TokenService.Dtos;
 
-namespace token.Services;
+namespace TokenService.Services.TokenServices;
 
 public interface ITokenServices
 {

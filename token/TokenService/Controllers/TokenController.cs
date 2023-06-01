@@ -1,88 +1,103 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using token.Dtos;
+
 using token.Models;
-using token.Services;
+using TokenService.Dtos;
+using TokenService.Services.RabbitMQService;
+using TokenService.Services.TokenServices;
 
-namespace token.Controllers;
+namespace TokenService.Controllers;
 
-
-[Route("api/token")]
-[ApiController]
 public class TokenController : ControllerBase
 {
- 
     private readonly ITokenServices _tokenService;
     private readonly IRabbitMqService _rabbitMqService;
 
 
     public TokenController(ITokenServices tokenService, IRabbitMqService rabbitMqService)
     {
-        Console.WriteLine("hello");
         _tokenService = tokenService;
         _rabbitMqService = rabbitMqService;
-        _rabbitMqService.Consume(HandleMessage);
+        rabbitMqService.StartListening(HandleMessage);
+   
     }
+
 
     private void HandleMessage(string message)
     {
-        
         Console.WriteLine(message);
         dynamic payload = JsonConvert.DeserializeObject(message);
         switch (payload.Action)
         {
-            case "create_token":
+            case "token_create":
             {
                 ActionResult<ResponseTokenDto<string>> response = CreateToken(payload.UserId);
 
-                SendResponse("token_create", response);
-                
-            }
-                ;
+                SendEvent(response);
                 break;
-            case "destroy_token":
+            }
+            case "token_destroy":
             {
                 ActionResult<ResponseTokenDto<string>> response = DestroyToken(payload.Token);
 
-                SendResponse("token_destroy", response);
-
+                SendEvent(response);
+                break;
             }
                 ;
-                break;
-            case "decode_token":
+            case "token_decode":
             {
                 ActionResult<ResponseTokenDto<Token>> response = DecodeToken(payload.Token);
 
-                SendResponse("token_decode", response);
-            }
+                SendEvent(response);
                 break;
+            }
+        }
+    }
+
+
+    
+        public ActionResult<ResponseTokenDto<string>> CreateToken(string userId)
+        {
+            ActionResult<ResponseTokenDto<string>> response = _tokenService.CreateToken(userId);
+
+            var rabbitMqService = HttpContext.RequestServices.GetService<IRabbitMqService>();
+            rabbitMqService.PublishMessage("hello");
+            
+            var message = JsonConvert.SerializeObject(response);
+
+
+            SendEvent(message);
+
+            return response;
+        }
+        
+        public ActionResult<ResponseTokenDto<string>> DestroyToken(string token)
+        {
+            ActionResult<ResponseTokenDto<string>> response = _tokenService.DestroyToken(token);
+
+            var message = JsonConvert.SerializeObject(response);
+
+            SendEvent(message);
+
+
+            return response;
+        }
+        
+        public ActionResult<ResponseTokenDto<Token>> DecodeToken(string token)
+        {
+            ActionResult<ResponseTokenDto<Token>> response = _tokenService.DecodeToken(token);
+
+            var message = JsonConvert.SerializeObject(response);
+
+            SendEvent(message);
+
+            return response;
         }
 
-      
-    }
-    
-    
-    [HttpPost("create")]
-    public ActionResult<ResponseTokenDto<string>> CreateToken(string userId)
-    {
-        return _tokenService.CreateToken(userId);
-    }
+        private void SendEvent<T>( T eventData)
+        {
+            var message = JsonConvert.SerializeObject(eventData);
 
-    [HttpPost("destroy")]
-    public ActionResult<ResponseTokenDto<string>> DestroyToken(string token)
-    {
-        return _tokenService.DestroyToken(token);
+            _rabbitMqService.PublishMessage(message);
+        }
     }
-
-    [HttpPost("decode")]
-    public ActionResult<ResponseTokenDto<Token>> DecodeToken(string token)
-    {
-        return _tokenService.DecodeToken(token);
-    }
-    
-    private void SendResponse<T>(ActionResult<ResponseTokenDto<T>> response)
-    {
-        string message = response.Value.ToString();
-        _rabbitMqService.SendMessage(message);
-    }
-}

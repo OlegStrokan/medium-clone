@@ -1,4 +1,4 @@
-namespace token.Interfaces;
+namespace TokenService.Interfaces;
 
 public interface IError
 {
