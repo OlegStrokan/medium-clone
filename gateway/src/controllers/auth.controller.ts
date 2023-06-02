@@ -50,22 +50,25 @@ export class AuthController {
             throw new GenericHttpException<IError>(401, userResponse.message)
         }
 
-console.log(userResponse.status)
-        const tokenResponse: IGetItemServiceResponse<IToken> = await firstValueFrom(
-            this.tokenServiceClient.send("token_create", userResponse.data.id)
-        )
+       try {
+           const tokenResponse: IGetItemServiceResponse<IToken> = await firstValueFrom(
+               this.tokenServiceClient.send(MessageTokenEnum.TOKEN_CREATE, userResponse.data.id)
+           )
+
 
         console.log(tokenResponse.status)
 
         if (tokenResponse.status !== HttpStatus.OK) {
             throw new GenericHttpException<IError>(401, userResponse.message)
         }
-
+       } catch (e) {
+           console.log(e)
+       }
 
         return {
             data: {
                 ...userResponse.data,
-                ...tokenResponse.data
+                tokenValue: 'hello'
             },
             status: userResponse.status
         }
