@@ -1,7 +1,5 @@
-
-
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
+using TokenService.Controllers;
 using TokenService.Data;
 using TokenService.Services.RabbitMQService;
 using TokenService.Services.TokenServices;
@@ -11,80 +9,46 @@ namespace TokenService;
 
 public class Startup
 {
-        public Startup(IConfiguration configuration)
+    private readonly IWebHostEnvironment _environment;
+
+    public Startup(IConfiguration configuration, IWebHostEnvironment environment)
+    {
+        Configuration = configuration;
+        _environment = environment;
+    }
+
+    public IConfiguration Configuration { get; }
+
+
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseNpgsql(Configuration.GetConnectionString("PostgreSQL")));
+        services.AddTransient<ITokenServices, TokenServices>();
+        services.AddSingleton<IRabbitMqService, RabbitMqService>();
+
+        services.AddControllers().AddApplicationPart(typeof(TokenController).Assembly);
+
+        // Build the service provider
+      
+    }
+
+
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+
+        app.UseRouting();
+
+        if (env.IsDevelopment())
         {
-            Configuration = configuration;
+            app.UseDeveloperExceptionPage();
         }
 
-        public IConfiguration Configuration { get; }
-
+        //app.UseHttpsRedirection();
         
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddDbContext<AppDbContext>(options =>
-                options.UseNpgsql(Configuration.GetConnectionString("PostgreSQL")));
-            services.AddTransient<ITokenServices, TokenServices>();
-            services.AddControllers();
-            
-            services.AddSingleton<RabbitMqService>();
 
+        app.UseAuthorization();
 
-        }
-
-    
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, RabbitMqService rabbitMqService)
-        {
-            using (var serviceScope = app.ApplicationServices.CreateScope())
-            {
-                var dbContext = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
-                dbContext.Database.Migrate();
-            }
-            
-            rabbitMqService.StartListening(HandleMessage);
-            
-            
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage(); 
-            }
-
-            //app.UseHttpsRedirection();
-
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-            
-        }
-        
-        private void HandleMessage(string message)
-        {
-            Console.WriteLine(message);
-            dynamic payload = JsonConvert.DeserializeObject(message);
-            switch (payload.pattern.ToString())
-            {
-                case "token_create":
-                {
-                   Console.WriteLine(message);
-                    break;
-                }
-                case "token_destroy":
-                {
-                    Console.WriteLine(message);
-                    break;
-                }
-                    ;
-                case "token_decode":
-                {
-                    Console.WriteLine(message);
-                    break;
-                }
-            }
-        }
-
-
+        app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+    }
 }
