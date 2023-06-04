@@ -23,9 +23,9 @@ import {AuthController} from "./controllers/auth.controller";
         queueOptions: { durable: false }
       },
     },
-    // Add more microservices if needed
   ]),],
   controllers: [UsersController, AuthController],
   providers: []
 })
 export class AppModule {}
+
