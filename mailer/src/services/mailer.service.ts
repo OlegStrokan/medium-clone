@@ -1,15 +1,13 @@
 import {HttpStatus, Injectable} from '@nestjs/common';
-import {SendMailDto} from "./interfaces/request-dtos/send-mail.dto";
-import {SendCodeDto} from "./interfaces/request-dtos/send-code.dto";
-import {ResponseDto} from "./interfaces/response-dtos/response.dto";
+import {SendMailDto} from "../interfaces/request-dtos/send-mail.dto";
+import {SendCodeDto} from "../interfaces/request-dtos/send-code.dto";
+import {ResponseDto} from "../interfaces/response-dtos/response.dto";
 import *  as nodemailer from 'nodemailer';
-import {MessageEnum} from "./interfaces/message-enums/message-enum";
+import {MessageEnum} from "../interfaces/message-enums/message-enum";
 
 @Injectable()
 export class MailerService {
-    private senderEmail: 'oleg@14ua71@gmail.com';
-    private senderPassword: '******';
-    private transporter;
+    public transporter;
 
     constructor() {
         this.transporter = nodemailer.createTransport({
@@ -17,8 +15,8 @@ export class MailerService {
             port: 587,
             secure: false,
             auth: {
-                user: this.senderEmail,
-                pass: this.senderPassword,
+                user: process.env.USER_EMAIL,
+                pass: process.env.USER_PASSWORD,
             },
         });
         ;
@@ -27,19 +25,18 @@ export class MailerService {
     async sendActivationMail(dto: SendMailDto): Promise<ResponseDto> {
         try {
             await this.transporter.sendMail({
-                    from: this.senderEmail,
-                    to: dto.email,
-                    subject: "Email activation",
-                    text: "",
-                    html: `
+                from: 'oleg@14ua71@gmail.com',
+                to: dto.email,
+                subject: "Email activation",
+                text: "",
+                html: `
             <div>
-         h1>Thank you for registering!</h1>
+              h1>Thank you for registering!</h1>
             <h2>To activate, follow the link</h2>
              <a href="${dto.activationLink}">{link}</a>
             </div>
-            `,
-                }
-            )
+            `
+            } as any)
             return {
                 status: HttpStatus.OK,
                 message: MessageEnum.EMAIL_SUCCESS,
@@ -58,7 +55,7 @@ export class MailerService {
     async sendCode(dto: SendCodeDto): Promise<ResponseDto> {
         try {
             await this.transporter.sendMail({
-                from: this.senderEmail,
+                from: 'oleg@14ua71@gmail.com',
                 to: dto.email,
                 subject: "Verification code",
                 text: '',
@@ -67,7 +64,7 @@ export class MailerService {
             <h1>Hello, ${dto.name}</h1>
             <h2>Please use this code: ${dto.code} to reset your password</h2>
             </div>`
-            })
+            } as any)
 
             return {
                 status: HttpStatus.OK,

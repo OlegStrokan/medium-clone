@@ -1,10 +1,10 @@
 import {Controller} from '@nestjs/common';
-import {MailerService} from './mailer.service';
+import {MailerService} from '../services/mailer.service';
 import {MessagePattern} from "@nestjs/microservices";
-import {MessagePatternEnum} from "./interfaces/message-enums/message-pattern";
-import {SendMailDto} from "./interfaces/request-dtos/send-mail.dto";
-import {SendCodeDto} from "./interfaces/request-dtos/send-code.dto";
-import {ResponseDto} from "./interfaces/response-dtos/response.dto";
+import {MessagePatternEnum} from "../interfaces/message-enums/message-pattern";
+import {SendMailDto} from "../interfaces/request-dtos/send-mail.dto";
+import {SendCodeDto} from "../interfaces/request-dtos/send-code.dto";
+import {ResponseDto} from "../interfaces/response-dtos/response.dto";
 
 @Controller()
 export class MailerController {

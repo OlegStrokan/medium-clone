@@ -1,8 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { MailerModule } from './mailer.module';
+import { config } from 'dotenv';
 
 async function bootstrap() {
+
+  config();
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(MailerModule, {
     transport: Transport.RMQ,
     options: {
@@ -12,5 +15,6 @@ async function bootstrap() {
     },
   });
   await app.listen();
+
 }
 bootstrap();
