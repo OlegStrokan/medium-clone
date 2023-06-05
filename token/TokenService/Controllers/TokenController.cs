@@ -20,7 +20,6 @@ public class TokenController : ControllerBase
     {
         _tokenService = tokenService;
         _rabbitMqService = rabbitMqService;
-        _rabbitMqService.StartListening("token_queue", HandleMessage);
     }
 
     public void HandleMessage(string message)
@@ -81,6 +80,6 @@ public class TokenController : ControllerBase
     private void SendEvent<T>(T eventData)
     {
         var message = JsonConvert.SerializeObject(eventData);
-        _rabbitMqService.PublishMessage("token_queue", message);
+        _rabbitMqService.PublishMessage(message);
     }
 }

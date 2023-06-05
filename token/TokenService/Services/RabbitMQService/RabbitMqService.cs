@@ -8,7 +8,8 @@ namespace TokenService.Services.RabbitMQService
     public class RabbitMqService : IRabbitMqService
     {
         private readonly IConnection _connection;
-        private IModel _channel;
+        private readonly IModel _channel;
+        private const string QueueName = "token_queue";
 
         public RabbitMqService()
         {
@@ -22,40 +23,32 @@ namespace TokenService.Services.RabbitMQService
 
             _connection = factory.CreateConnection();
             _channel = _connection.CreateModel();
+            _channel.QueueDeclare(queue: QueueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
         }
 
-        public void PublishMessage(string queueName, string message)
+        public void StartListening(Action<string> handleMessage)
         {
-            _channel.QueueDeclare(queue: queueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
-
-            var body = Encoding.UTF8.GetBytes(message);
-
-            _channel.BasicPublish(exchange: "", routingKey: queueName, basicProperties: null, body: body);
-        }
-
-        public void StartListening(string queueName, Action<string> onMessageReceived)
-        {
-            _channel.QueueDeclare(queue: queueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
-
             var consumer = new EventingBasicConsumer(_channel);
             consumer.Received += (sender, args) =>
             {
                 var body = args.Body.ToArray();
                 var receivedMessage = Encoding.UTF8.GetString(body);
 
-                onMessageReceived?.Invoke(receivedMessage);
+                handleMessage?.Invoke(receivedMessage);
 
                 // Acknowledge the message
                 _channel.BasicAck(args.DeliveryTag, multiple: false);
             };
 
-            _channel.BasicConsume(queue: queueName, autoAck: false, consumer: consumer);
+            _channel.BasicConsume(queue: QueueName, autoAck: false, consumer: consumer);
         }
 
-        public void Dispose()
+        public void PublishMessage(string message)
         {
-            _channel?.Dispose();
-            _connection?.Dispose();
+            var body = Encoding.UTF8.GetBytes(message);
+
+            _channel.BasicPublish(exchange: "", routingKey: QueueName, basicProperties: null, body: body);
         }
+        
     }
 }

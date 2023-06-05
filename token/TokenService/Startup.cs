@@ -25,15 +25,25 @@ public class Startup
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(Configuration.GetConnectionString("PostgreSQL")));
         services.AddTransient<ITokenServices, TokenServices>();
-        services.AddSingleton<IRabbitMqService, RabbitMqService>();
+        services.AddTransient<IRabbitMqService, RabbitMqService>();
 
         services.AddControllers().AddApplicationPart(typeof(TokenController).Assembly);
 
-        // Build the service provider
-      
+        var serviceProvider = services.BuildServiceProvider();
+        var tokenController = serviceProvider.GetService<TokenController>();
+        var rabbitMqService = serviceProvider.GetService<IRabbitMqService>();
+
+        if (tokenController != null)
+        {
+            rabbitMqService.StartListening(tokenController.HandleMessage);
+        }
+        else
+        {
+            throw new Exception("TokenController is not registered in the service provider.");
+        }
+
     }
-
-
+    
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
 
