@@ -11,6 +11,7 @@ import {IError} from "../interfaces/IError";
 import {LoginDto} from "../interfaces/auth/dto/login.dto";
 import {IToken} from "../interfaces/token/IToken";
 import {MessageTokenEnum} from "../interfaces/token/message-token.enum";
+import {LogoutDto} from "../interfaces/auth/dto/logout.dto";
 
 @Controller("auth")
 export class AuthController {
@@ -68,18 +69,18 @@ export class AuthController {
     }
 
     @Post("/logout")
-    public async logout(@Body() id: string): Promise<IGetItemResponse<string> | GenericHttpException> {
+    public async logout(@Body() dto: LogoutDto): Promise<IGetItemResponse<string> | GenericHttpException> {
         const userResponse: IGetItemServiceResponse<string> = await firstValueFrom(
-            this.tokenServiceClient.send(MessageTokenEnum.TOKEN_DESTROY, id)
+            this.tokenServiceClient.send(MessageTokenEnum.TOKEN_DESTROY, dto.id)
         )
 
-        if (userResponse.status === HttpStatus.OK) {
-            return {
-                data: userResponse.data,
-                status: userResponse.status
-            }
-        } else {
-            throw new GenericHttpException<IError>(412, userResponse.message);
+        if (userResponse.status !== HttpStatus.OK) {
+            throw new GenericHttpException<IError>(userResponse.status, userResponse.message);
+        }
+
+        return {
+            data: userResponse.data,
+            status: userResponse.status
         }
 
 

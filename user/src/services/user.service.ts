@@ -201,6 +201,13 @@ export class UserService {
 
             const user = this.searchUserHelper(id, 'id')
 
+            if  (!user) {
+                return {
+                    status: HttpStatus.NOT_FOUND,
+                    message: MessageEnum.USER_NOT_FOUND_ID,
+                    data: null,
+                }
+            }
 
             await this.userRepository.delete(id);
 

@@ -44,9 +44,10 @@ export class TokenService {
 
             const deleteResult = await this.tokenRepository.delete(tokenValue);
 
+
             if (deleteResult.affected === 0) {
                 return {
-                    status: HttpStatus.NOT_FOUND,
+                    status: HttpStatus.NO_CONTENT,
                     message: MessageEnum.NOT_FOUND,
                     data: null,
                     errors: null
@@ -62,6 +63,7 @@ export class TokenService {
 
 
         } catch (e) {
+
             return {
                 status: HttpStatus.PRECONDITION_FAILED,
                 message: MessageEnum.PRECONDITION_FAILED,
