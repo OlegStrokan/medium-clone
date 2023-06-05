@@ -27,15 +27,13 @@ export class AuthController {
             this.userServiceClient.send(MessageUserEnum.USER_CREATE, JSON.stringify(dto))
         )
 
-        if (userResponse.status === HttpStatus.CREATED) {
+        if (userResponse.status !== HttpStatus.CREATED) {
             return {
                 status: userResponse.status,
                 message: userResponse.message,
             }
-        } else if (userResponse.status === HttpStatus.CONFLICT) {
-             throw new GenericHttpException<IError>(409, userResponse.message)
         } else {
-            throw new GenericHttpException<IError>(412, userResponse.message)
+            throw new GenericHttpException<IError>(userResponse.status, userResponse.message)
         }
     }
 
@@ -43,32 +41,26 @@ export class AuthController {
     @Post("/login")
     public async login(@Body() dto: LoginDto): Promise<IGetItemResponse<IUser & IToken> | GenericHttpException> {
         const userResponse: IGetItemServiceResponse<IUser> = await firstValueFrom(
-            this.userServiceClient.send(MessageUserEnum.USER_GET_BY_EMAIL, dto.email)
+            this.userServiceClient.send(MessageUserEnum.USER_VALIDATE, JSON.stringify(dto))
         )
 
         if (userResponse.status !== HttpStatus.OK) {
-            throw new GenericHttpException<IError>(401, userResponse.message)
+            throw new GenericHttpException<IError>(userResponse.status, userResponse.message);
         }
 
-       try {
-           const tokenResponse: IGetItemServiceResponse<IToken> = await firstValueFrom(
-               this.tokenServiceClient.send(MessageTokenEnum.TOKEN_CREATE, userResponse.data.id)
-           )
+        const tokenResponse: IGetItemServiceResponse<IToken> = await firstValueFrom(
+            this.tokenServiceClient.send(MessageTokenEnum.TOKEN_CREATE, userResponse.data.id)
+        )
 
-
-        console.log(tokenResponse.status)
 
         if (tokenResponse.status !== HttpStatus.OK) {
-            throw new GenericHttpException<IError>(401, userResponse.message)
+            throw new GenericHttpException<IError>(userResponse.status, userResponse.message);
         }
-       } catch (e) {
-           console.log(e)
-       }
 
         return {
             data: {
                 ...userResponse.data,
-                tokenValue: 'hello'
+                value: tokenResponse.data.value
             },
             status: userResponse.status
         }

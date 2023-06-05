@@ -9,6 +9,7 @@ import {MessageEnum} from "../interfaces/message-enums/message.enum";
 import {CreateUserDto} from "../interfaces/request-dtos/create-user.dto";
 import {UpdateUserDto} from "../interfaces/request-dtos/update-user.dto";
 import {UsersResponseDto} from "../interfaces/response-dtos/users-response.dto";
+import {ValidateUserDto} from "../interfaces/request-dtos/validate-user.dto";
 
 Injectable()
 
@@ -19,7 +20,7 @@ export class UserService {
     ) {
     }
 
-    async getUser(id: string): Promise<UserResponseDto> {
+    public async getUser(id: string): Promise<UserResponseDto> {
 
         try {
             const user = await this.searchUserHelper(id, 'id');
@@ -40,12 +41,13 @@ export class UserService {
             return {
                 status: HttpStatus.PRECONDITION_FAILED,
                 message: MessageEnum.PRECONDITION_FAILED,
-                data: e,
+                data: null,
+                errors: e,
             };
         }
     }
 
-    async getUserByEmail(email: string): Promise<UserResponseDto> {
+    public async getUserByEmail(email: string): Promise<UserResponseDto> {
 
         try {
             const user = await this.searchUserHelper(email, 'email');
@@ -66,12 +68,51 @@ export class UserService {
             return {
                 status: HttpStatus.PRECONDITION_FAILED,
                 message: MessageEnum.PRECONDITION_FAILED,
-                data: e,
+                data: null,
+                errors: e
             };
         }
     }
 
-    async getUsers(): Promise<UsersResponseDto> {
+    public async validateUser(dto: ValidateUserDto): Promise<UserResponseDto> {
+
+        try {
+
+            const user = await this.searchUserHelper(dto.email, 'email');
+
+            if (!user) {
+                return {
+                    status: HttpStatus.NOT_FOUND,
+                    message: MessageEnum.USER_NOT_FOUND_ID,
+                    data: null
+                }
+            }
+
+            if (user && await bcrypt.compare(dto.password, user.password)) {
+                return {
+                    status: HttpStatus.OK,
+                    message: MessageEnum.USER_SEARCH_OK,
+                    data: user
+                }
+            } else {
+                return {
+                    status: HttpStatus.UNAUTHORIZED,
+                    message: MessageEnum.UNAUTHORIZED,
+                    data: null
+                }
+            }
+        } catch (e) {
+            console.log('here 3')
+            return {
+                status: HttpStatus.PRECONDITION_FAILED,
+                message: MessageEnum.PRECONDITION_FAILED,
+                data: null,
+            }
+        }
+
+    }
+
+    public async getUsers(): Promise<UsersResponseDto> {
 
         try {
             const users = await this.userRepository.find();
@@ -90,7 +131,7 @@ export class UserService {
         }
     }
 
-    async createUser(dto: CreateUserDto): Promise<UserResponseDto> {
+    public async createUser(dto: CreateUserDto): Promise<UserResponseDto> {
         const existingUser = await this.userRepository.findOne({where: {email: dto.email}});
 
         if (existingUser) {
@@ -124,7 +165,7 @@ export class UserService {
 
     }
 
-    async updateUser(dto: UpdateUserDto): Promise<UserResponseDto> {
+    public async updateUser(dto: UpdateUserDto): Promise<UserResponseDto> {
 
         const user = await this.searchUserHelper(dto.id, 'id');
 
@@ -155,19 +196,11 @@ export class UserService {
         }
     }
 
-    async deleteUser(id: string): Promise<UserResponseDto> {
+    public async deleteUser(id: string): Promise<UserResponseDto> {
         try {
 
             const user = this.searchUserHelper(id, 'id')
 
-            if (!user) {
-
-                return {
-                    status: HttpStatus.NOT_FOUND,
-                    message: MessageEnum.USER_NOT_FOUND_ID,
-                    data: null
-                }
-            }
 
             await this.userRepository.delete(id);
 
@@ -176,7 +209,6 @@ export class UserService {
                 message: MessageEnum.USER_DELETED,
                 data: null
             }
-
 
 
         } catch (e) {
@@ -193,16 +225,7 @@ export class UserService {
     }
 
     private static async hashPassword(password: string): Promise<string> {
-            const salt = await bcrypt.genSalt(10);
-            return await bcrypt.hash(password, salt);
-    }
-
-    private async validateUser(email: string, password: string): Promise<IUser> {
-        const user = await this.searchUserHelper(email, 'email');
-
-        if (user && await bcrypt.compare(password, user.password)) {
-            return user
-        }
-        return null
+        const salt = await bcrypt.genSalt(10);
+        return await bcrypt.hash(password, salt);
     }
 }
