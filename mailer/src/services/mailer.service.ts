@@ -23,6 +23,7 @@ export class MailerService {
     }
 
     async sendActivationMail(dto: SendMailDto): Promise<ResponseDto> {
+        console.log(dto, 'test')
         try {
             await this.transporter.sendMail({
                 from: 'oleg@14ua71@gmail.com',
@@ -47,6 +48,7 @@ export class MailerService {
                 status: HttpStatus.PRECONDITION_FAILED,
                 message: MessageEnum.PRECONDITION_FAILED,
                 data: null,
+                errors: e
             }
 
         }
