@@ -21,8 +21,8 @@ export class TokenController {
     }
 
     @MessagePattern(MessagePatternEnum.TOKEN_DECODE)
-    async decodeToken(userId: string): Promise<ResponseTokenDto<IToken>> {
-        return await this.tokenService.decodeToken(userId);
+    async decodeToken(token: string): Promise<ResponseTokenDto<IToken>> {
+        return await this.tokenService.decodeToken(token);
     }
 
 

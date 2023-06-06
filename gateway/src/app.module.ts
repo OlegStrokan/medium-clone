@@ -20,9 +20,18 @@ import {AuthController} from "./controllers/auth.controller";
       options: {
         urls: ['amqp://guest:guest@localhost:5672'],
         queue: 'token_queue',
-        queueOptions: { durable: false }
+        queueOptions: {durable: false}
       },
     },
+    {
+      name: 'mailer_service',
+      transport: Transport.RMQ,
+      options: {
+        urls: ['amqp://guest:guest@localhost:5672'],
+        queue: 'mailer_queue',
+        queueOptions: {durable: false}
+      },
+    }
   ]),],
   controllers: [UsersController, AuthController],
   providers: []

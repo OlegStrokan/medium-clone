@@ -22,7 +22,7 @@ export class TokenService {
         try {
             const tokenValue = this.generateToken(userId);
             const token = await this.tokenRepository.create({userId: userId, value: tokenValue})
-
+            await this.tokenRepository.save(token)
             return {
                 status: HttpStatus.OK,
                 message: MessageEnum.DECODED,
@@ -39,15 +39,13 @@ export class TokenService {
         }
     }
 
-    public async destroyToken(tokenValue: string): Promise<ResponseTokenDto<string>> {
+    public async destroyToken(userId: string): Promise<ResponseTokenDto<string>> {
         try {
-
-            const deleteResult = await this.tokenRepository.delete(tokenValue);
-
+            const deleteResult = await this.tokenRepository.delete({ userId: userId });
 
             if (deleteResult.affected === 0) {
                 return {
-                    status: HttpStatus.NO_CONTENT,
+                    status: HttpStatus.NOT_FOUND,
                     message: MessageEnum.NOT_FOUND,
                     data: null,
                     errors: null

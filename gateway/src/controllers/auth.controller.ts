@@ -17,22 +17,36 @@ import {LogoutDto} from "../interfaces/auth/dto/logout.dto";
 export class AuthController {
     constructor(
         @Inject('user_service') private readonly userServiceClient: ClientProxy,
-        @Inject('token_service') private readonly tokenServiceClient: ClientProxy
+        @Inject('token_service') private readonly tokenServiceClient: ClientProxy,
+        @Inject('mailer_service') private readonly mailerServiceClient: ClientProxy,
     ) {
     }
 
     @Post("registration")
-    // TODO - change return value on create user on user microservice
     public async registration(@Body() dto: CreateUserDto): Promise<IGetItemResponse<string> | GenericHttpException> {
-        const userResponse: IGetItemServiceResponse<string> = await firstValueFrom(
+        const userResponse: IGetItemServiceResponse<IUser> = await firstValueFrom(
             this.userServiceClient.send(MessageUserEnum.USER_CREATE, JSON.stringify(dto))
         )
 
-        if (userResponse.status !== HttpStatus.CREATED) {
-            return {
-                status: userResponse.status,
-                message: userResponse.message,
+        console.log(userResponse)
+        if (userResponse.status === HttpStatus.CREATED) {
+
+
+            const mailerResponse: IGetItemServiceResponse<string> = await firstValueFrom(
+                this.mailerServiceClient.send('send_activation_mail', JSON.stringify({ email: dto.email, activationLink: userResponse.data }))
+            )
+
+
+            if (mailerResponse.status === HttpStatus.OK) {
+                return {
+                    status: userResponse.status,
+                    message: userResponse.message,
+                }
+            } else {
+                throw new GenericHttpException<IError>(mailerResponse.status, mailerResponse.message)
             }
+
+
         } else {
             throw new GenericHttpException<IError>(userResponse.status, userResponse.message)
         }
