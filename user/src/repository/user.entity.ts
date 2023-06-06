@@ -1,5 +1,6 @@
 import { Transform } from "class-transformer";
-import {Column, Entity, PrimaryGeneratedColumn, Repository} from "typeorm";
+import {Column, Entity, OneToOne, PrimaryGeneratedColumn, Repository} from "typeorm";
+import {ActivationLinkEntity} from "./activationLink.entity";
 
 
 export interface IUserCreationAttributes {
@@ -27,5 +28,8 @@ export class UserEntity extends Repository<UserEntity> implements IUserCreationA
     @Transform(({ value }) => value.trim())
     @Column({ nullable: false})
     password: string;
+
+    @OneToOne(() => ActivationLinkEntity, activationLink => activationLink.user)
+    activationLink: string;
 
 }

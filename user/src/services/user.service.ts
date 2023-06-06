@@ -8,19 +8,23 @@ import {UserResponseDto} from "../interfaces/response-dtos/user-response.dto";
 import {MessageEnum} from "../interfaces/message-enums/message.enum";
 import {CreateUserDto} from "../interfaces/request-dtos/create-user.dto";
 import {UpdateUserDto} from "../interfaces/request-dtos/update-user.dto";
-import {UsersResponseDto} from "../interfaces/response-dtos/users-response.dto";
 import {ValidateUserDto} from "../interfaces/request-dtos/validate-user.dto";
+import * as uuid from 'uuid'
+import {ActivationLinkEntity} from "../repository/activationLink.entity";
+import {IActivationLink} from "../interfaces/IActivationLink";
 
 Injectable()
 
 export class UserService {
     constructor(
         @InjectRepository(UserEntity)
-        public readonly userRepository: Repository<IUser>
+        public readonly userRepository: Repository<IUser>,
+        @InjectRepository(ActivationLinkEntity)
+        public readonly activationLinkRepository: Repository<IActivationLink>
     ) {
     }
 
-    public async getUser(id: string): Promise<UserResponseDto> {
+    public async getUser(id: string): Promise<UserResponseDto<IUser>> {
 
         try {
             const user = await this.searchUserHelper(id, 'id');
@@ -47,7 +51,7 @@ export class UserService {
         }
     }
 
-    public async getUserByEmail(email: string): Promise<UserResponseDto> {
+    public async getUserByEmail(email: string): Promise<UserResponseDto<IUser>> {
 
         try {
             const user = await this.searchUserHelper(email, 'email');
@@ -74,7 +78,7 @@ export class UserService {
         }
     }
 
-    public async validateUser(dto: ValidateUserDto): Promise<UserResponseDto> {
+    public async validateUser(dto: ValidateUserDto): Promise<UserResponseDto<IUser>> {
 
         try {
 
@@ -112,7 +116,7 @@ export class UserService {
 
     }
 
-    public async getUsers(): Promise<UsersResponseDto> {
+    public async getUsers(): Promise<UserResponseDto<IUser[]>> {
 
         try {
             const users = await this.userRepository.find();
@@ -131,7 +135,7 @@ export class UserService {
         }
     }
 
-    public async createUser(dto: CreateUserDto): Promise<UserResponseDto> {
+    public async createUser(dto: CreateUserDto): Promise<UserResponseDto<IUser>> {
         const existingUser = await this.userRepository.findOne({where: {email: dto.email}});
 
         if (existingUser) {
@@ -146,13 +150,30 @@ export class UserService {
         }
         try {
             const hashPassword = await UserService.hashPassword(dto.password)
-            const newUser = await this.userRepository.create({...dto, password: hashPassword});
-            const user = await this.userRepository.save(newUser);
+
+            const newUser = await this.userRepository.create({...dto, password: hashPassword,});
+            await this.userRepository.save(newUser);
+
+            const activationLink = await this.activationLinkRepository.create({userId: newUser.id, link: uuid.v4()})
+
+            await this.activationLinkRepository.save(activationLink);
+
+
+            const response = await this.userRepository.createQueryBuilder('user')
+                .leftJoinAndSelect('user.activationLink', 'activationLink')
+                .select([
+                    'user.id',
+                    'user.fullName',
+                    'user.userName',
+                    'user.email',
+                    'activationLink.link AS activationLink'
+                ]) .getOne();
+
 
             return {
                 status: HttpStatus.CREATED,
                 message: MessageEnum.USER_CREATED,
-                data: user
+                data: response
             }
 
         } catch (error) {
@@ -165,7 +186,7 @@ export class UserService {
 
     }
 
-    public async updateUser(dto: UpdateUserDto): Promise<UserResponseDto> {
+    public async updateUser(dto: UpdateUserDto): Promise<UserResponseDto<IUser>> {
 
         const user = await this.searchUserHelper(dto.id, 'id');
 
@@ -196,12 +217,12 @@ export class UserService {
         }
     }
 
-    public async deleteUser(id: string): Promise<UserResponseDto> {
+    public async deleteUser(id: string): Promise<UserResponseDto<null>> {
         try {
 
             const user = this.searchUserHelper(id, 'id')
 
-            if  (!user) {
+            if (!user) {
                 return {
                     status: HttpStatus.NOT_FOUND,
                     message: MessageEnum.USER_NOT_FOUND_ID,
