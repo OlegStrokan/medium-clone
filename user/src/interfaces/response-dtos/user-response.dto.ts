@@ -1,9 +1,8 @@
-import {IUser} from "../IUser";
 
-export class UserResponseDto {
+export class UserResponseDto<T> {
     message: string;
     status: number;
-    data: IUser | null;
+    data: T | null;
     errors?: {
         messages: string[]
     };
