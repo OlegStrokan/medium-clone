@@ -33,7 +33,10 @@ export class AuthController {
 
 
             const mailerResponse: IGetItemServiceResponse<string> = await firstValueFrom(
-                this.mailerServiceClient.send('send_activation_mail', JSON.stringify({ email: dto.email, activationLink: userResponse.data }))
+                this.mailerServiceClient.send('send_activation_mail', JSON.stringify({
+                    email: dto.email,
+                    activationLink: userResponse.data
+                }))
             )
 
 
