@@ -1,8 +1,8 @@
 export enum MessageEnum {
-    CREATED = 'Token has been successfully created',
-    DESTROYED = 'Token has been successfully destroyed',
-    DECODED = 'Token has been successfully decoded',
-    NOT_FOUND = 'Token not found',
+    CREATED = 'Role has been successfully created',
+    ROLE_SEARCH_OK = 'Ok',
+    NOT_FOUND = 'No roles with this value',
+    CONFLICT = 'Role with this value already exist',
     PRECONDITION_FAILED = 'Precondition failed',
-    INVALID_TOKEN = 'Invalid token',
+
 }
