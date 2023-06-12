@@ -20,7 +20,7 @@ public class TokenServices : ITokenServices
         _configuration = configuration;
     }
 
-    
+
     public ResponseTokenDto<string> CreateToken(string userId)
     {
         try
@@ -146,5 +146,5 @@ public class TokenServices : ITokenServices
         var createdToken = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(createdToken);
     }
-    
+
 }et

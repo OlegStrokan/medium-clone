@@ -1,8 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import {Inject, Injectable} from '@nestjs/common';
+import {Repository} from "typeorm";
+import {IRole} from "../interfaces/IRole";
 
 @Injectable()
 export class RoleService {
-  getHello(): string {
-    return 'Hello World!';
-  }
+    constructor(
+        @Inject()
+        private readonly roleRepository: Repository<IRole>
+    ) {
+    }
+    createRole () {
+
+    }
+
+    getRoleByValue () {
+
+    }
+
+    getRoles () {
+
+    }
 }

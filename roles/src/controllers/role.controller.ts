@@ -3,10 +3,17 @@ import { RoleService } from '../services/role.service';
 
 @Controller()
 export class RoleController {
-  constructor(private readonly appService: RoleService) {}
+  constructor(private readonly roleService: RoleService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  createRole() {
+
+  }
+
+  getRoleByValue() {
+
+  }
+
+  getRoles () {
+
   }
 }
