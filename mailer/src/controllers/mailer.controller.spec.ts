@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MailerController } from './mailer.controller';
 import { MailerService } from '../services/mailer.service';
 
-describe('AppController', () => {
+describe('RoleController', () => {
   let appController: MailerController;
 
   beforeEach(async () => {

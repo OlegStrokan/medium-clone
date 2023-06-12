@@ -1,14 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { TokenModule } from '../src/token.module';
+import { RoleModule } from '../src/role.module';
 
 describe('RoleController (e2e)', () => {
   let app: INestApplication;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [TokenModule],
+      imports: [RoleModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
