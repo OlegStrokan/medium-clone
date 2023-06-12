@@ -24,10 +24,9 @@ export class TokenService {
             const token = await this.tokenRepository.create({userId: userId, value: tokenValue})
             await this.tokenRepository.save(token)
             return {
-                status: HttpStatus.OK,
-                message: MessageEnum.DECODED,
+                status: HttpStatus.CREATED,
+                message: MessageEnum.CREATED,
                 data: token,
-                errors: null
             }
         } catch (e) {
             return {
@@ -41,14 +40,13 @@ export class TokenService {
 
     public async destroyToken(userId: string): Promise<ResponseTokenDto<string>> {
         try {
-            const deleteResult = await this.tokenRepository.delete({ userId: userId });
+            const deleteResult = await this.tokenRepository.delete({ userId });
 
             if (deleteResult.affected === 0) {
                 return {
                     status: HttpStatus.NOT_FOUND,
                     message: MessageEnum.NOT_FOUND,
                     data: null,
-                    errors: null
                 }
             }
 
@@ -56,7 +54,6 @@ export class TokenService {
                 status: HttpStatus.OK,
                 message: MessageEnum.DESTROYED,
                 data: null,
-                errors: null
             }
 
 
@@ -81,17 +78,15 @@ export class TokenService {
 
             if (!token) {
                 return {
-                    status: HttpStatus.OK,
-                    message: MessageEnum.DECODED,
-                    data: token,
-                    errors: null
+                    status: HttpStatus.NOT_FOUND,
+                    message: MessageEnum.NOT_FOUND,
+                    data: null,
                 }
             }
             return {
                 status: HttpStatus.OK,
                 message: MessageEnum.DECODED,
                 data: token,
-                errors: null
             }
         } catch (e) {
             return {

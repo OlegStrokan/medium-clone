@@ -5,5 +5,5 @@ export class ResponseTokenDto<T> {
     status: HttpStatus;
     message: string;
     data: T | null;
-    errors?: IError
+    errors?: any
 }
