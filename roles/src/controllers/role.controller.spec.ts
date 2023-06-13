@@ -3,7 +3,7 @@ import { RoleController } from './role.controller';
 import { RoleService } from '../services/role.service';
 import {IRole} from "../interfaces/IRole";
 
-describe('AppController', () => {
+describe('UserRolesController', () => {
   let appController: RoleController;
 
   beforeEach(async () => {

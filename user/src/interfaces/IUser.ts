@@ -1,3 +1,4 @@
+
 export interface IUser {
     id: string;
     fullName: string,
@@ -5,4 +6,5 @@ export interface IUser {
     email: string;
     activationLink: string;
     password?: string;
+    roles?: string[]
 }

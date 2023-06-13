@@ -188,7 +188,10 @@ export class UserService {
             return {
                 status: HttpStatus.CREATED,
                 message: MessageEnum.USER_CREATED,
-                data: response
+                data: {
+                    ...response,
+                    roles: [roleServiceResponse.data.value]
+                }
             }
 
         } catch (error) {
