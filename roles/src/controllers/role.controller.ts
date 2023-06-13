@@ -1,4 +1,4 @@
-import {Controller, Get} from '@nestjs/common';
+import {Controller, Get, Inject} from '@nestjs/common';
 import {RoleService} from '../services/role.service';
 import {MessagePattern} from "@nestjs/microservices";
 import {MessagePatternEnum} from "../interfaces/message-enums/message-pattern.enum";

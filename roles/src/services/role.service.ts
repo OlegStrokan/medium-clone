@@ -1,14 +1,16 @@
-import {HttpStatus, Inject, Injectable} from '@nestjs/common';
+import {HttpStatus, Injectable} from '@nestjs/common';
 import {Repository} from "typeorm";
 import {IRole} from "../interfaces/IRole";
 import {CreateRoleDto} from "../interfaces/request-dtos.ts/create-role.dto";
 import {MessageEnum} from "../interfaces/message-enums/message-enum";
 import {ResponseRoleDto} from "../interfaces/response-dtos.ts/response-role.dto";
+import {InjectRepository} from "@nestjs/typeorm";
+import {RoleEntity} from "../repository/role.entity";
 
 @Injectable()
 export class RoleService {
     constructor(
-        @Inject()
+        @InjectRepository(RoleEntity)
         private readonly roleRepository: Repository<IRole>
     ) {
     }
@@ -23,7 +25,8 @@ export class RoleService {
                         data: null
                     }
                 }
-                await this.roleRepository.create(dto)
+                const newRole = await this.roleRepository.create(dto)
+                await this.roleRepository.save(newRole);
 
                 const response = await this.roleRepository.findOneBy({value: dto.value})
                 return {
@@ -48,7 +51,7 @@ export class RoleService {
             if (!role) {
                 return {
                     status: HttpStatus.NOT_FOUND,
-                    message: MessageEnum.ROLE_SEARCH_OK,
+                    message: MessageEnum.NOT_FOUND,
                     data: role
                 }
             }
