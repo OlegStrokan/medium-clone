@@ -1,4 +1,4 @@
-import {HttpStatus, Injectable} from '@nestjs/common';
+import {HttpStatus, Inject, Injectable} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import {IUser} from "../interfaces/IUser";
 import {InjectRepository} from "@nestjs/typeorm";
@@ -12,6 +12,11 @@ import {ValidateUserDto} from "../interfaces/request-dtos/validate-user.dto";
 import * as uuid from 'uuid'
 import {ActivationLinkEntity} from "../repository/activationLink.entity";
 import {IActivationLink} from "../interfaces/IActivationLink";
+import {ClientProxy} from "@nestjs/microservices";
+import {firstValueFrom} from "rxjs";
+import {MessageRoleEnum} from "../interfaces/message-enums/message-role";
+import {IRole} from "../interfaces/IRole";
+import {MessageUserRoleEnum} from "../interfaces/message-enums/message-user-role.enum";
 
 Injectable()
 
@@ -20,7 +25,9 @@ export class UserService {
         @InjectRepository(UserEntity)
         public readonly userRepository: Repository<IUser>,
         @InjectRepository(ActivationLinkEntity)
-        public readonly activationLinkRepository: Repository<IActivationLink>
+        public readonly activationLinkRepository: Repository<IActivationLink>,
+        @Inject('role_service') private readonly roleService: ClientProxy,
+        @Inject('user_role_service') private readonly userRoleService: ClientProxy
     ) {
     }
 
@@ -135,7 +142,7 @@ export class UserService {
         }
     }
 
-    public async createUser(dto: CreateUserDto): Promise<UserResponseDto<IUser>> {
+    public async createUser(dto: CreateUserDto, Message: any = MessageRoleEnum): Promise<UserResponseDto<IUser>> {
         const existingUser = await this.userRepository.findOne({where: {email: dto.email}});
 
         if (existingUser) {
@@ -151,10 +158,18 @@ export class UserService {
         try {
             const hashPassword = await UserService.hashPassword(dto.password)
 
-            const newUser = await this.userRepository.create({...dto, password: hashPassword,});
-            await this.userRepository.save(newUser);
+            const user = await this.userRepository.create({...dto, password: hashPassword,});
+            await this.userRepository.save(user);
 
-            const activationLink = await this.activationLinkRepository.create({userId: newUser.id, link: uuid.v4()})
+            const activationLink = await this.activationLinkRepository.create({userId: user.id, link: uuid.v4()})
+
+            const roleServiceResponse: UserResponseDto<IRole> = await firstValueFrom(
+                this.roleService.send(MessageRoleEnum.ROLE_GET_BY_VALUE, "admin")
+            )
+
+           await firstValueFrom(this.userRoleService.send(
+               MessageUserRoleEnum.CREATE, JSON.stringify({ userId: user.id, roleId: roleServiceResponse.data.id }))
+           )
 
             await this.activationLinkRepository.save(activationLink);
 

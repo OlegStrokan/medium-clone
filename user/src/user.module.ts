@@ -9,7 +9,26 @@ import {ClientsModule, Transport} from "@nestjs/microservices";
 import {ActivationLinkEntity} from "./repository/activationLink.entity";
 
 @Module({
-    imports: [
+    imports: [ClientsModule.register([
+        {
+            name: 'role_service',
+            transport: Transport.RMQ,
+            options: {
+                urls: ['amqp://guest:guest@localhost:5672'],
+                queue: 'role_queue',
+                queueOptions: { durable: false }
+            },
+        },
+        {
+            name: 'user_role_service',
+            transport: Transport.RMQ,
+            options: {
+                urls: ['amqp://guest:guest@localhost:5672'],
+                queue: 'user_role_queue',
+                queueOptions: { durable: false }
+            },
+        },
+    ]),
         TypeOrmModule.forFeature([
             UserEntity,
             ConfirmedUserEntity,
