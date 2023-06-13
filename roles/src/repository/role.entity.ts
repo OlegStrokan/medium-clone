@@ -12,7 +12,7 @@ export class RoleEntity extends Repository<RoleEntity> implements IRoleCreationA
     id: string;
 
     @Column({ unique: true, nullable: false })
-    name: string;
+    value: string;
 
     @Column({ nullable: false})
     description: string;

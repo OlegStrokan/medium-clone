@@ -29,9 +29,9 @@ describe('Token service tests', () => {
                 TokenService,
                 {
                     provide: getRepositoryToken(TokenEntity),
-                    useClass: Repository, // Assuming you want to use a mock repository
+                    useClass: Repository,
                 },
-                JwtService, // Add JwtService to the providers
+                JwtService,
             ],
         }).compile();
 
