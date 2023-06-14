@@ -3,7 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { UserRolesModule } from '../src/user-roles.module';
 
-describe('UserRolesController (e2e)', () => {
+describe('UserRoleController (e2e)', () => {
   let app: INestApplication;
 
   beforeEach(async () => {

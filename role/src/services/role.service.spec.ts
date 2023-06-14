@@ -132,7 +132,7 @@ describe('Role service tests', () => {
     })
 
     describe('getRoles', () => {
-        it('should return roles with OK status', async () => {
+        it('should return role with OK status', async () => {
 
             jest.spyOn(roleRepository, 'find').mockResolvedValue([role])
 

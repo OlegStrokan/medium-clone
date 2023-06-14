@@ -1,7 +1,7 @@
 import {Module} from '@nestjs/common';
 import {ClientsModule, Transport} from "@nestjs/microservices";
 import {TypeOrmModule} from "@nestjs/typeorm";
-import {UserRolesController} from "./controllers/user-roles.controller";
+import {UserRoleController} from "./controllers/user-role.controller";
 import {UserRolesService} from "./services/user-roles.service";
 
 @Module({
@@ -33,7 +33,7 @@ import {UserRolesService} from "./services/user-roles.service";
       synchronize: true,
     }),
   ],
-  controllers: [UserRolesController],
+  controllers: [UserRoleController],
   providers: [UserRolesService],
 })
 export class UserRolesModule {
