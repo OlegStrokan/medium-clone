@@ -1,4 +1,4 @@
-import {Body, Controller, HttpStatus, Inject, Post} from "@nestjs/common";
+import {Body, Controller, Get, HttpStatus, Inject, Post} from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
 import {CreateUserDto} from "../interfaces/user/dto/create-user.dto";
 import {IGetItemResponse} from "../interfaces/IGetItemResponse";
@@ -12,6 +12,8 @@ import {LoginDto} from "../interfaces/auth/dto/login.dto";
 import {IToken} from "../interfaces/token/IToken";
 import {MessageTokenEnum} from "../interfaces/token/message-token.enum";
 import {LogoutDto} from "../interfaces/auth/dto/logout.dto";
+import * as uuid from 'uuid'
+import {MessageMailerEnum} from "../interfaces/mailer/message-mailer.enum";
 
 @Controller("auth")
 export class AuthController {
@@ -28,14 +30,13 @@ export class AuthController {
             this.userServiceClient.send(MessageUserEnum.USER_CREATE, JSON.stringify(dto))
         )
 
-        console.log(userResponse)
         if (userResponse.status === HttpStatus.CREATED) {
 
-
+            console.log(userResponse)
             const mailerResponse: IGetItemServiceResponse<string> = await firstValueFrom(
-                this.mailerServiceClient.send('send_activation_mail', JSON.stringify({
+                this.mailerServiceClient.send(MessageMailerEnum.SEND_ACTIVATION_EMAIL, JSON.stringify({
                     email: dto.email,
-                    activationLink: userResponse.data
+                    activationLink: `http://localhost:8000/auth/activate/${userResponse.data.activationLink.link}`
                 }))
             )
 
@@ -100,7 +101,13 @@ export class AuthController {
             status: userResponse.status
         }
 
-
     }
+
+    @Get("/activate/:link")
+    public async activate() {
+        return 'hello'
+    }
+
+
 }
 

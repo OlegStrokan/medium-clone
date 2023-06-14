@@ -21,7 +21,6 @@ export class UserRolesService {
         try {
 
             const newRelation = await this.userRolesRepository.create(dto)
-
             return {
                 status: HttpStatus.CREATED,
                 message: MessageEnum.CREATED,

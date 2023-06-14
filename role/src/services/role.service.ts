@@ -45,15 +45,18 @@ export class RoleService {
     }
 
     public async getRoleByValue(value: string): Promise<ResponseRoleDto<IRole>> {
+
         try {
             const role = await this.roleRepository.findOneBy({value});
 
             if (!role) {
-                return {
+                // TODO - update this code
+               return await this.createRole({ value, description: value})
+               /* return {
                     status: HttpStatus.NOT_FOUND,
                     message: MessageEnum.NOT_FOUND,
                     data: role
-                }
+                }*/
             }
             return {
                 status: HttpStatus.OK,

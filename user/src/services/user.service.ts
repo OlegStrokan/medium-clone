@@ -113,7 +113,6 @@ export class UserService {
                 }
             }
         } catch (e) {
-            console.log('here 3')
             return {
                 status: HttpStatus.PRECONDITION_FAILED,
                 message: MessageEnum.PRECONDITION_FAILED,
@@ -142,7 +141,7 @@ export class UserService {
         }
     }
 
-    public async createUser(dto: CreateUserDto, Message: any = MessageRoleEnum): Promise<UserResponseDto<IUser>> {
+    public async createUser(dto: CreateUserDto): Promise<UserResponseDto<IUser>> {
         const existingUser = await this.userRepository.findOne({where: {email: dto.email}});
 
         if (existingUser) {
@@ -163,15 +162,17 @@ export class UserService {
 
             const activationLink = await this.activationLinkRepository.create({userId: user.id, link: uuid.v4()})
 
+            await this.activationLinkRepository.save(activationLink);
+
             const roleServiceResponse: UserResponseDto<IRole> = await firstValueFrom(
                 this.roleService.send(MessageRoleEnum.ROLE_GET_BY_VALUE, "admin")
             )
 
            await firstValueFrom(this.userRoleService.send(
-               MessageUserRoleEnum.CREATE, JSON.stringify({ userId: user.id, roleId: roleServiceResponse.data.id }))
+               MessageUserRoleEnum.ROLE_ASSIGN_TO_USER, JSON.stringify({ userId: user.id, roleId: roleServiceResponse.data.id }))
            )
 
-            await this.activationLinkRepository.save(activationLink);
+
 
 
             const response = await this.userRepository.createQueryBuilder('user')
@@ -181,8 +182,10 @@ export class UserService {
                     'user.fullName',
                     'user.userName',
                     'user.email',
-                    'activationLink.link AS activationLink'
-                ]) .getOne();
+                    'activationLink.link'
+                ])
+                .getOne();
+
 
 
             return {

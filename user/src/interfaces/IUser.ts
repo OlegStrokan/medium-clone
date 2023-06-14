@@ -4,7 +4,7 @@ export interface IUser {
     fullName: string,
     userName: string,
     email: string;
-    activationLink: string;
+    activationLink: { link: string };
     password?: string;
     roles?: string[]
 }

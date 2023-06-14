@@ -45,12 +45,12 @@ services:
      environment:
        POSTGRES_USER: stroka01
        POSTGRES_PASSWORD: user_role
-      POSTGRES_DB: user_role_db
+       POSTGRES_DB: user_role_db
      ports:
       - "5436:5432"
      volumes:
       - pgdata_user_role:/var/lib/postgresql/data
-    restart: always
+     restart: always
 
 
   rabbitmq:
@@ -70,6 +70,7 @@ volumes:
   pgdata_user:
   pgdata_token:
   pgdata_role:
+  pgdata_user_role:
 
 
 networks:

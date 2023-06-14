@@ -11,22 +11,20 @@ export class MailerService {
 
     constructor() {
         this.transporter = nodemailer.createTransport({
-            host: 'smtp.example.com',
+            host: 'smtp.gmail.com',
             port: 587,
             secure: false,
             auth: {
                 user: process.env.USER_EMAIL,
-                pass: process.env.USER_PASSWORD,
+                pass: process.env.USER_PASSWORD
             },
         });
-        ;
     }
 
     async sendActivationMail(dto: SendMailDto): Promise<ResponseDto> {
-        console.log(dto, 'test')
         try {
             await this.transporter.sendMail({
-                from: 'oleg@14ua71@gmail.com',
+                from: process.env.USER_EMAIL,
                 to: dto.email,
                 subject: "Email activation",
                 text: "",
@@ -57,7 +55,7 @@ export class MailerService {
     async sendCode(dto: SendCodeDto): Promise<ResponseDto> {
         try {
             await this.transporter.sendMail({
-                from: 'oleg@14ua71@gmail.com',
+                from: process.env.USER_EMAIL,
                 to: dto.email,
                 subject: "Verification code",
                 text: '',
@@ -78,6 +76,7 @@ export class MailerService {
                 status: HttpStatus.PRECONDITION_FAILED,
                 message: MessageEnum.PRECONDITION_FAILED,
                 data: null,
+                errors: e
             }
         }
     }

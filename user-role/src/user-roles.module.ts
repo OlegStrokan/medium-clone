@@ -3,6 +3,7 @@ import {ClientsModule, Transport} from "@nestjs/microservices";
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {UserRoleController} from "./controllers/user-role.controller";
 import {UserRolesService} from "./services/user-roles.service";
+import {UserRoleEntity} from "./repository/user-role.entity";
 
 @Module({
   imports: [ClientsModule.register([
@@ -17,7 +18,7 @@ import {UserRolesService} from "./services/user-roles.service";
     },
   ]),
     TypeOrmModule.forFeature([
-
+      UserRoleEntity
     ]),
     TypeOrmModule.forRoot({
       type: "postgres",
@@ -27,7 +28,7 @@ import {UserRolesService} from "./services/user-roles.service";
       password: 'user_role',
       database: 'user_role_db',
       entities: [
-
+        UserRoleEntity
       ],
       autoLoadEntities: true,
       synchronize: true,

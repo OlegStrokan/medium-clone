@@ -15,10 +15,12 @@ export class RoleController {
         return this.roleService.createRole(JSON.parse(jsonDto))
     }
 
+    @MessagePattern(MessagePatternEnum.ROLE_GET_BY_VALUE)
     getRoleByValue(value: string): Promise<ResponseRoleDto<IRole>> {
         return this.roleService.getRoleByValue(value);
     }
 
+    @MessagePattern(MessagePatternEnum.ROLE_GET_ALL)
     getRoles(): Promise<ResponseRoleDto<IRole[]>> {
         return this.roleService.getRoles();
     }
