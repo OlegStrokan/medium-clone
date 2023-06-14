@@ -21,6 +21,7 @@ export class TokenService {
 
         try {
             const tokenValue = this.generateToken(userId);
+
             const token = await this.tokenRepository.create({userId: userId, value: tokenValue})
             await this.tokenRepository.save(token)
             return {
@@ -70,11 +71,10 @@ export class TokenService {
 
     }
 
-    public async decodeToken(tokenValue: string): Promise<ResponseTokenDto<IToken>> {
+    public async decodeToken(tokenValue: string): Promise<ResponseTokenDto<string>> {
         try {
-            const decodedToken = this.jwtService.verify(tokenValue);
-            const {userId} = decodedToken;
-            const token = await this.tokenRepository.findOne({where: {userId}});
+            const { userId } = this.jwtService.verify(tokenValue);
+            const token = await this.tokenRepository.findOne({where: {value: tokenValue }});
 
             if (!token) {
                 return {
@@ -86,7 +86,7 @@ export class TokenService {
             return {
                 status: HttpStatus.OK,
                 message: MessageEnum.DECODED,
-                data: token,
+                data: userId,
             }
         } catch (e) {
             return {

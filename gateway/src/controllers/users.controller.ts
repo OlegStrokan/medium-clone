@@ -6,7 +6,7 @@ import {
     Inject,
     Param,
     Patch,
-    Post
+    Post, UseGuards
 } from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
 import {firstValueFrom} from "rxjs";
@@ -19,6 +19,7 @@ import {GenericHttpException} from "../helpers/GenericHttpException";
 import {IError} from "../interfaces/IError";
 import {UpdateUserDto} from "../interfaces/user/dto/update-user.dto";
 import {DeleteUserDto} from "../interfaces/user/dto/delete-user.dto";
+import {AuthGuard} from "../helpers/auth.guard";
 
 
 @Controller('users')
@@ -80,8 +81,10 @@ export class UsersController {
         }
     }
 
-    @Patch(":id")
+    @UseGuards(AuthGuard)
+    @Patch("/:id")
     public async updateUser(@Body() dto: UpdateUserDto, @Param('id') id: DeleteUserDto): Promise<IGetItemResponse<IUser> | GenericHttpException> {
+
         const userResponse: IGetItemServiceResponse<IUser> = await firstValueFrom(
             this.userServiceClient.send(MessageUserEnum.USER_UPDATE, JSON.stringify({id, ...dto}))
         )
