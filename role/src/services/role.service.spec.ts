@@ -50,7 +50,7 @@ describe('Role service tests', () => {
             expect(roleRepository.findOneBy).toHaveBeenCalledWith({ value: roleDto.value });
             expect(roleRepository.create).toHaveBeenCalledWith(roleDto);
             expect(roleRepository.save).toHaveBeenCalledWith(role);
-            expect(result).toEqual({
+            expect(result).toEqual<ResponseRoleDto<IRole>>({
                 status: HttpStatus.CREATED,
                 message: MessageEnum.CREATED,
                 data: result.data,
@@ -77,7 +77,7 @@ describe('Role service tests', () => {
             const result = await roleService.createRole(roleDto);
 
             expect(roleRepository.findOneBy).toHaveBeenCalledWith({ value: roleDto.value })
-            expect(result).toEqual({
+            expect(result).toEqual<ResponseRoleDto<null>>({
                 status: HttpStatus.PRECONDITION_FAILED,
                 message: MessageEnum.PRECONDITION_FAILED,
                 data: null,
