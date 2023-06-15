@@ -121,11 +121,11 @@ describe('Token service tests', () => {
         const result = await tokenService.decodeToken(testToken.value);
 
         expect(jwtService.verify).toHaveBeenCalledWith(testToken.value);
-        expect(tokenRepository.findOne).toHaveBeenCalledWith({ where: { userId: decodedToken.userId }})
-            expect(result).toEqual<ResponseTokenDto<IToken>>({
+        expect(tokenRepository.findOne).toHaveBeenCalledWith({ where: { value: testToken.value }})
+            expect(result).toEqual<ResponseTokenDto<string>>({
                 status: HttpStatus.OK,
                 message: MessageEnum.DECODED,
-                data: testToken
+                data: testToken.userId
             })
     });
         it('should return the not found if token is not found', async () => {
@@ -135,7 +135,7 @@ describe('Token service tests', () => {
             const result = await tokenService.decodeToken(testToken.value)
 
             expect(jwtService.verify).toHaveBeenCalledWith(testToken.value);
-            expect(tokenRepository.findOne).toHaveBeenCalledWith({ where: { userId: decodedToken.userId }})
+            expect(tokenRepository.findOne).toHaveBeenCalledWith({ where: { value: testToken.value }})
             expect(result).toEqual<ResponseTokenDto<IToken>>({
                 status: HttpStatus.NOT_FOUND,
                 message: MessageEnum.NOT_FOUND,

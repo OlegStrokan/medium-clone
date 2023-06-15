@@ -159,6 +159,7 @@ export class UserService {
     }
 
     public async createUser(dto: CreateUserDto): Promise<UserResponseDto<IUser>> {
+
         this.logger.log(UserLogsEnum.USER_CREATION_INITIATED);
 
         const existingUser = await this.userRepository.findOne({
@@ -217,13 +218,16 @@ export class UserService {
                 .getOne();
 
             this.logger.log(UserLogsEnum.USER_CREATED);
+
             return {
                 status: HttpStatus.CREATED,
                 message: MessageEnum.USER_CREATED,
                 data: response,
             };
         } catch (e) {
+
             this.logger.log(UserLogsEnum.USER_CREATION_ERROR);
+
             return {
                 status: HttpStatus.PRECONDITION_FAILED,
                 message: MessageEnum.PRECONDITION_FAILED,
