@@ -1,0 +1,17 @@
+export enum AuthLogsEnum {
+    REGISTRATION_INITIATED = 'Registration process initiated',
+    USER_CREATED = 'User created successfully',
+    ACTIVATION_EMAIL_SENT = 'Activation email sent successfully',
+    REGISTRATION_SUCCESSFUL = 'Registration successful',
+    ACTIVATION_EMAIL_FAILED = 'Failed to send activation email',
+    USER_CREATION_FAILED = 'User creation failed',
+    LOGIN_INITIATED = 'Login process initiated',
+    USER_VALIDATION_COMPLETED = 'User validation completed',
+    INVALID_CREDENTIALS = 'Invalid credential provided',
+    TOKEN_CREATION_COMPLETED = 'Token creation completed',
+    TOKEN_CREATION_FAILED = 'Token creation failed',
+    LOGIN_SUCCESSFUL = 'Login successful',
+    LOGOUT_INITIATED = 'Logout process initiated',
+    LOGOUT_FAILED = 'Logout failed',
+    LOGOUT_SUCCESSFUL = 'Logout successful',
+}

@@ -23,8 +23,6 @@ export class AuthGuard implements CanActivate {
             this.tokenService.send(MessageTokenEnum.TOKEN_DECODE, tokenValue),
         );
 
-        console.log(tokenServiceResponse.status)
-
         return tokenServiceResponse.status === HttpStatus.OK;
     }
 }
