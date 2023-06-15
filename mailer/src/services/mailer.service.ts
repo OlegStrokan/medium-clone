@@ -1,15 +1,18 @@
-import {HttpStatus, Injectable} from '@nestjs/common';
+import {HttpStatus, Injectable, Logger} from '@nestjs/common';
 import {SendMailDto} from "../interfaces/request-dtos/send-mail.dto";
 import {SendCodeDto} from "../interfaces/request-dtos/send-code.dto";
 import {ResponseDto} from "../interfaces/response-dtos/response.dto";
 import *  as nodemailer from 'nodemailer';
 import {MessageEnum} from "../interfaces/message-enums/message-enum";
+import {MailerLogsEnum} from "../interfaces/message-enums/mailer-logs.enum";
 
 @Injectable()
 export class MailerService {
+    private logger: Logger
     public transporter;
 
     constructor() {
+        this.logger = new Logger(MailerService.name)
         this.transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com',
             port: 587,
@@ -22,6 +25,9 @@ export class MailerService {
     }
 
     async sendActivationMail(dto: SendMailDto): Promise<ResponseDto> {
+
+        this.logger.log(MailerLogsEnum.ACTIVATION_MAIL_INITIATED)
+
         try {
             await this.transporter.sendMail({
                 from: process.env.USER_EMAIL,
@@ -36,12 +42,15 @@ export class MailerService {
             </div>
             `
             } as any)
+
+            this.logger.log(MailerLogsEnum.ACTIVATION_MAIL_SENT)
             return {
                 status: HttpStatus.OK,
                 message: MessageEnum.EMAIL_SUCCESS,
                 data: null,
             }
         } catch (e) {
+            this.logger.log(MailerLogsEnum.ACTIVATION_MAIL_ERROR)
             return {
                 status: HttpStatus.PRECONDITION_FAILED,
                 message: MessageEnum.PRECONDITION_FAILED,
@@ -53,6 +62,9 @@ export class MailerService {
     }
 
     async sendCode(dto: SendCodeDto): Promise<ResponseDto> {
+
+        this.logger.log(MailerLogsEnum.CODE_MAIL_INITIATED)
+
         try {
             await this.transporter.sendMail({
                 from: process.env.USER_EMAIL,
@@ -66,12 +78,14 @@ export class MailerService {
             </div>`
             } as any)
 
+            this.logger.log(MailerLogsEnum.CODE_MAIL_SENT)
             return {
                 status: HttpStatus.OK,
                 message: MessageEnum.CODE_SUCCESS,
                 data: null,
             }
         } catch (e) {
+            this.logger.log(MailerLogsEnum.CODE_MAIL_ERROR)
             return {
                 status: HttpStatus.PRECONDITION_FAILED,
                 message: MessageEnum.PRECONDITION_FAILED,
