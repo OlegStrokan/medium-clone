@@ -6,17 +6,19 @@ import {UserResponseDto} from "../interfaces/response-dtos/user-response.dto";
 import {HttpStatus} from "@nestjs/common";
 import {MessageEnum} from "../interfaces/message-enums/message.enum";
 import {UpdateUserDto} from "../interfaces/request-dtos/update-user.dto";
+import {IUser} from "../interfaces/IUser";
 
 describe('UserService', () => {
     let userService: UserService
     let userRepository: UserEntity
 
-    const testUser = {
+    const testUser: IUser = {
         id: '20392039',
         email: 'test@example.com',
         password: 'pas099sword',
         fullName: "Oleh Strokan",
         userName: "stroka01",
+        activationLink: { link: 'https://google.com'}
     }
 
 
@@ -49,20 +51,20 @@ describe('UserService', () => {
 
             jest.spyOn(userService as any, 'searchUserHelper').mockResolvedValue(testUser)
 
-            const result: UserResponseDto = await userService.getUser(testUser.id)
+            const result: UserResponseDto<IUser> = await userService.getUser(testUser.id)
 
             expect(result.status).toEqual(HttpStatus.OK)
-            expect(result.message).toEqual(MessageEnum.OK)
+            expect(result.message).toEqual(MessageEnum.USER_SEARCH_OK)
             expect(result.data).toEqual(testUser)
         });
         it('should return 404 not found when user does not exist', async () => {
 
             jest.spyOn(userService as any, 'searchUserHelper').mockResolvedValue(null);
 
-            const result: UserResponseDto = await userService.getUser(testUser.id);
+            const result: UserResponseDto<IUser> = await userService.getUser(testUser.id);
 
             expect(result.status).toEqual(HttpStatus.NOT_FOUND)
-            expect(result.message).toEqual(MessageEnum.NOT_FOUND)
+            expect(result.message).toEqual(MessageEnum.USER_NOT_FOUND_ID)
             expect(result.data).toBeNull()
         });
     })
@@ -80,10 +82,10 @@ describe('UserService', () => {
             jest.spyOn(userService.userRepository, 'create').mockReturnValue(testUser)
             jest.spyOn(userService.userRepository, 'save').mockResolvedValue(testUser)
 
-            const result: UserResponseDto = await userService.createUser(user)
+            const result: UserResponseDto<IUser> = await userService.createUser(user)
 
             expect(result.status).toEqual(HttpStatus.CREATED)
-            expect(result.message).toEqual(MessageEnum.CREATED)
+            expect(result.message).toEqual(MessageEnum.USER_CREATED)
             expect(result.data.email).toBe(testUser.email)
         });
     })
@@ -97,18 +99,22 @@ describe('UserService', () => {
             userName: 'User',
         };
 
-        const existingUser = {
+        const existingUser: IUser = {
             id: '1',
             email: 'old@test.com',
             fullName: 'Olejandro Stroka',
             userName: 'stroka01',
+            activationLink: { link: 'https://google.com'}
+
         }
 
-        const updatedUser = {
+        const updatedUser: IUser = {
             id: '1',
             email: 'test@test.com',
             fullName: 'Oleh Strokan',
             userName: 'stroka02',
+            activationLink: { link: 'https://google.com'}
+
         };
 
         it('should update a user if user already exist', async () => {
@@ -120,7 +126,7 @@ describe('UserService', () => {
 
             expect(result).toEqual({
                 status: HttpStatus.OK,
-                message: MessageEnum.OK,
+                message: MessageEnum.USER_UPDATED,
                 data: updatedUser,
             });
         })
@@ -132,18 +138,20 @@ describe('UserService', () => {
 
             expect(result).toEqual({
                 status: HttpStatus.NOT_FOUND,
-                message: MessageEnum.NOT_FOUND,
+                message: MessageEnum.USER_NOT_FOUND_ID,
                 data: null
             })
         });
     })
 
     describe('deleteUser', () => {
-        const existingUser = {
+        const existingUser: IUser = {
             id: '1',
             email: 'old@test.com',
             fullName: 'Olejandro Stroka',
             userName: 'stroka01',
+            activationLink: { link: 'https://google.com'}
+
         }
 
         it('should delete a user and return NO_CONTENT response', async () => {
@@ -152,14 +160,14 @@ describe('UserService', () => {
             userRepository.delete = jest.fn().mockResolvedValue(undefined);
 
 
-            const result: UserResponseDto = await userService.deleteUser(existingUser.id);
+            const result: UserResponseDto<IUser> = await userService.deleteUser(existingUser.id);
 
 
             expect(userRepository.findOneBy).toHaveBeenCalledWith({ id: existingUser.id });
             expect(userRepository.delete).toHaveBeenCalledWith(existingUser.id);
             expect(result).toEqual({
                 status: HttpStatus.NO_CONTENT,
-                message: MessageEnum.NO_CONTENT,
+                message: MessageEnum.USER_DELETED,
                 data: null,
             });
         });
@@ -169,13 +177,13 @@ describe('UserService', () => {
             userRepository.findOneBy = jest.fn().mockRejectedValue(undefined);
 
 
-            const result: UserResponseDto = await userService.deleteUser(existingUser.id);
+            const result: UserResponseDto<IUser> = await userService.deleteUser(existingUser.id);
 
 
             expect(userRepository.findOneBy).toHaveBeenCalledWith({ id: existingUser.id });
             expect(result).toEqual({
                 status: HttpStatus.NOT_FOUND,
-                message: MessageEnum.NOT_FOUND,
+                message: MessageEnum.USER_NOT_FOUND_ID,
                 data: 'Test for hooks',
             });
         });
@@ -186,7 +194,7 @@ describe('UserService', () => {
             userRepository.delete = jest.fn().mockRejectedValue(undefined);
 
 
-            const result: UserResponseDto = await userService.deleteUser(existingUser.id);
+            const result: UserResponseDto<IUser> = await userService.deleteUser(existingUser.id);
 
 
             expect(userRepository.findOneBy).toHaveBeenCalledWith({ id: existingUser.id });
