@@ -10,7 +10,7 @@ import {CreateUserDto} from '../interfaces/request-dtos/create-user.dto';
 import {UpdateUserDto} from '../interfaces/request-dtos/update-user.dto';
 import {ValidateUserDto} from '../interfaces/request-dtos/validate-user.dto';
 import * as uuid from 'uuid';
-import {ActivationLinkEntity} from '../repository/activationLink.entity';
+import {ActivationLinkEntity} from '../repository/activation-link.entity';
 import {IActivationLink} from '../interfaces/IActivationLink';
 import {ClientProxy} from '@nestjs/microservices';
 import {firstValueFrom} from 'rxjs';

@@ -1,6 +1,6 @@
 import { Transform } from "class-transformer";
 import {Column, Entity, OneToOne, PrimaryGeneratedColumn, Repository} from "typeorm";
-import {ActivationLinkEntity} from "./activationLink.entity";
+import {ActivationLinkEntity} from "./activation-link.entity";
 
 
 export interface IUserCreationAttributes {

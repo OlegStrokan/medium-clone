@@ -6,7 +6,8 @@ import {UserEntity} from "./repository/user.entity";
 import {ConfirmedUserEntity} from "./repository/confirmed-user.entity";
 import {BannedUserEntity} from "./repository/banned-user.entity";
 import {ClientsModule, Transport} from "@nestjs/microservices";
-import {ActivationLinkEntity} from "./repository/activationLink.entity";
+import {ActivationLinkEntity} from "./repository/activation-link.entity";
+import {SeedService} from "./services/seed.service";
 
 @Module({
     imports: [ClientsModule.register([
@@ -53,7 +54,8 @@ import {ActivationLinkEntity} from "./repository/activationLink.entity";
         }),
     ],
     controllers: [UserController],
-    providers: [UserService],
+    providers: [UserService, SeedService],
 })
 export class UserModule {
 }
+
