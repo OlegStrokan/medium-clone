@@ -1,0 +1,28 @@
+{
+  "users":
+[
+  {
+    "fullName": "John Doe",
+    "userName": "johndoe",
+    "email": "oleg14ua71@gmail.com",
+    "password": "password123"
+  },
+  {
+    "fullName": "Jane Smith",
+    "userName": "janesmith",
+    "email": "janesmith@example.com",
+    "password": "password456"
+  }
+],
+
+  "activationLinks": [
+    {
+      "userId": "1",
+      "link": "http://localhost:8000/activation/123"
+    },
+    {
+      "userId": "2",
+      "link": "http://localhost:8000/activation/902"
+    }
+  ]
+}
