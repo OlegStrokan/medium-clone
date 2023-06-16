@@ -21,10 +21,10 @@ export class SeedService {
             const userRepository: Repository<UserEntity> = this.connection.getRepository(UserEntity);
             const activationLinkRepository: Repository<ActivationLinkEntity> = this.connection.getRepository(ActivationLinkEntity);
 
-            // Check if the tables already have data
             const hasData = await this.checkDataExistence(userRepository);
 
             if (!hasData) {
+                // TODO - update PATH
                 const testData = fs.readFileSync('/Users/stroka01/Development/medium-clone/user/test_db.json', 'utf-8');
 
                 const data = JSON.parse(testData);
@@ -61,17 +61,17 @@ export class SeedService {
 
     async clearTables(): Promise<void> {
         try {
-            this.logger.log(SeedLogMessage.USERS_CLEARING_INITIATED)
+            this.logger.log(SeedLogMessage.DATABASE_CLEARING_INITIATED)
             const userRepository: Repository<UserEntity> = this.connection.getRepository(UserEntity);
             const activationLinkRepository: Repository<ActivationLinkEntity> = this.connection.getRepository(ActivationLinkEntity);
 
             await activationLinkRepository.query('TRUNCATE TABLE users RESTART IDENTITY');
             await userRepository.query('TRUNCATE TABLE users RESTART IDENTITY');
 
-            this.logger.log(SeedLogMessage.USERS_TABLE_CLEARED)
+            this.logger.log(SeedLogMessage.DATABASE_SEEDING_COMPLETED)
 
         } catch (e) {
-            this.logger.error(SeedLogMessage.ERROR_CLEARING_USERS_TABLE)
+            this.logger.error(SeedLogMessage.ERROR_CLEARING_DATABASE)
         }
     }
 }

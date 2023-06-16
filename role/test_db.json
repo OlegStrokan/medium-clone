@@ -1,0 +1,13 @@
+{
+  "roles":
+[
+  {
+    "value": "admin",
+    "description": "Permission for admin. Allows everything"
+  },
+  {
+    "value": "user",
+    "description": "Permission for user. Allows to controll own account"
+  }
+]
+}
