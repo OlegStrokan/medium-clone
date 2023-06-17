@@ -7,6 +7,9 @@ import {ResponseRoleDto} from "../interfaces/response-dtos.ts/response-role.dto"
 import {InjectRepository} from "@nestjs/typeorm";
 import {RoleEntity} from "../repository/role.entity";
 import {RoleLogsEnum} from "../interfaces/message-enums/role-logs.enum";
+import {AssignRoleToUserDto} from "../interfaces/request-dtos.ts/assign-role.dto";
+import {IUserRole} from "../interfaces/IUserRole";
+import {UserRoleEntity} from "../repository/user-role.entity";
 
 @Injectable()
 export class RoleService {
@@ -14,7 +17,9 @@ export class RoleService {
 
     constructor(
         @InjectRepository(RoleEntity)
-        private readonly roleRepository: Repository<IRole>
+        private readonly roleRepository: Repository<IRole>,
+        @InjectRepository(UserRoleEntity)
+        private readonly userRoleRepository: Repository<IUserRole>
     ) {
         this.logger = new Logger(RoleService.name)
     }
@@ -63,13 +68,13 @@ export class RoleService {
             if (!role) {
                 // TODO - update this code
                 return await this.createRole({value, description: value})
-              /*
-                 this.logger.log(RoleLogsEnum.ROLE_NOT_FOUND)
-                 return {
-                      status: HttpStatus.NOT_FOUND,
-                      message: MessageEnum.NOT_FOUND,
-                      data: role
-                  }*/
+                /*
+                   this.logger.log(RoleLogsEnum.ROLE_NOT_FOUND)
+                   return {
+                        status: HttpStatus.NOT_FOUND,
+                        message: MessageEnum.NOT_FOUND,
+                        data: role
+                    }*/
             }
             this.logger.log(RoleLogsEnum.ROLE_SEARCH_OK)
             return {
@@ -102,6 +107,61 @@ export class RoleService {
             }
         } catch (e) {
             this.logger.error(RoleLogsEnum.ROLES_SEARCH_ERROR)
+            return {
+                status: HttpStatus.PRECONDITION_FAILED,
+                message: MessageEnum.PRECONDITION_FAILED,
+                data: null,
+                errors: e
+            }
+        }
+    }
+
+    public async assignRoleToUser(dto: AssignRoleToUserDto): Promise<ResponseRoleDto<IUserRole>> {
+        try {
+
+            this.logger.log(RoleLogsEnum.ROLE_ASSIGNMENT_INITIATED)
+            const newRelation = await this.userRoleRepository.create(dto)
+            this.logger.log(RoleLogsEnum.ROLE_ASSIGNMENT_SUCCESS)
+            return {
+                status: HttpStatus.CREATED,
+                message: MessageEnum.CREATED,
+                data: newRelation
+            }
+        } catch (e) {
+            this.logger.error(RoleLogsEnum.ROLE_ASSIGNMENT_ERROR)
+            return {
+                status: HttpStatus.PRECONDITION_FAILED,
+                message: MessageEnum.PRECONDITION_FAILED,
+                data: null,
+                errors: e
+            }
+        }
+
+    }
+
+    public async getRoleForUser(userId: string): Promise<ResponseRoleDto<IUserRole[]>> {
+        this.logger.log(RoleLogsEnum.ROLE_RETRIEVAL_INITIATED)
+        try {
+
+            const relation = await this.userRoleRepository.findBy({userId: userId})
+
+            if (!relation) {
+                this.logger.warn(RoleLogsEnum.ROLE_RETRIEVAL_NOT_FOUND)
+                return {
+                    status: HttpStatus.NOT_FOUND,
+                    message: MessageEnum.RELATION_NOT_FOUND,
+                    data: null
+                }
+            }
+
+            this.logger.log(RoleLogsEnum.ROLE_RETRIEVAL_SUCCESS)
+            return {
+                status: HttpStatus.OK,
+                message: MessageEnum.ROLE_SEARCH_OK,
+                data: relation
+            }
+        } catch (e) {
+            this.logger.error(RoleLogsEnum.ROLE_RETRIEVAL_ERROR)
             return {
                 status: HttpStatus.PRECONDITION_FAILED,
                 message: MessageEnum.PRECONDITION_FAILED,
