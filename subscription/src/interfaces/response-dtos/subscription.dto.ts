@@ -1,5 +1,5 @@
 
-export class UserRoleResponseDto<T> {
+export class ResponseDto<T> {
     message: string;
     status: number;
     data: T | null;

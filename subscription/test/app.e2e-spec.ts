@@ -3,7 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { SubscriptionModule } from '../src/subscription.module';
 
-describe('UserRoleController (e2e)', () => {
+describe('SubscriptionController (e2e)', () => {
   let app: INestApplication;
 
   beforeEach(async () => {
