@@ -20,10 +20,10 @@ export class SubscriptionEntity extends Repository<SubscriptionEntity> implement
     description: string;
 
     @Column({ nullable: true })
-    monthPrice: number;
+    monthPrice: string;
 
     @Column({ nullable: true })
-    yearPrice: number;
+    yearPrice: string;
 
 
 }

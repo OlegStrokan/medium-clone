@@ -1,17 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserRoleController } from './user-role.controller';
-import { UserRolesService } from '../services/user-roles.service';
+import { SubscriptionController } from './subscription.controller';
+import { SubscriptionService } from '../services/subscription.service';
 
 describe('AppController', () => {
-  let appController: UserRoleController;
+  let appController: SubscriptionController;
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
-      controllers: [UserRoleController],
-      providers: [UserRolesService],
+      controllers: [SubscriptionController],
+      providers: [SubscriptionService],
     }).compile();
 
-    appController = app.get<UserRoleController>(UserRoleController);
+    appController = app.get<SubscriptionController>(SubscriptionController);
   });
 
   describe('root', () => {

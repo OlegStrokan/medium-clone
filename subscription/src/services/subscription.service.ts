@@ -18,7 +18,7 @@ export class SubscriptionService {
     constructor(
         @InjectRepository(SubscriptionEntity)
         private readonly subscriptionRepository: Repository<ISubscription>,
-    @InjectRepository(UserSubscriptionEntity)
+        @InjectRepository(UserSubscriptionEntity)
         private readonly userSubscriptionRepository: Repository<IUserSubscription>
     ) {
         this.logger = new Logger(SubscriptionService.name)
@@ -67,12 +67,12 @@ export class SubscriptionService {
             const role = await this.subscriptionRepository.findOneBy({value});
 
             if (!role) {
-                   this.logger.log(SubscriptionLogsEnum.SUBSCRIPTION_NOT_FOUND)
-                   return {
-                        status: HttpStatus.NOT_FOUND,
-                        message: MessageEnum.SUBSCRIPTION_NOT_FOUND,
-                        data: role
-                    }
+                this.logger.log(SubscriptionLogsEnum.SUBSCRIPTION_NOT_FOUND)
+                return {
+                    status: HttpStatus.NOT_FOUND,
+                    message: MessageEnum.SUBSCRIPTION_NOT_FOUND,
+                    data: role
+                }
             }
             this.logger.log(SubscriptionLogsEnum.SUBSCRIPTION_SEARCH_OK)
             return {
@@ -91,7 +91,7 @@ export class SubscriptionService {
         }
     }
 
-    public async getRoles(): Promise<ResponseDto<ISubscription[]>> {
+    public async getSubscriptions(): Promise<ResponseDto<ISubscription[]>> {
 
         this.logger.log(SubscriptionLogsEnum.SUBSCRIPTIONS_SEARCH_INITIATED)
         try {
