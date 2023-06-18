@@ -1,41 +1,41 @@
 import {Module} from '@nestjs/common';
 import {ClientsModule, Transport} from "@nestjs/microservices";
 import {TypeOrmModule} from "@nestjs/typeorm";
-import {UserRoleController} from "./controllers/user-role.controller";
-import {UserRolesService} from "./services/user-roles.service";
-import {UserRoleEntity} from "./repository/user-role.entity";
+import {SubscriptionController} from "./controllers/subscription.controller";
+import {SubscriptionService} from "./services/subscription.service";
+import {SubscriptionEntity} from "./repository/subscription.entity";
 
 @Module({
   imports: [ClientsModule.register([
     {
-      name: 'role_service',
+      name: 'subscription_service',
       transport: Transport.RMQ,
       options: {
         urls: ['amqp://guest:guest@localhost:5672'],
-        queue: 'role_queue',
+        queue: 'subscription_queue',
         queueOptions: { durable: false }
       },
     },
   ]),
     TypeOrmModule.forFeature([
-      UserRoleEntity
+      SubscriptionEntity
     ]),
     TypeOrmModule.forRoot({
       type: "postgres",
       host: 'localhost',
       port: 5436,
       username: 'stroka01',
-      password: 'user_role',
-      database: 'user_role_db',
+      password: 'subscription',
+      database: 'subscription_db',
       entities: [
-        UserRoleEntity
+        SubscriptionEntity
       ],
       autoLoadEntities: true,
       synchronize: true,
     }),
   ],
-  controllers: [UserRoleController],
-  providers: [UserRolesService],
+  controllers: [SubscriptionController],
+  providers: [SubscriptionService],
 })
 export class SubscriptionModule {
 }

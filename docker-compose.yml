@@ -39,13 +39,13 @@ services:
       - pgdata_role:/var/lib/postgresql/data
     restart: always
 
-  user_role_db:
-     container_name: user_role_db
+  subscription:
+     container_name: subscription_db
      image: postgres:13
      environment:
        POSTGRES_USER: stroka01
-       POSTGRES_PASSWORD: user_role
-       POSTGRES_DB: user_role_db
+       POSTGRES_PASSWORD: subscription
+       POSTGRES_DB: subscription_db
      ports:
       - "5436:5432"
      volumes:
