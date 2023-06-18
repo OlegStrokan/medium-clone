@@ -121,6 +121,7 @@ export class RoleService {
 
             this.logger.log(RoleLogsEnum.ROLE_ASSIGNMENT_INITIATED)
             const newRelation = await this.userRoleRepository.create(dto)
+            await this.userRoleRepository.save(newRelation)
             this.logger.log(RoleLogsEnum.ROLE_ASSIGNMENT_SUCCESS)
             return {
                 status: HttpStatus.CREATED,
@@ -128,7 +129,7 @@ export class RoleService {
                 data: newRelation
             }
         } catch (e) {
-            this.logger.error(RoleLogsEnum.ROLE_ASSIGNMENT_ERROR)
+            this.logger.error(RoleLogsEnum.ROLE_ASSIGNMENT_ERROR, e)
             return {
                 status: HttpStatus.PRECONDITION_FAILED,
                 message: MessageEnum.PRECONDITION_FAILED,
