@@ -37,5 +37,5 @@ import {UserRoleEntity} from "./repository/user-role.entity";
   controllers: [UserRoleController],
   providers: [UserRolesService],
 })
-export class UserRolesModule {
+export class SubscriptionModule {
 }

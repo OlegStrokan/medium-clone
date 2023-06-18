@@ -6,7 +6,7 @@ export interface IUserRoleCreationAttributes {
 }
 
 
-@Entity('user-role')
+@Entity('subscription')
 export class UserRoleEntity extends Repository<UserRoleEntity> implements IUserRoleCreationAttributes {
 
     @PrimaryGeneratedColumn()

@@ -1,11 +1,11 @@
 import {NestFactory} from '@nestjs/core';
 import {Transport, MicroserviceOptions } from '@nestjs/microservices';
 import {ValidationPipe} from "@nestjs/common";
-import {UserRolesModule} from "./user-roles.module";
+import {SubscriptionModule} from "./subscription.module";
 
 
 async function bootstrap() {
-  const app = await NestFactory.createMicroservice<MicroserviceOptions>(UserRolesModule, {
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(SubscriptionModule, {
     transport: Transport.RMQ,
     options: {
       urls: ['amqp://guest:guest@localhost:5672'],
