@@ -4,9 +4,13 @@ import {IRole} from "../interfaces/IRole";
 import {Test, TestingModule} from "@nestjs/testing";
 import {getRepositoryToken} from "@nestjs/typeorm";
 import {RoleEntity} from "../repository/role.entity";
-import {HttpStatus} from "@nestjs/common";
+import {HttpStatus, Logger} from "@nestjs/common";
 import {MessageEnum} from "../interfaces/message-enums/message-enum";
 import {ResponseRoleDto} from "../interfaces/response-dtos.ts/response-role.dto";
+import {UserRoleEntity} from "../repository/user-role.entity";
+import {IUserRole} from "../interfaces/IUserRole";
+import {AssignRoleToUserDto} from "../interfaces/request-dtos.ts/assign-role.dto";
+import {RoleLogsEnum} from "../interfaces/message-enums/role-logs.enum";
 
 describe('Role service tests', () => {
     let roleService: RoleService;
@@ -23,6 +27,21 @@ describe('Role service tests', () => {
         description: 'Role for admin'
     }
 
+    let userRoleRepository: Repository<IUserRole>
+    let logger: Logger;
+
+    const userRole: IUserRole = {
+        id: '2',
+        userId: '12',
+        roleId: '1'
+    }
+
+    const userRoleDto: AssignRoleToUserDto = {
+        userId: '12',
+        roleId: '1'
+    }
+
+
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
@@ -31,12 +50,28 @@ describe('Role service tests', () => {
                 {
                     provide: getRepositoryToken(RoleEntity),
                     useClass: Repository
-                }
+                },
+                {
+                    provide: getRepositoryToken(UserRoleEntity),
+                    useClass: Repository
+                },
+                {
+                    provide: Logger,
+                    useValue: {
+                        log: jest.fn(),
+                        error: jest.fn(),
+                        warn: jest.fn(),
+                        debug: jest.fn(),
+                        verbose: jest.fn(),
+                    },
+                },
             ]
         }).compile();
 
         roleService = module.get<RoleService>(RoleService);
         roleRepository = module.get<RoleEntity>(RoleEntity);
+        userRoleRepository = module.get<UserRoleEntity>(UserRoleEntity);
+        logger = module.get<Logger>(Logger);
     })
 
     describe('createRole', () => {
@@ -109,7 +144,7 @@ describe('Role service tests', () => {
             expect(roleRepository.findOneBy).toHaveBeenCalledWith({ value: role.value })
             expect(result).toEqual<ResponseRoleDto<IRole>>({
                 status: HttpStatus.NOT_FOUND,
-                message: MessageEnum.NOT_FOUND,
+                message: MessageEnum.ROLE_NOT_FOUND,
                 data: null
             })
         });
@@ -162,5 +197,55 @@ describe('Role service tests', () => {
                 errors: error
             })
         });
+    })
+
+    describe('getRoleForUser', () => {
+        const userId = '2'
+        it('should return a roles for current user', async () => {
+            jest.spyOn(userRoleRepository, 'findBy').mockResolvedValue([userRole]);
+
+            const result = await roleService.getRoleForUser(userId)
+
+            expect(userRoleRepository.findBy).toHaveBeenCalledWith({ userId })
+            expect(result).toEqual<ResponseRoleDto<IUserRole[]>>({
+                status: HttpStatus.OK,
+                message: MessageEnum.ROLE_SEARCH_OK,
+                data: result.data
+            })
+           // expect(logger.error).toHaveBeenCalledWith(RoleLogsEnum.ROLE_RETRIEVAL_SUCCESS);
+
+        });
+        it('should return not found status if relation doesnt exist', async () => {
+
+            jest.spyOn(userRoleRepository, 'findBy').mockResolvedValue(null);
+
+            const result = await roleService.getRoleForUser(userId)
+
+            expect(userRoleRepository.findBy).toHaveBeenCalledWith({ userId })
+            expect(result).toEqual<ResponseRoleDto<IUserRole[]>>({
+                status: HttpStatus.NOT_FOUND,
+                message: MessageEnum.RELATION_NOT_FOUND,
+                data: null
+            })
+          //  expect(logger.warn).toHaveBeenCalledWith(RoleLogsEnum.ROLE_RETRIEVAL_NOT_FOUND);
+        });
+        it('should return precondition failed error', async () => {
+            const error = new Error('Some error');
+
+            jest.spyOn(userRoleRepository, 'findBy').mockRejectedValue(error);
+
+            const result = await roleService.getRoleForUser(userId)
+
+            expect(userRoleRepository.findBy).toHaveBeenCalledWith({ userId })
+            expect(result).toEqual<ResponseRoleDto<IUserRole[]>>({
+                status: HttpStatus.PRECONDITION_FAILED,
+                message: MessageEnum.PRECONDITION_FAILED,
+                data: null,
+                errors: error
+            })
+          //  expect(logger.error).toHaveBeenCalledWith(RoleLogsEnum.ROLE_RETRIEVAL_ERROR, error);
+
+        });
+
     })
 })
