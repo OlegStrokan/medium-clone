@@ -1,0 +1,17 @@
+{
+  "subscriptions":
+[
+  {
+    "value": "basic",
+    "description": "Basic subscription which will assign to user after registration"
+  },
+  {
+    "value": "premium",
+    "description": "Premium subscription with additional features. (The best choice of our users)"
+  },
+  {
+    "value": "premium plus",
+    "description": "Premium plus subscription which allows everything"
+  }
+]
+}
