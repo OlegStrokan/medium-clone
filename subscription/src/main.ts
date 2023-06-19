@@ -2,6 +2,7 @@ import {NestFactory} from '@nestjs/core';
 import {Transport, MicroserviceOptions } from '@nestjs/microservices';
 import {ValidationPipe} from "@nestjs/common";
 import {SubscriptionModule} from "./subscription.module";
+import {SeedService} from "./services/seed.service";
 
 
 async function bootstrap() {
@@ -9,12 +10,17 @@ async function bootstrap() {
     transport: Transport.RMQ,
     options: {
       urls: ['amqp://guest:guest@localhost:5672'],
-      queue: 'user_role_queue',
+      queue: 'subscription_queue',
       queueOptions: { durable: false },
     },
   })
 
-  app.useGlobalPipes(
+    const seedService = app.get(SeedService);
+    await seedService.seedDatabase();
+
+
+
+    app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
         transform: true,

@@ -27,7 +27,7 @@ export class SubscriptionService {
 
     public async createSubscription(dto: CreateSubscriptionDto): Promise<ResponseDto<ISubscription>> {
 
-        this.logger.log(SubscriptionLogsEnum)
+        this.logger.log(SubscriptionLogsEnum.CREATE_SUBSCRIPTION_INITIATED)
         try {
             const role = await this.subscriptionRepository.findOneBy({value: dto.value})
             if (role) {
@@ -126,6 +126,34 @@ export class SubscriptionService {
                 status: HttpStatus.CREATED,
                 message: MessageEnum.CREATED,
                 data: newRelation
+            }
+        } catch (e) {
+            this.logger.error(SubscriptionLogsEnum.SUBSCRIPTION_ASSIGNMENT_ERROR)
+            return {
+                status: HttpStatus.PRECONDITION_FAILED,
+                message: MessageEnum.PRECONDITION_FAILED,
+                data: null,
+                errors: e
+            }
+        }
+
+    }
+
+
+    public async deleteSubscriptionFromUser(dto: AssignSubscriptionDto): Promise<ResponseDto<null>> {
+        try {
+
+            this.logger.log(SubscriptionLogsEnum.SUBSCRIPTION_ASSIGNMENT_INITIATED)
+            const relations = await this.userSubscriptionRepository.findBy({ subscriptionId: dto.subscriptionId, userId: dto.userId})
+            relations.map(async (relation) => {
+                await this.userSubscriptionRepository.delete(relation)
+            })
+
+            this.logger.log(SubscriptionLogsEnum.SUBSCRIPTION_ASSIGNMENT_SUCCESS)
+            return {
+                status: HttpStatus.NO_CONTENT,
+                message: MessageEnum.SUBSCRIPTION_DELETE_OK,
+                data: null
             }
         } catch (e) {
             this.logger.error(SubscriptionLogsEnum.SUBSCRIPTION_ASSIGNMENT_ERROR)

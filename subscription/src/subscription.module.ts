@@ -5,6 +5,7 @@ import {SubscriptionController} from "./controllers/subscription.controller";
 import {SubscriptionService} from "./services/subscription.service";
 import {SubscriptionEntity} from "./repository/subscription.entity";
 import {UserSubscriptionEntity} from "./repository/user-subscription.entity";
+import {SeedService} from "./services/seed.service";
 
 @Module({
     imports: [ClientsModule.register([
@@ -38,7 +39,7 @@ import {UserSubscriptionEntity} from "./repository/user-subscription.entity";
         }),
     ],
     controllers: [SubscriptionController],
-    providers: [SubscriptionService],
+    providers: [SubscriptionService, SeedService],
 })
 export class SubscriptionModule {
 }

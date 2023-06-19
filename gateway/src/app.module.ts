@@ -31,6 +31,24 @@ import {AuthController} from "./controllers/auth.controller";
                 queue: 'mailer_queue',
                 queueOptions: {durable: false}
             },
+        },
+        {
+            name: 'role_service',
+            transport: Transport.RMQ,
+            options: {
+                urls: ['amqp://guest:guest@localhost:5672'],
+                queue: 'role_queue',
+                queueOptions: {durable: false}
+            },
+        },
+        {
+            name: 'subscription_service',
+            transport: Transport.RMQ,
+            options: {
+                urls: ['amqp://guest:guest@localhost:5672'],
+                queue: 'subscription_queue',
+                queueOptions: {durable: false}
+            },
         }
     ]),],
     controllers: [UsersController, AuthController],
