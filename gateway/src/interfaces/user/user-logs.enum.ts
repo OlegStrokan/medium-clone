@@ -23,4 +23,8 @@ export enum UserLogsEnum {
     USER_DELETED_NOT_FOUND = 'User deleted not found',
     USER_DELETED_ERROR = 'User deleted failed',
 
+    USER_SUBSCRIPTION_ASSIGNMENT_INITIATED = 'Subscription assignment initiated',
+    USER_SUBSCRIPTION_ASSIGNMENT_SUCCESS = 'Subscription assignment successful',
+    USER_SUBSCRIPTION_ASSIGNMENT_ERROR = 'Subscription assignment error',
+
 }

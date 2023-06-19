@@ -1,6 +1,7 @@
 export enum MessageEnum {
     CREATED = 'Subscription has been successfully created',
-    SUBSCRIPTION_SEARCH_OK = 'Ok',
+    SUBSCRIPTION_SEARCH_OK = 'Subscription has been successfully found',
+    SUBSCRIPTION_DELETE_OK = 'Subscription has been successfully deleted',
     SUBSCRIPTION_NOT_FOUND = 'No subscription with this value',
     CONFLICT = 'Subscription with this value already exist',
     RELATION_SEARCH_OK = 'Ok',
