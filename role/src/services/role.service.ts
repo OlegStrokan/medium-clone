@@ -120,8 +120,10 @@ export class RoleService {
         try {
 
             this.logger.log(RoleLogsEnum.ROLE_ASSIGNMENT_INITIATED)
+
             const newRelation = await this.userRoleRepository.create(dto)
             await this.userRoleRepository.save(newRelation)
+
             this.logger.log(RoleLogsEnum.ROLE_ASSIGNMENT_SUCCESS)
             return {
                 status: HttpStatus.CREATED,
@@ -140,13 +142,21 @@ export class RoleService {
 
     }
 
-    public async getRoleForUser(userId: string): Promise<ResponseRoleDto<IUserRole[]>> {
+    public async getRolesForUser(userId: string): Promise<ResponseRoleDto<IRole[]>> {
+
         this.logger.log(RoleLogsEnum.ROLE_RETRIEVAL_INITIATED)
         try {
 
-            const relation = await this.userRoleRepository.findBy({userId: userId})
+            const relations = await this.userRoleRepository.findBy({userId: userId})
 
-            if (!relation) {
+            let roles: IRole[] = [];
+            relations.map(async (relation) => {
+                const value = await this.getRoleById(relation.roleId)
+                roles.push(value);
+            })
+
+
+            if (!relations) {
                 this.logger.warn(RoleLogsEnum.ROLE_RETRIEVAL_NOT_FOUND)
                 return {
                     status: HttpStatus.NOT_FOUND,
@@ -159,7 +169,7 @@ export class RoleService {
             return {
                 status: HttpStatus.OK,
                 message: MessageEnum.ROLE_SEARCH_OK,
-                data: relation
+                data: roles
             }
         } catch (e) {
             this.logger.error(RoleLogsEnum.ROLE_RETRIEVAL_ERROR)
@@ -170,5 +180,9 @@ export class RoleService {
                 errors: e
             }
         }
+    }
+
+    private async getRoleById(roleId: string) {
+        return await this.roleRepository.findOneBy({ id: roleId })
     }
 }
