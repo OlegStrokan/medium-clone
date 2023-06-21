@@ -11,24 +11,6 @@ import {SeedService} from "./services/seed.service";
 
 @Module({
     imports: [ClientsModule.register([
-        {
-            name: 'role_service',
-            transport: Transport.RMQ,
-            options: {
-                urls: ['amqp://guest:guest@localhost:5672'],
-                queue: 'role_queue',
-                queueOptions: { durable: false }
-            },
-        },
-        {
-            name: 'user_role_service',
-            transport: Transport.RMQ,
-            options: {
-                urls: ['amqp://guest:guest@localhost:5672'],
-                queue: 'user_role_queue',
-                queueOptions: { durable: false }
-            },
-        },
     ]),
         TypeOrmModule.forFeature([
             UserEntity,

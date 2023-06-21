@@ -37,7 +37,7 @@ export class SubscriptionController {
     }
 
     @MessagePattern(MessagePatternEnum.SUBSCRIPTION_GET_FOR_USER)
-    public async getSubscriptionForUser(userId: string): Promise<ResponseDto<IUserSubscription[]>> {
+    public async getSubscriptionForUser(userId: string): Promise<ResponseDto<ISubscription[]>> {
          return this.subscriptionService.getSubscriptionsForUser(userId)
     }
 }

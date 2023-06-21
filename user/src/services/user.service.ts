@@ -12,11 +12,6 @@ import {ValidateUserDto} from '../interfaces/request-dtos/validate-user.dto';
 import * as uuid from 'uuid';
 import {ActivationLinkEntity} from '../repository/activation-link.entity';
 import {IActivationLink} from '../interfaces/IActivationLink';
-import {ClientProxy} from '@nestjs/microservices';
-import {firstValueFrom} from 'rxjs';
-import {MessageRoleEnum} from '../interfaces/message-enums/message-role';
-import {IRole} from '../interfaces/IRole';
-import {MessageUserRoleEnum} from '../interfaces/message-enums/message-user-role.enum';
 import {UserLogsEnum} from '../interfaces/message-enums/user-logs.enum';
 
 @Injectable()
@@ -27,9 +22,7 @@ export class UserService {
         @InjectRepository(UserEntity)
         public readonly userRepository: Repository<IUser>,
         @InjectRepository(ActivationLinkEntity)
-        public readonly activationLinkRepository: Repository<IActivationLink>,
-        @Inject('role_service') private readonly roleService: ClientProxy,
-        @Inject('user_role_service') private readonly userRoleService: ClientProxy,
+        public readonly activationLinkRepository: Repository<IActivationLink>
     ) {
         this.logger = new Logger(UserService.name);
     }
@@ -193,17 +186,6 @@ export class UserService {
             });
 
             await this.activationLinkRepository.save(activationLink);
-
-            const roleServiceResponse: UserResponseDto<IRole> = await firstValueFrom(
-                this.roleService.send(MessageRoleEnum.ROLE_GET_BY_VALUE, 'admin'),
-            );
-
-            await firstValueFrom(
-                this.userRoleService.send(
-                    MessageUserRoleEnum.ROLE_ASSIGN_TO_USER,
-                    JSON.stringify({userId: user.id, roleId: roleServiceResponse.data.id}),
-                ),
-            );
 
             const response = await this.userRepository
                 .createQueryBuilder('user')

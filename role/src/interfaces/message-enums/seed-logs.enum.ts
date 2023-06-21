@@ -6,6 +6,4 @@ export enum SeedLogMessage {
     DATABASE_CLEARING_INITIATED = 'Database clearing initiated',
     DATABASE_CLEARED = 'Database cleared successfully',
     ERROR_CLEARING_DATABASE = 'Error clearing database',
-
-
 }

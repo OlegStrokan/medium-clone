@@ -118,10 +118,10 @@ export class RoleService {
 
     public async assignRoleToUser(dto: AssignRoleToUserDto): Promise<ResponseRoleDto<IUserRole>> {
         try {
-
             this.logger.log(RoleLogsEnum.ROLE_ASSIGNMENT_INITIATED)
 
             const newRelation = await this.userRoleRepository.create(dto)
+
             await this.userRoleRepository.save(newRelation)
 
             this.logger.log(RoleLogsEnum.ROLE_ASSIGNMENT_SUCCESS)
@@ -146,15 +146,13 @@ export class RoleService {
 
         this.logger.log(RoleLogsEnum.ROLE_RETRIEVAL_INITIATED)
         try {
-
             const relations = await this.userRoleRepository.findBy({userId: userId})
 
-            let roles: IRole[] = [];
-            relations.map(async (relation) => {
-                const value = await this.getRoleById(relation.roleId)
-                roles.push(value);
-            })
+            const rolePromises = relations.map(async (relation) => {
+                return await this.getRoleById(relation.roleId);
+            });
 
+            const roles = await Promise.all(rolePromises);
 
             if (!relations) {
                 this.logger.warn(RoleLogsEnum.ROLE_RETRIEVAL_NOT_FOUND)
