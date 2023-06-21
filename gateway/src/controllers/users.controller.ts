@@ -1,13 +1,4 @@
-import {
-    Body,
-    Controller, Delete,
-    Get,
-    HttpStatus,
-    Inject, Logger,
-    Param,
-    Patch,
-    Post, UseGuards
-} from "@nestjs/common";
+import {Body, Controller, Delete, Get, HttpStatus, Inject, Logger, Param, Patch, Post, UseGuards} from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
 import {firstValueFrom} from "rxjs";
 import {MessageUserEnum} from "../interfaces/user/message-user.enum";
@@ -21,38 +12,40 @@ import {UpdateUserDto} from "../interfaces/user/dto/update-user.dto";
 import {DeleteUserDto} from "../interfaces/user/dto/delete-user.dto";
 import {AuthGuard} from "../helpers/auth.guard";
 import {UserLogsEnum} from "../interfaces/user/user-logs.enum";
+import {IUserSubscription} from "../interfaces/subscriptions/IUserSubscription";
+import {AssignSubscriptionDto} from "../interfaces/subscriptions/dto/assign-subscription.dto";
+import {ISubscription} from "../interfaces/subscriptions/ISubscription";
+import {GetUserDto} from "../interfaces/user/response-dto/get-user.dto";
+import {IRole} from "../interfaces/role/IRole";
 
 
 @Controller('users')
 export class UsersController {
     private readonly logger: Logger;
+
     constructor(
         @Inject('user_service') private readonly userServiceClient: ClientProxy,
+        @Inject('subscription_service') private readonly subscriptionServiceClient: ClientProxy,
+        @Inject('role_service') private readonly roleServiceClient: ClientProxy,
     ) {
         this.logger = new Logger(UsersController.name)
 
     }
 
     @Get('/:id')
-    public async getUser(@Param('id') id: number): Promise<IGetItemResponse<IUser> | GenericHttpException> {
+    public async getUser(@Param('id') id: string): Promise<IGetItemResponse<GetUserDto> | GenericHttpException> {
 
-        this.logger.log(UserLogsEnum.USER_INITIATED)
+        const userResponse = await this.getUserById(id);
 
-        const userResponse: IGetItemServiceResponse<IUser> = await firstValueFrom(
-            this.userServiceClient.send(MessageUserEnum.USER_GET_BY_ID, id)
-        )
         if (userResponse.status === HttpStatus.OK) {
-            this.logger.log(UserLogsEnum.USER_RETRIEVED_SUCCESS)
-            return {
-                data: userResponse.data,
-                status: userResponse.status,
-            }
-        } else if (userResponse.status === HttpStatus.NOT_FOUND) {
+            return userResponse
+        }
+        else if (userResponse.status === HttpStatus.NOT_FOUND) {
             this.logger.log(UserLogsEnum.USER_NOT_FOUND)
-            throw new GenericHttpException<IError>(404, userResponse.message)
+            throw new GenericHttpException(404, userResponse.message)
         } else {
             this.logger.log(UserLogsEnum.USER_RETRIEVING_ERROR)
-            throw new GenericHttpException<IError>(412, userResponse.message)
+            throw new GenericHttpException(412, userResponse.message)
         }
     }
 
@@ -90,6 +83,20 @@ export class UsersController {
 
         if (userResponse.status === HttpStatus.CREATED) {
             this.logger.log(UserLogsEnum.USER_CREATED_SUCCESS)
+
+
+            const roleServiceResponse: IGetItemResponse<IRole> = await firstValueFrom(
+                this.roleServiceClient.send(MessageUserEnum.ROLE_GET_BY_VALUE, 'admin'),
+            );
+
+
+            await firstValueFrom(
+                this.roleServiceClient.send(
+                    MessageUserEnum.ROLE_ASSIGN_TO_USER,
+                    JSON.stringify({userId: userResponse.data.id, roleId: roleServiceResponse.data.id}),
+                ),
+            );
+
             return {
                 data: userResponse.data,
                 status: userResponse.status
@@ -129,7 +136,7 @@ export class UsersController {
     }
 
     @Delete('/:id')
-    public async deleteUser(@Param('id') id: DeleteUserDto): Promise<IGetItemResponse<string> | GenericHttpException> {
+    public async deleteUser(@Param('id') id: string): Promise<IGetItemResponse<string> | GenericHttpException> {
 
         this.logger.log(UserLogsEnum.USER_DELETED_INITIATED)
 
@@ -144,11 +151,86 @@ export class UsersController {
             }
         } else if (userResponse.status === HttpStatus.NOT_FOUND) {
             this.logger.log(UserLogsEnum.USER_DELETED_NOT_FOUND)
-            throw new GenericHttpException<IError>(404, userResponse.message)
+            throw new GenericHttpException<IError>(userResponse.status, userResponse.message)
         } else {
             this.logger.log(UserLogsEnum.USER_DELETED_ERROR)
             throw new GenericHttpException<IError>(412, userResponse.message)
         }
 
+    }
+
+    @Post('/subscriptions/:id')
+    public async subscribeUser(@Body() dto: AssignSubscriptionDto, @Param('id') id: string): Promise<IGetItemResponse<GetUserDto> | GenericHttpException> {
+
+        const subscriptionResponse: IGetItemServiceResponse<IUserSubscription> = await firstValueFrom(
+            this.subscriptionServiceClient.send(
+                MessageUserEnum.SUBSCRIPTION_ASSIGN_TO_USER, JSON.stringify(dto))
+        )
+
+        if (subscriptionResponse.status !== HttpStatus.OK) {
+            throw new GenericHttpException<IError>(subscriptionResponse.status, subscriptionResponse.message)
+        }
+
+        const userResponse = await this.getUserById(id);
+
+        if (userResponse.data.hasOwnProperty('user')) {
+            return {
+                data: userResponse.data,
+                status: userResponse.status
+            };
+        }
+        if (userResponse.status !== HttpStatus.OK) {
+            throw new GenericHttpException<IError>(subscriptionResponse.status, subscriptionResponse.message);
+        }
+
+    }
+
+    private async getUserById(id: string): Promise<IGetItemResponse<GetUserDto>> {
+
+        this.logger.log(UserLogsEnum.USER_INITIATED)
+
+        const userResponse: IGetItemServiceResponse<IUser> = await firstValueFrom(
+            this.userServiceClient.send(MessageUserEnum.USER_GET_BY_ID, id)
+        )
+
+        if (userResponse.status === HttpStatus.OK) {
+
+            const subscriptionResponse: IGetItemServiceResponse<ISubscription[]> = await firstValueFrom(
+                this.subscriptionServiceClient.send(MessageUserEnum.SUBSCRIPTION_GET_FOR_USER, id)
+            )
+
+            if (subscriptionResponse.status === HttpStatus.OK) {
+
+                const roleResponse: IGetItemServiceResponse<IRole[]> = await firstValueFrom(
+                    this.roleServiceClient.send(MessageUserEnum.ROLES_GET_FOR_USER, id)
+                )
+
+
+                if (roleResponse.status === HttpStatus.OK) {
+                    return {
+                        data: {
+                            user: userResponse.data,
+                            subscriptions: subscriptionResponse.data,
+                            roles: roleResponse.data
+                        },
+                        status: userResponse.status,
+                    }
+                } else {
+                    return {
+                        data: {
+                            user: userResponse.data
+                        },
+                        status: userResponse.status
+                    }
+                }
+            } else {
+                return {
+                    data: {
+                        user: userResponse.data
+                    },
+                    status: userResponse.status
+                }
+            }
+        }
     }
 }
