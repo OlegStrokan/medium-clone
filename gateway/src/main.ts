@@ -8,9 +8,9 @@ async function bootstrap() {
   });
 
 
-  app.useGlobalPipes(
+ /* app.useGlobalPipes(
       new ValidationPipe(),
-  );
+  );*/
 
   await app.listen(8000);
 

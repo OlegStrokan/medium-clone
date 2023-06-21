@@ -15,6 +15,7 @@ import {LogoutDto} from "../interfaces/auth/dto/logout.dto";
 import * as uuid from 'uuid'
 import {MessageMailerEnum} from "../interfaces/mailer/message-mailer.enum";
 import {AuthLogsEnum} from "../interfaces/auth/auth-logs.enum";
+import {IRole} from "../interfaces/role/IRole";
 
 @Controller("auth")
 export class AuthController {
@@ -24,6 +25,8 @@ export class AuthController {
         @Inject('user_service') private readonly userServiceClient: ClientProxy,
         @Inject('token_service') private readonly tokenServiceClient: ClientProxy,
         @Inject('mailer_service') private readonly mailerServiceClient: ClientProxy,
+        @Inject('role_service') private readonly roleServiceClient: ClientProxy,
+        @Inject('subscription_service') private readonly subscriptionServiceClient: ClientProxy,
     ) {
         this.logger = new Logger(AuthController.name)
     }
@@ -38,6 +41,20 @@ export class AuthController {
 
         if (userResponse.status === HttpStatus.CREATED) {
             this.logger.debug(AuthLogsEnum.USER_CREATED)
+
+
+            const roleServiceResponse: IGetItemResponse<IRole> = await firstValueFrom(
+                this.roleServiceClient.send(MessageUserEnum.ROLE_GET_BY_VALUE, 'admin'),
+            );
+
+
+            await firstValueFrom(
+                this.roleServiceClient.send(
+                    MessageUserEnum.ROLE_ASSIGN_TO_USER,
+                    JSON.stringify({userId: userResponse.data.id, roleId: roleServiceResponse.data.id}),
+                ),
+            );
+
 
             const mailerResponse: IGetItemServiceResponse<string> = await firstValueFrom(
                 this.mailerServiceClient.send(MessageMailerEnum.SEND_ACTIVATION_EMAIL, JSON.stringify({
