@@ -144,7 +144,10 @@ export class SubscriptionService {
         try {
 
             this.logger.log(SubscriptionLogsEnum.SUBSCRIPTION_ASSIGNMENT_INITIATED)
-            const relations = await this.userSubscriptionRepository.findBy({ subscriptionId: dto.subscriptionId, userId: dto.userId})
+            const relations = await this.userSubscriptionRepository.findBy({
+                subscriptionId: dto.subscriptionId,
+                userId: dto.userId
+            })
             relations.map(async (relation) => {
                 await this.userSubscriptionRepository.delete(relation)
             })
@@ -164,17 +167,22 @@ export class SubscriptionService {
                 errors: e
             }
         }
-
     }
 
-    public async getSubscriptionsForUser(userId: string): Promise<ResponseDto<IUserSubscription[]>> {
+    public async getSubscriptionsForUser(userId: string): Promise<ResponseDto<ISubscription[]>> {
 
         this.logger.log(SubscriptionLogsEnum.SUBSCRIPTION_RETRIEVAL_INITIATED)
+
         try {
 
-            const relation = await this.userSubscriptionRepository.findBy({userId: userId})
+            const relations = await this.userSubscriptionRepository.findBy({userId: userId})
+            let subscription: ISubscription[] = [];
+            relations.map(async (relation) => {
+               const value = await this.getSubscriptionById(relation.subscriptionId)
+                subscription.push(value);
+            })
 
-            if (!relation) {
+            if (!relations) {
                 this.logger.warn(SubscriptionLogsEnum.SUBSCRIPTION_RETRIEVAL_NOT_FOUND)
                 return {
                     status: HttpStatus.NOT_FOUND,
@@ -184,13 +192,16 @@ export class SubscriptionService {
             }
 
             this.logger.log(SubscriptionLogsEnum.SUBSCRIPTION_RETRIEVAL_SUCCESS)
+
             return {
                 status: HttpStatus.OK,
                 message: MessageEnum.RELATION_SEARCH_OK,
-                data: relation
+                data: subscription
             }
         } catch (e) {
+
             this.logger.error(SubscriptionLogsEnum.SUBSCRIPTION_RETRIEVAL_ERROR)
+
             return {
                 status: HttpStatus.PRECONDITION_FAILED,
                 message: MessageEnum.PRECONDITION_FAILED,
@@ -198,5 +209,9 @@ export class SubscriptionService {
                 errors: e
             }
         }
+    }
+
+    private async getSubscriptionById(subscriptionId: string) {
+        return await this.subscriptionRepository.findOneBy({ id: subscriptionId })
     }
 }
