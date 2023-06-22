@@ -16,6 +16,9 @@ import * as uuid from 'uuid'
 import {MessageMailerEnum} from "../interfaces/mailer/message-mailer.enum";
 import {AuthLogsEnum} from "../interfaces/auth/auth-logs.enum";
 import {IRole} from "../interfaces/role/IRole";
+import {ISubscription} from "../interfaces/subscriptions/ISubscription";
+import {GetUserDto} from "../interfaces/user/response-dto/get-user.dto";
+import {LoginReturnDto} from "../interfaces/auth/response-dto/login-return.dto";
 
 @Controller("auth")
 export class AuthController {
@@ -42,18 +45,35 @@ export class AuthController {
         if (userResponse.status === HttpStatus.CREATED) {
             this.logger.debug(AuthLogsEnum.USER_CREATED)
 
-
-            const roleServiceResponse: IGetItemResponse<IRole> = await firstValueFrom(
-                this.roleServiceClient.send(MessageUserEnum.ROLE_GET_BY_VALUE, 'admin'),
-            );
-
-
-            await firstValueFrom(
+            const roleResponse: IGetItemServiceResponse<null> = await firstValueFrom(
                 this.roleServiceClient.send(
                     MessageUserEnum.ROLE_ASSIGN_TO_USER,
-                    JSON.stringify({userId: userResponse.data.id, roleId: roleServiceResponse.data.id}),
+                    JSON.stringify({userId: userResponse.data.id, roleId: 2}),
                 ),
             );
+
+            if (roleResponse.status !== HttpStatus.CREATED) {
+                this.logger.error(AuthLogsEnum.ROLE_ASSIGNMENT_ERROR)
+                throw new GenericHttpException(roleResponse.status, roleResponse.message)
+            }
+
+            this.logger.debug(AuthLogsEnum.ROLE_ASSIGNMENT_SUCCESS)
+
+
+            const subscriptionResponse: IGetItemServiceResponse<null> = await firstValueFrom(
+                this.subscriptionServiceClient.send(
+                    MessageUserEnum.SUBSCRIPTION_ASSIGN_TO_USER,
+                    JSON.stringify({userId: userResponse.data.id, subscriptionId: 2}),
+                ),
+            );
+
+
+            if (subscriptionResponse.status !== HttpStatus.CREATED) {
+                this.logger.error(AuthLogsEnum.SUBSCRIPTION_ASSIGNMENT_ERROR)
+                throw new GenericHttpException(subscriptionResponse.status, subscriptionResponse.message)
+            }
+
+            this.logger.debug(AuthLogsEnum.SUBSCRIPTION_ASSIGNMENT_SUCCESS)
 
 
             const mailerResponse: IGetItemServiceResponse<string> = await firstValueFrom(
@@ -63,60 +83,79 @@ export class AuthController {
                 }))
             )
 
-            if (mailerResponse.status === HttpStatus.OK) {
-
-                this.logger.debug(AuthLogsEnum.ACTIVATION_EMAIL_SENT)
-                this.logger.log(AuthLogsEnum.REGISTRATION_SUCCESSFUL)
-
-                return {
-                    status: userResponse.status,
-                    message: userResponse.message,
-                }
-            } else {
-                this.logger.log(AuthLogsEnum.ACTIVATION_EMAIL_FAILED)
-                throw new GenericHttpException<IError>(mailerResponse.status, mailerResponse.message)
+            if (mailerResponse.status !== HttpStatus.OK) {
+                this.logger.error(AuthLogsEnum.ACTIVATION_EMAIL_FAILED)
+                throw new GenericHttpException(subscriptionResponse.status, subscriptionResponse.message)
             }
 
+            this.logger.debug(AuthLogsEnum.ACTIVATION_EMAIL_SENT)
+            this.logger.log(AuthLogsEnum.REGISTRATION_SUCCESSFUL)
 
+            return {
+                status: userResponse.status,
+                message: userResponse.message,
+            }
         } else {
-            this.logger.log(AuthLogsEnum.USER_CREATION_FAILED)
+            this.logger.error(AuthLogsEnum.USER_CREATION_FAILED)
             throw new GenericHttpException<IError>(userResponse.status, userResponse.message)
         }
     }
 
 
     @Post("/login")
-    public async login(@Body() dto: LoginDto): Promise<IGetItemResponse<IUser & { token: string }> | GenericHttpException> {
+    public async login(@Body() dto: LoginDto): Promise<IGetItemResponse<LoginReturnDto> | GenericHttpException> {
 
         this.logger.log(AuthLogsEnum.LOGIN_INITIATED)
         const userResponse: IGetItemServiceResponse<IUser> = await firstValueFrom(
             this.userServiceClient.send(MessageUserEnum.USER_VALIDATE, JSON.stringify(dto))
         )
+        if (userResponse.status !== HttpStatus.OK) {
+            this.logger.error(AuthLogsEnum.INVALID_CREDENTIALS)
+            throw new GenericHttpException<IError>(userResponse.status, userResponse.message);
+        }
 
         this.logger.debug(AuthLogsEnum.USER_VALIDATION_COMPLETED)
 
-        if (userResponse.status !== HttpStatus.OK) {
-            this.logger.log(AuthLogsEnum.INVALID_CREDENTIALS)
+        const tokenResponse: IGetItemServiceResponse<IToken> = await firstValueFrom(
+            this.tokenServiceClient.send(MessageTokenEnum.TOKEN_CREATE, userResponse.data)
+        )
+
+        if (tokenResponse.status !== HttpStatus.CREATED) {
+            this.logger.error(AuthLogsEnum.TOKEN_CREATION_FAILED)
             throw new GenericHttpException<IError>(userResponse.status, userResponse.message);
         }
-
-        const tokenResponse: IGetItemServiceResponse<IToken> = await firstValueFrom(
-            this.tokenServiceClient.send(MessageTokenEnum.TOKEN_CREATE, userResponse.data.id)
-        )
 
         this.logger.debug(AuthLogsEnum.TOKEN_CREATION_COMPLETED)
 
-        if (tokenResponse.status !== HttpStatus.CREATED) {
-            this.logger.log(AuthLogsEnum.TOKEN_CREATION_FAILED)
-            throw new GenericHttpException<IError>(userResponse.status, userResponse.message);
+        const roleResponse: IGetItemServiceResponse<IRole[]> = await firstValueFrom(
+            this.roleServiceClient.send(MessageUserEnum.ROLE_GET_FOR_USER, JSON.stringify(dto))
+        )
+        if (roleResponse.status !== HttpStatus.OK) {
+            this.logger.error(AuthLogsEnum.ROlE_RETRIEVAL_ERROR)
+            throw new GenericHttpException<IError>(roleResponse.status, roleResponse.message);
         }
+
+        this.logger.log(AuthLogsEnum.ROLE_RETRIEVAL_SUCCESS)
+
+
+        const subscriptionResponse: IGetItemServiceResponse<ISubscription[]> = await firstValueFrom(
+            this.subscriptionServiceClient.send(MessageUserEnum.SUBSCRIPTION_GET_FOR_USER, JSON.stringify(dto))
+        )
+        if (subscriptionResponse.status !== HttpStatus.OK) {
+            this.logger.error(AuthLogsEnum.SUBSCRIPTION_RETRIEVAL_ERROR)
+            throw new GenericHttpException<IError>(subscriptionResponse.status, subscriptionResponse.message);
+        }
+
+        this.logger.log(AuthLogsEnum.SUBSCRIPTION_RETRIEVAL_SUCCESS)
 
         this.logger.log(AuthLogsEnum.LOGIN_SUCCESSFUL)
 
         return {
             data: {
-                ...userResponse.data,
-                token: tokenResponse.data.value
+                user: userResponse.data,
+                token: tokenResponse.data.value,
+                roles: roleResponse.data,
+                subscriptions: subscriptionResponse.data,
             },
             status: userResponse.status
         }
@@ -135,7 +174,7 @@ export class AuthController {
         this.logger.debug(AuthLogsEnum.LOGOUT_SUCCESSFUL)
 
         if (userResponse.status !== HttpStatus.OK) {
-            this.logger.debug(AuthLogsEnum.LOGOUT_FAILED)
+            this.logger.error(AuthLogsEnum.LOGOUT_FAILED)
             throw new GenericHttpException<IError>(userResponse.status, userResponse.message);
         }
 
