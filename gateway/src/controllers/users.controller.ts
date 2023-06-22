@@ -202,7 +202,7 @@ export class UsersController {
             if (subscriptionResponse.status === HttpStatus.OK) {
 
                 const roleResponse: IGetItemServiceResponse<IRole[]> = await firstValueFrom(
-                    this.roleServiceClient.send(MessageUserEnum.ROLES_GET_FOR_USER, id)
+                    this.roleServiceClient.send(MessageUserEnum.ROLE_GET_FOR_USER, id)
                 )
 
 
