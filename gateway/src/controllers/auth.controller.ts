@@ -128,25 +128,25 @@ export class AuthController {
         this.logger.debug(AuthLogsEnum.TOKEN_CREATION_COMPLETED)
 
         const roleResponse: IGetItemServiceResponse<IRole[]> = await firstValueFrom(
-            this.roleServiceClient.send(MessageUserEnum.ROLE_GET_FOR_USER, JSON.stringify(dto))
+            this.roleServiceClient.send(MessageUserEnum.ROLE_GET_FOR_USER, JSON.stringify(userResponse.data.id))
         )
         if (roleResponse.status !== HttpStatus.OK) {
             this.logger.error(AuthLogsEnum.ROlE_RETRIEVAL_ERROR)
             throw new GenericHttpException<IError>(roleResponse.status, roleResponse.message);
         }
 
-        this.logger.log(AuthLogsEnum.ROLE_RETRIEVAL_SUCCESS)
+        this.logger.debug(AuthLogsEnum.ROLE_RETRIEVAL_SUCCESS)
 
 
         const subscriptionResponse: IGetItemServiceResponse<ISubscription[]> = await firstValueFrom(
-            this.subscriptionServiceClient.send(MessageUserEnum.SUBSCRIPTION_GET_FOR_USER, JSON.stringify(dto))
+            this.subscriptionServiceClient.send(MessageUserEnum.SUBSCRIPTION_GET_FOR_USER, JSON.stringify(userResponse.data.id))
         )
         if (subscriptionResponse.status !== HttpStatus.OK) {
             this.logger.error(AuthLogsEnum.SUBSCRIPTION_RETRIEVAL_ERROR)
             throw new GenericHttpException<IError>(subscriptionResponse.status, subscriptionResponse.message);
         }
 
-        this.logger.log(AuthLogsEnum.SUBSCRIPTION_RETRIEVAL_SUCCESS)
+        this.logger.debug(AuthLogsEnum.SUBSCRIPTION_RETRIEVAL_SUCCESS)
 
         this.logger.log(AuthLogsEnum.LOGIN_SUCCESSFUL)
 

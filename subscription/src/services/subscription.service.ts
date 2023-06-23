@@ -119,6 +119,7 @@ export class SubscriptionService {
 
             this.logger.log(SubscriptionLogsEnum.SUBSCRIPTION_ASSIGNMENT_INITIATED)
             const newRelation = await this.userSubscriptionRepository.create(dto)
+
             await this.userSubscriptionRepository.save(newRelation);
 
             this.logger.log(SubscriptionLogsEnum.SUBSCRIPTION_ASSIGNMENT_SUCCESS)
@@ -176,11 +177,13 @@ export class SubscriptionService {
         try {
 
             const relations = await this.userSubscriptionRepository.findBy({userId: userId})
-            let subscription: ISubscription[] = [];
-            relations.map(async (relation) => {
-               const value = await this.getSubscriptionById(relation.subscriptionId)
-                subscription.push(value);
-            })
+
+            const subscriptionPromises = relations.map(async (relation) => {
+                return await this.getSubscriptionById(relation.subscriptionId);
+            });
+
+            const subscriptions = await Promise.all(subscriptionPromises);
+
 
             if (!relations) {
                 this.logger.warn(SubscriptionLogsEnum.SUBSCRIPTION_RETRIEVAL_NOT_FOUND)
@@ -196,7 +199,7 @@ export class SubscriptionService {
             return {
                 status: HttpStatus.OK,
                 message: MessageEnum.RELATION_SEARCH_OK,
-                data: subscription
+                data: subscriptions
             }
         } catch (e) {
 
