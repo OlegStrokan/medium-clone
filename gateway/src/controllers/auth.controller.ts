@@ -161,24 +161,25 @@ export class AuthController {
     }
 
     @Post("/logout")
-    public async logout(@Body() dto: LogoutDto): Promise<IGetItemResponse<string> | GenericHttpException> {
+    public async logout(@Body() dto: LogoutDto): Promise<IGetItemResponse<null> | GenericHttpException> {
 
         this.logger.log(AuthLogsEnum.LOGOUT_INITIATED)
 
-        const userResponse: IGetItemServiceResponse<string> = await firstValueFrom(
+        const tokenService: IGetItemServiceResponse<string> = await firstValueFrom(
             this.tokenServiceClient.send(MessageTokenEnum.TOKEN_DESTROY, dto.id)
         )
 
         this.logger.debug(AuthLogsEnum.LOGOUT_SUCCESSFUL)
 
-        if (userResponse.status !== HttpStatus.OK) {
+        if (tokenService.status !== HttpStatus.OK) {
             this.logger.error(AuthLogsEnum.LOGOUT_FAILED)
-            throw new GenericHttpException<IError>(userResponse.status, userResponse.message);
+            throw new GenericHttpException<IError>(tokenService.status, tokenService.message);
         }
 
         return {
-            data: userResponse.data,
-            status: userResponse.status
+            data: null,
+            status: tokenService.status,
+            message: tokenService.message,
         }
 
     }
