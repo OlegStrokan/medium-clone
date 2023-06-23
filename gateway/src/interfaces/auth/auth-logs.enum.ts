@@ -14,4 +14,12 @@ export enum AuthLogsEnum {
     LOGOUT_INITIATED = 'Logout process initiated',
     LOGOUT_FAILED = 'Logout failed',
     LOGOUT_SUCCESSFUL = 'Logout successful',
+    ROLE_ASSIGNMENT_SUCCESS = 'Role assignment successful',
+    ROLE_ASSIGNMENT_ERROR = 'Role assignment error',
+    SUBSCRIPTION_ASSIGNMENT_SUCCESS = 'Subscription assignment successful',
+    SUBSCRIPTION_ASSIGNMENT_ERROR = 'Subscription assignment error',
+    SUBSCRIPTION_RETRIEVAL_SUCCESS = 'Subscription retrieval successful',
+    SUBSCRIPTION_RETRIEVAL_ERROR = 'Subscription retrieval error',
+    ROLE_RETRIEVAL_SUCCESS = 'Role retrieval successful',
+    ROlE_RETRIEVAL_ERROR = 'Role retrieval error',
 }

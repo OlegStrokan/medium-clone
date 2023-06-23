@@ -9,7 +9,7 @@ export enum MessageUserEnum {
     SUBSCRIPTION_ASSIGN_TO_USER = 'subscription_assign_to_user',
     SUBSCRIPTION_DELETE_FROM_USER = 'subscription_delete_from_user',
     SUBSCRIPTION_GET_FOR_USER = 'subscription_get_for_user',
-    ROLES_GET_FOR_USER = 'roles_get_for_user',
+    ROLE_GET_FOR_USER = 'role_get_for_user',
     ROLE_ASSIGN_TO_USER = 'role_assign_to_user',
     ROLE_GET_BY_VALUE = 'role_get_by_value'
 }

@@ -32,7 +32,7 @@ export class RoleController {
         return this.roleService.assignRoleToUser(JSON.parse(jsonDto));
     }
 
-    @MessagePattern(MessagePatternEnum.ROLES_GET_FOR_USER)
+    @MessagePattern(MessagePatternEnum.ROLE_GET_FOR_USER)
     async getRolesForUser(userId: string): Promise<ResponseRoleDto<IRole[]>> {
         return this.roleService.getRolesForUser(userId)
     }
