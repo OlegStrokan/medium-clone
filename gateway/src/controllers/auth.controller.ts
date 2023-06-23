@@ -12,12 +12,10 @@ import {LoginDto} from "../interfaces/auth/dto/login.dto";
 import {IToken} from "../interfaces/token/IToken";
 import {MessageTokenEnum} from "../interfaces/token/message-token.enum";
 import {LogoutDto} from "../interfaces/auth/dto/logout.dto";
-import * as uuid from 'uuid'
 import {MessageMailerEnum} from "../interfaces/mailer/message-mailer.enum";
 import {AuthLogsEnum} from "../interfaces/auth/auth-logs.enum";
 import {IRole} from "../interfaces/role/IRole";
 import {ISubscription} from "../interfaces/subscriptions/ISubscription";
-import {GetUserDto} from "../interfaces/user/response-dto/get-user.dto";
 import {LoginReturnDto} from "../interfaces/auth/response-dto/login-return.dto";
 
 @Controller("auth")

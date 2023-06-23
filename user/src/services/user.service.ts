@@ -13,6 +13,7 @@ import * as uuid from 'uuid';
 import {ActivationLinkEntity} from '../repository/activation-link.entity';
 import {IActivationLink} from '../interfaces/IActivationLink';
 import {UserLogsEnum} from '../interfaces/message-enums/user-logs.enum';
+import {UserDto} from "../interfaces/response-dtos/user.dto";
 
 @Injectable()
 export class UserService {
@@ -48,7 +49,7 @@ export class UserService {
                 data: user,
             };
         } catch (e) {
-            this.logger.log(UserLogsEnum.USER_RETRIEVING_ERROR);
+            this.logger.error(UserLogsEnum.USER_RETRIEVING_ERROR);
             return {
                 status: HttpStatus.PRECONDITION_FAILED,
                 message: MessageEnum.PRECONDITION_FAILED,
@@ -79,7 +80,7 @@ export class UserService {
                 data: user,
             };
         } catch (e) {
-            this.logger.log(UserLogsEnum.USER_RETRIEVING_ERROR);
+            this.logger.error(UserLogsEnum.USER_RETRIEVING_ERROR);
             return {
                 status: HttpStatus.PRECONDITION_FAILED,
                 message: MessageEnum.PRECONDITION_FAILED,
@@ -89,30 +90,31 @@ export class UserService {
         }
     }
 
-    public async validateUser(dto: ValidateUserDto): Promise<UserResponseDto<IUser>> {
+    public async validateUser(dto: ValidateUserDto): Promise<UserResponseDto<UserDto>> {
         this.logger.log(UserLogsEnum.USER_VALIDATION_INITIATED);
 
         try {
             const user = await this.searchUserHelper(dto.email, 'email');
 
             if (!user) {
-                this.logger.log(UserLogsEnum.USER_NOT_FOUND);
+                this.logger.error(UserLogsEnum.USER_NOT_FOUND);
                 return {
                     status: HttpStatus.NOT_FOUND,
-                    message: MessageEnum.USER_NOT_FOUND_ID,
+                    message: MessageEnum.UNAUTHORIZED,
                     data: null,
                 };
             }
 
             if (user && (await bcrypt.compare(dto.password, user.password))) {
+                const userDto = await UserService.mapUserDto(user)
                 this.logger.log(UserLogsEnum.USER_VALIDATION_SUCCESS);
                 return {
                     status: HttpStatus.OK,
                     message: MessageEnum.USER_SEARCH_OK,
-                    data: user,
+                    data: userDto,
                 };
             } else {
-                this.logger.log(UserLogsEnum.USER_VALIDATION_FAILED);
+                this.logger.error(UserLogsEnum.USER_VALIDATION_FAILED);
                 return {
                     status: HttpStatus.UNAUTHORIZED,
                     message: MessageEnum.UNAUTHORIZED,
@@ -120,7 +122,7 @@ export class UserService {
                 };
             }
         } catch (e) {
-            this.logger.log(UserLogsEnum.USER_VALIDATION_ERROR);
+            this.logger.error(UserLogsEnum.USER_VALIDATION_ERROR);
             return {
                 status: HttpStatus.PRECONDITION_FAILED,
                 message: MessageEnum.PRECONDITION_FAILED,
@@ -142,7 +144,7 @@ export class UserService {
                 data: users,
             };
         } catch (e) {
-            this.logger.log(UserLogsEnum.USERS_RETRIEVING_ERROR);
+            this.logger.error(UserLogsEnum.USERS_RETRIEVING_ERROR);
             return {
                 status: HttpStatus.PRECONDITION_FAILED,
                 message: MessageEnum.PRECONDITION_FAILED,
@@ -160,7 +162,7 @@ export class UserService {
         });
 
         if (existingUser) {
-            this.logger.log(UserLogsEnum.USER_CREATION_CONFLICT);
+            this.logger.warn(UserLogsEnum.USER_CREATION_CONFLICT);
             return {
                 status: HttpStatus.CONFLICT,
                 message: MessageEnum.USER_CONFLICT,
@@ -187,24 +189,13 @@ export class UserService {
 
             await this.activationLinkRepository.save(activationLink);
 
-            const response = await this.userRepository
-                .createQueryBuilder('user')
-                .leftJoinAndSelect('user.activationLink', 'activationLink')
-                .select([
-                    'user.id',
-                    'user.fullName',
-                    'user.userName',
-                    'user.email',
-                    'activationLink.link',
-                ])
-                .getOne();
 
             this.logger.log(UserLogsEnum.USER_CREATED);
 
             return {
                 status: HttpStatus.CREATED,
                 message: MessageEnum.USER_CREATED,
-                data: response,
+                data: null,
             };
         } catch (e) {
 
@@ -219,7 +210,7 @@ export class UserService {
         }
     }
 
-    public async updateUser(dto: UpdateUserDto): Promise<UserResponseDto<IUser>> {
+    public async updateUser(dto: UpdateUserDto): Promise<UserResponseDto<UserDto>> {
         this.logger.log(UserLogsEnum.USER_UPDATE_INITIATED);
 
         try {
@@ -237,11 +228,13 @@ export class UserService {
 
             const updatedUser = await this.searchUserHelper(dto.id, 'id');
 
+            const userDto = await UserService.mapUserDto(updatedUser)
+
             this.logger.log(UserLogsEnum.USER_UPDATED_SUCCESS);
             return {
                 status: HttpStatus.OK,
                 message: MessageEnum.USER_UPDATED,
-                data: updatedUser,
+                data: userDto,
             };
         } catch (e) {
             this.logger.log(UserLogsEnum.USER_UPDATE_ERROR);
@@ -288,12 +281,21 @@ export class UserService {
     }
 
     private async searchUserHelper(value: string, field: string): Promise<IUser | undefined> {
-        return this.userRepository.findOne({where: {[field]: value}});
+        return await this.userRepository.findOne({where: {[field]: value}});
     }
 
     private static async hashPassword(password: string): Promise<string> {
         const saltRounds = 10;
         return bcrypt.hash(password, saltRounds);
+    }
+
+    private static async mapUserDto(dto: IUser): Promise<UserDto> {
+        return {
+            id: dto.id,
+            userName: dto.userName,
+            fullName: dto.fullName,
+            email: dto.email
+        }
     }
 }
 
