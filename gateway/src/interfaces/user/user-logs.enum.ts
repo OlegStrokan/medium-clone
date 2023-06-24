@@ -18,6 +18,12 @@ export enum UserLogsEnum {
     USER_UPDATED_NOT_FOUND = 'User updated not found',
     USER_UPDATED_FAILED = 'User updated failed',
 
+
+    USER_VALIDATE_INITIATED = 'User validate initiated',
+    USER_VALIDATED_SUCCESS = 'User validated successfully',
+    USER_VALIDATED_NOT_FOUND = 'User validated not found',
+    USER_VALIDATED_FAILED = 'User validated failed',
+
     USER_DELETED_INITIATED = 'User delete initiated',
     USER_DELETED_SUCCESS = 'User deleted successfully',
     USER_DELETED_NOT_FOUND = 'User deleted not found',

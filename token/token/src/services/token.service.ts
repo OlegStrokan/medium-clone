@@ -107,7 +107,7 @@ export class TokenService {
             }
         } catch (e) {
 
-            this.logger.log(TokenLogsEnum.TOKEN_DECODE_ERROR)
+            this.logger.error(TokenLogsEnum.TOKEN_DECODE_ERROR)
             return {
                 status: HttpStatus.PRECONDITION_FAILED,
                 message: MessageEnum.INVALID_TOKEN,

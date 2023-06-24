@@ -1,4 +1,17 @@
-import {Body, Controller, Delete, Get, HttpStatus, Inject, Logger, Param, Patch, Post, UseGuards} from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    HttpStatus,
+    Inject,
+    Logger,
+    Param,
+    Patch,
+    Post,
+    Req,
+    UseGuards
+} from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
 import {firstValueFrom} from "rxjs";
 import {MessageUserEnum} from "../interfaces/user/message-user.enum";
@@ -9,7 +22,6 @@ import {CreateUserDto} from "../interfaces/user/dto/create-user.dto";
 import {GenericHttpException} from "../helpers/GenericHttpException";
 import {IError} from "../interfaces/IError";
 import {UpdateUserDto} from "../interfaces/user/dto/update-user.dto";
-import {DeleteUserDto} from "../interfaces/user/dto/delete-user.dto";
 import {AuthGuard} from "../helpers/auth.guard";
 import {UserLogsEnum} from "../interfaces/user/user-logs.enum";
 import {IUserSubscription} from "../interfaces/subscriptions/IUserSubscription";
@@ -17,6 +29,10 @@ import {AssignSubscriptionDto} from "../interfaces/subscriptions/dto/assign-subs
 import {ISubscription} from "../interfaces/subscriptions/ISubscription";
 import {GetUserDto} from "../interfaces/user/response-dto/get-user.dto";
 import {IRole} from "../interfaces/role/IRole";
+import {Request} from "express";
+import {MessageTokenEnum} from "../interfaces/token/message-token.enum";
+import {DecodeTokenDto} from "../interfaces/token/dto/response-dto/decode-token.dto";
+import {AuthLogsEnum} from "../interfaces/auth/auth-logs.enum";
 
 
 @Controller('users')
@@ -27,6 +43,7 @@ export class UsersController {
         @Inject('user_service') private readonly userServiceClient: ClientProxy,
         @Inject('subscription_service') private readonly subscriptionServiceClient: ClientProxy,
         @Inject('role_service') private readonly roleServiceClient: ClientProxy,
+        @Inject('token_service') private readonly tokenServiceClient: ClientProxy,
     ) {
         this.logger = new Logger(UsersController.name)
 
@@ -39,8 +56,7 @@ export class UsersController {
 
         if (userResponse.status === HttpStatus.OK) {
             return userResponse
-        }
-        else if (userResponse.status === HttpStatus.NOT_FOUND) {
+        } else if (userResponse.status === HttpStatus.NOT_FOUND) {
             this.logger.log(UserLogsEnum.USER_NOT_FOUND)
             throw new GenericHttpException(404, userResponse.message)
         } else {
@@ -112,12 +128,31 @@ export class UsersController {
 
     @UseGuards(AuthGuard)
     @Patch("/:id")
-    public async updateUser(@Body() dto: UpdateUserDto, @Param('id') id: DeleteUserDto): Promise<IGetItemResponse<IUser> | GenericHttpException> {
+    public async updateUser(@Body() dto: UpdateUserDto, @Param('id') id: string, @Req() request: Request): Promise<IGetItemResponse<IUser> | GenericHttpException> {
 
         this.logger.log(UserLogsEnum.USER_UPDATE_INITIATED)
 
+        const token = request.headers['authorization'].split(' ')[1]
+
+        const tokenResponse: IGetItemServiceResponse<DecodeTokenDto> = await firstValueFrom(
+            this.tokenServiceClient.send(MessageTokenEnum.TOKEN_DECODE, token)
+        )
+        console.log(tokenResponse)
+
+        if (tokenResponse.status !== HttpStatus.OK) {
+            this.logger.error(UserLogsEnum.USER_VALIDATED_FAILED)
+            throw new GenericHttpException<IError>(tokenResponse.status, tokenResponse.message);
+        }
+
+        this.logger.error(UserLogsEnum.USER_VALIDATED_SUCCESS)
+
+
         const userResponse: IGetItemServiceResponse<IUser> = await firstValueFrom(
-            this.userServiceClient.send(MessageUserEnum.USER_UPDATE, JSON.stringify({id, ...dto}))
+            this.userServiceClient.send(MessageUserEnum.USER_UPDATE, JSON.stringify({
+                id,
+                ...dto,
+                tokenUserId: tokenResponse.data.userId
+            }))
         )
 
         if (userResponse.status === HttpStatus.OK) {

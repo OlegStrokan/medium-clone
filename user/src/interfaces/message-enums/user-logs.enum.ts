@@ -6,6 +6,7 @@ export enum UserLogsEnum {
     USERS_RETRIEVING_ERROR = 'Error retrieving users',
     USERS_RETRIEVED_SUCCESS = 'Users retrieved successfully',
     USER_NOT_FOUND = 'User not found',
+    USER_NOT_ALLOWED = 'User updating not allowed',
     USER_VALIDATION_INITIATED = 'User validation initiated',
     USER_VALIDATION_SUCCESS = 'User validation successful',
     USER_VALIDATION_FAILED = 'User validation failed',
