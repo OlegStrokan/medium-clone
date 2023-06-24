@@ -9,7 +9,6 @@ import {firstValueFrom} from "rxjs";
 import {MessageUserEnum} from "../interfaces/user/message-user.enum";
 import {IError} from "../interfaces/IError";
 import {LoginDto} from "../interfaces/auth/dto/login.dto";
-import {IToken} from "../interfaces/token/IToken";
 import {MessageTokenEnum} from "../interfaces/token/message-token.enum";
 import {LogoutDto} from "../interfaces/auth/dto/logout.dto";
 import {MessageMailerEnum} from "../interfaces/mailer/message-mailer.enum";
@@ -17,6 +16,7 @@ import {AuthLogsEnum} from "../interfaces/auth/auth-logs.enum";
 import {IRole} from "../interfaces/role/IRole";
 import {ISubscription} from "../interfaces/subscriptions/ISubscription";
 import {LoginReturnDto} from "../interfaces/auth/response-dto/login-return.dto";
+import {CreateTokenDto} from "../interfaces/token/dto/response-dto/create-token.dto";
 
 @Controller("auth")
 export class AuthController {
@@ -114,13 +114,13 @@ export class AuthController {
 
         this.logger.debug(AuthLogsEnum.USER_VALIDATION_COMPLETED)
 
-        const tokenResponse: IGetItemServiceResponse<IToken> = await firstValueFrom(
+        const tokenResponse: IGetItemServiceResponse<CreateTokenDto> = await firstValueFrom(
             this.tokenServiceClient.send(MessageTokenEnum.TOKEN_CREATE, userResponse.data)
         )
 
         if (tokenResponse.status !== HttpStatus.CREATED) {
             this.logger.error(AuthLogsEnum.TOKEN_CREATION_FAILED)
-            throw new GenericHttpException<IError>(userResponse.status, userResponse.message);
+            throw new GenericHttpException<IError>(tokenResponse.status, tokenResponse.message);
         }
 
         this.logger.debug(AuthLogsEnum.TOKEN_CREATION_COMPLETED)

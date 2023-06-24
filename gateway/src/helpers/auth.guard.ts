@@ -2,8 +2,8 @@ import {CanActivate, ExecutionContext, HttpStatus, Inject, Injectable} from "@ne
 import {firstValueFrom, Observable} from "rxjs";
 import {ClientProxy} from "@nestjs/microservices";
 import {IGetItemServiceResponse} from "../interfaces/IGetItemServiceResponse";
-import {IToken} from "../interfaces/token/IToken";
 import {MessageTokenEnum} from "../interfaces/token/message-token.enum";
+import {DecodeTokenDto} from "../interfaces/token/dto/response-dto/decode-token.dto";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -19,7 +19,7 @@ export class AuthGuard implements CanActivate {
 
     private async validateUser(tokenValue: string): Promise<boolean> {
 
-        const tokenServiceResponse: IGetItemServiceResponse<IToken> = await firstValueFrom(
+        const tokenServiceResponse: IGetItemServiceResponse<DecodeTokenDto> = await firstValueFrom(
             this.tokenService.send(MessageTokenEnum.TOKEN_DECODE, tokenValue),
         );
 
