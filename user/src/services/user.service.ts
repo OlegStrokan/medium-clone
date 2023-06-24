@@ -215,6 +215,7 @@ export class UserService {
 
         try {
             const user = await this.searchUserHelper(dto.id, 'id');
+
             if (!user) {
                 this.logger.log(UserLogsEnum.USER_NOT_FOUND);
                 return {
@@ -222,6 +223,15 @@ export class UserService {
                     message: MessageEnum.USER_NOT_FOUND_ID,
                     data: null,
                 };
+            }
+
+            if (user.id !== dto.tokenUserId) {
+                this.logger.log(UserLogsEnum.USER_NOT_ALLOWED);
+                return {
+                    status: HttpStatus.FORBIDDEN,
+                    message: MessageEnum.FORBIDDEN,
+                    data: null,
+                }
             }
 
             await this.userRepository.update(dto.id, dto);
