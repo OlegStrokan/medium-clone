@@ -121,37 +121,22 @@ export class UsersController {
             this.logger.log(UserLogsEnum.USER_CREATED_CONFLICT)
             throw new GenericHttpException<IError>(409, userResponse.message)
         } else {
-            this.logger.log(UserLogsEnum.USER_CREATED_ERROR)
+            this.logger.error(UserLogsEnum.USER_CREATED_ERROR)
             throw new GenericHttpException<IError>(412, userResponse.message)
         }
     }
 
     @UseGuards(AuthGuard)
     @Patch("/:id")
-    public async updateUser(@Body() dto: UpdateUserDto, @Param('id') id: string, @Req() request: Request): Promise<IGetItemResponse<IUser> | GenericHttpException> {
+    public async updateUser(@Body() dto: UpdateUserDto, @Param('id') id: string, @Req() request: Request &  { user: any }): Promise<IGetItemResponse<IUser> | GenericHttpException> {
 
         this.logger.log(UserLogsEnum.USER_UPDATE_INITIATED)
 
-        const token = request.headers['authorization'].split(' ')[1]
-
-        const tokenResponse: IGetItemServiceResponse<DecodeTokenDto> = await firstValueFrom(
-            this.tokenServiceClient.send(MessageTokenEnum.TOKEN_DECODE, token)
-        )
-        console.log(tokenResponse)
-
-        if (tokenResponse.status !== HttpStatus.OK) {
-            this.logger.error(UserLogsEnum.USER_VALIDATED_FAILED)
-            throw new GenericHttpException<IError>(tokenResponse.status, tokenResponse.message);
-        }
-
-        this.logger.error(UserLogsEnum.USER_VALIDATED_SUCCESS)
-
-
         const userResponse: IGetItemServiceResponse<IUser> = await firstValueFrom(
             this.userServiceClient.send(MessageUserEnum.USER_UPDATE, JSON.stringify({
-                id,
+                id: +id,
                 ...dto,
-                tokenUserId: tokenResponse.data.userId
+                updatingUserId: request.user
             }))
         )
 
@@ -165,18 +150,24 @@ export class UsersController {
             this.logger.log(UserLogsEnum.USER_UPDATED_NOT_FOUND)
             throw new GenericHttpException<IError>(404, userResponse.message)
         } else {
-            this.logger.log(UserLogsEnum.USER_UPDATED_FAILED)
+            this.logger.error(UserLogsEnum.USER_UPDATED_FAILED)
             throw new GenericHttpException<IError>(412, userResponse.message)
         }
     }
 
+    @UseGuards(AuthGuard)
+
     @Delete('/:id')
-    public async deleteUser(@Param('id') id: string): Promise<IGetItemResponse<string> | GenericHttpException> {
+    public async deleteUser(@Param('id') id: string, @Req() request): Promise<IGetItemResponse<string> | GenericHttpException> {
 
         this.logger.log(UserLogsEnum.USER_DELETED_INITIATED)
 
+
         const userResponse: IGetItemServiceResponse<IUser> = await firstValueFrom(
-            this.userServiceClient.send(MessageUserEnum.USER_DELETE, id)
+            this.userServiceClient.send(MessageUserEnum.USER_DELETE, JSON.stringify({
+                id,
+                deletingUserId: request.user
+            }))
         )
 
         if (userResponse.status === HttpStatus.NO_CONTENT) {
@@ -188,7 +179,7 @@ export class UsersController {
             this.logger.log(UserLogsEnum.USER_DELETED_NOT_FOUND)
             throw new GenericHttpException<IError>(userResponse.status, userResponse.message)
         } else {
-            this.logger.log(UserLogsEnum.USER_DELETED_ERROR)
+            this.logger.error(UserLogsEnum.USER_DELETED_ERROR)
             throw new GenericHttpException<IError>(412, userResponse.message)
         }
 
@@ -268,4 +259,5 @@ export class UsersController {
             }
         }
     }
+
 }
