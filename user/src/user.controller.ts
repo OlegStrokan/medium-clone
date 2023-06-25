@@ -41,7 +41,7 @@ export class UserController {
   }
 
   @MessagePattern(MessagePatternEnum.USER_DELETE)
-  async deleteUser(id: string): Promise<UserResponseDto<IUser>> {
-    return this.userService.deleteUser(id);
+  async deleteUser(jsonUserData: string): Promise<UserResponseDto<IUser>> {
+    return this.userService.deleteUser(JSON.parse(jsonUserData));
   }
 }

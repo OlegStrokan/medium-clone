@@ -4,5 +4,5 @@ export class UpdateUserDto {
     fullName: string;
     userName: string;
     email: string;
-    tokenUserId: string;
+    updatingUserId: string;
 }

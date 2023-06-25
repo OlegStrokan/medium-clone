@@ -7,6 +7,7 @@ export enum MessageEnum {
     'USER_UPDATED' = 'Your account has been successfully updated',
     'USER_DELETED' = 'Your account has been successfully deleted',
     'USER_SEARCH_OK' = 'Ok',
-    'FORBIDDEN' = 'You can\'t update an account that does not belong to you',
+    'UPDATE_FORBIDDEN' = 'You can\'t update an account that does not belong to you',
+    'DELETE_FORBIDDEN' = 'You can\'t delete an account that does not belong to you',
     'PRECONDITION_FAILED' = 'Precondition failed',
 }
