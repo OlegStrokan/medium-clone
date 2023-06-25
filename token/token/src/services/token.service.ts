@@ -87,7 +87,8 @@ export class TokenService {
 
         this.logger.log(TokenLogsEnum.TOKEN_DECODE_INITIATED)
         try {
-            const {userId} = this.jwtService.verify(tokenValue);
+            const userId = this.jwtService.verify(tokenValue);
+
             const token = await this.tokenRepository.findOne({where: {value: tokenValue}});
 
             if (!token) {
