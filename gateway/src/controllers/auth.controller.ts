@@ -115,7 +115,7 @@ export class AuthController {
         this.logger.debug(AuthLogsEnum.USER_VALIDATION_COMPLETED)
 
         const tokenResponse: IGetItemServiceResponse<CreateTokenDto> = await firstValueFrom(
-            this.tokenServiceClient.send(MessageTokenEnum.TOKEN_CREATE, userResponse.data)
+            this.tokenServiceClient.send(MessageTokenEnum.TOKEN_CREATE, userResponse.data.id)
         )
 
         if (tokenResponse.status !== HttpStatus.CREATED) {
