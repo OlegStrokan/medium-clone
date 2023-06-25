@@ -30,9 +30,6 @@ import {ISubscription} from "../interfaces/subscriptions/ISubscription";
 import {GetUserDto} from "../interfaces/user/response-dto/get-user.dto";
 import {IRole} from "../interfaces/role/IRole";
 import {Request} from "express";
-import {MessageTokenEnum} from "../interfaces/token/message-token.enum";
-import {DecodeTokenDto} from "../interfaces/token/dto/response-dto/decode-token.dto";
-import {AuthLogsEnum} from "../interfaces/auth/auth-logs.enum";
 
 
 @Controller('users')

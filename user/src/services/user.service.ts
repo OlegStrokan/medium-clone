@@ -154,7 +154,7 @@ export class UserService {
         }
     }
 
-    public async createUser(dto: CreateUserDto): Promise<UserResponseDto<IUser>> {
+    public async createUser(dto: CreateUserDto): Promise<UserResponseDto<{id: string, activationLink: { link: string }}>> {
 
         this.logger.log(UserLogsEnum.USER_CREATION_INITIATED);
 
@@ -196,11 +196,14 @@ export class UserService {
             return {
                 status: HttpStatus.CREATED,
                 message: MessageEnum.USER_CREATED,
-                data: null,
+                data: {
+                    id: user.id,
+                   activationLink
+                }
             };
         } catch (e) {
 
-            this.logger.log(UserLogsEnum.USER_CREATION_ERROR);
+            this.logger.log(UserLogsEnum.USER_CREATION_ERROR, e);
 
             return {
                 status: HttpStatus.PRECONDITION_FAILED,
@@ -234,19 +237,19 @@ export class UserService {
                 }
             }
 
-            const {updatingUserId, ...newDto} = dto
+            const userDto = await UserService.mapUserDto(dto)
 
-            await this.userRepository.update(dto.id, newDto);
+            await this.userRepository.update(dto.id, userDto);
 
             const updatedUser = await this.searchUserHelper(dto.id, 'id');
 
-            const userDto = await UserService.mapUserDto(updatedUser)
+            const updatedUserDto = await UserService.mapUserDto(updatedUser)
 
             this.logger.log(UserLogsEnum.USER_UPDATED_SUCCESS);
             return {
                 status: HttpStatus.OK,
                 message: MessageEnum.USER_UPDATED,
-                data: userDto,
+                data: updatedUserDto,
             };
         } catch (e) {
             this.logger.error(UserLogsEnum.USER_UPDATE_ERROR, e);

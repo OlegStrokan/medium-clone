@@ -31,7 +31,7 @@ export class UserController {
   }
 
   @MessagePattern(MessagePatternEnum.USER_CREATE)
-  async createUser(jsonUserData: string): Promise<UserResponseDto<IUser>> {
+  async createUser(jsonUserData: string): Promise<UserResponseDto<{ id: string, activationLink: { link: string }}>> {
     return this.userService.createUser(JSON.parse(jsonUserData));
   }
 
