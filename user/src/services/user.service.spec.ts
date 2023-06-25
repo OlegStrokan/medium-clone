@@ -7,6 +7,7 @@ import {HttpStatus} from "@nestjs/common";
 import {MessageEnum} from "../interfaces/message-enums/message.enum";
 import {UpdateUserDto} from "../interfaces/request-dtos/update-user.dto";
 import {IUser} from "../interfaces/IUser";
+import {ActivationLinkEntity} from "../repository/activation-link.entity";
 
 describe('UserService', () => {
     let userService: UserService
@@ -18,7 +19,7 @@ describe('UserService', () => {
         password: 'pas099sword',
         fullName: "Oleh Strokan",
         userName: "stroka01",
-        activationLink: { link: 'https://google.com'}
+        activationLink: {link: 'https://google.com'}
     }
 
 
@@ -36,6 +37,12 @@ describe('UserService', () => {
                         findOneBy: jest.fn(),
                         findOneOrFail: jest.fn()
                     }
+                },
+                {
+                    provide: ActivationLinkEntity,
+                    useValue: {
+
+                    }
                 }
             ]
         }).compile()
@@ -43,7 +50,6 @@ describe('UserService', () => {
         userService = module.get<UserService>(UserService)
         userRepository = module.get<UserEntity>(UserEntity)
     });
-
 
 
     describe('getUser', () => {
@@ -97,6 +103,7 @@ describe('UserService', () => {
             email: 'test@test.com',
             fullName: 'Oleh Strokan',
             userName: 'User',
+            updatingUserId: '1'
         };
 
         const existingUser: IUser = {
@@ -104,7 +111,7 @@ describe('UserService', () => {
             email: 'old@test.com',
             fullName: 'Olejandro Stroka',
             userName: 'stroka01',
-            activationLink: { link: 'https://google.com'}
+            activationLink: {link: 'https://google.com'}
 
         }
 
@@ -113,7 +120,7 @@ describe('UserService', () => {
             email: 'test@test.com',
             fullName: 'Oleh Strokan',
             userName: 'stroka02',
-            activationLink: { link: 'https://google.com'}
+            activationLink: {link: 'https://google.com'}
 
         };
 
@@ -150,20 +157,24 @@ describe('UserService', () => {
             email: 'old@test.com',
             fullName: 'Olejandro Stroka',
             userName: 'stroka01',
-            activationLink: { link: 'https://google.com'}
+            activationLink: {link: 'https://google.com'}
 
         }
 
         it('should delete a user and return NO_CONTENT response', async () => {
 
-            userRepository.findOneBy = jest.fn().mockResolvedValue({ id: existingUser.id });
+            userRepository.findOneBy = jest.fn().mockResolvedValue({id: existingUser.id});
             userRepository.delete = jest.fn().mockResolvedValue(undefined);
 
 
-            const result: UserResponseDto<IUser> = await userService.deleteUser(existingUser.id);
+            const result: UserResponseDto<IUser> = await userService.deleteUser(
+                {
+                    id: existingUser.id,
+                    updatingUserId: existingUser.id
+                });
 
 
-            expect(userRepository.findOneBy).toHaveBeenCalledWith({ id: existingUser.id });
+            expect(userRepository.findOneBy).toHaveBeenCalledWith({id: existingUser.id});
             expect(userRepository.delete).toHaveBeenCalledWith(existingUser.id);
             expect(result).toEqual({
                 status: HttpStatus.NO_CONTENT,
@@ -177,10 +188,14 @@ describe('UserService', () => {
             userRepository.findOneBy = jest.fn().mockRejectedValue(undefined);
 
 
-            const result: UserResponseDto<IUser> = await userService.deleteUser(existingUser.id);
+            const result: UserResponseDto<IUser> = await userService.deleteUser(
+                {
+                    id: existingUser.id,
+                    updatingUserId: existingUser.id
+                });
 
 
-            expect(userRepository.findOneBy).toHaveBeenCalledWith({ id: existingUser.id });
+            expect(userRepository.findOneBy).toHaveBeenCalledWith({id: existingUser.id});
             expect(result).toEqual({
                 status: HttpStatus.NOT_FOUND,
                 message: MessageEnum.USER_NOT_FOUND_ID,
@@ -190,14 +205,18 @@ describe('UserService', () => {
 
         it('should return PRECONDITION_FAILED response when deletion fails', async () => {
 
-            userRepository.findOneBy = jest.fn().mockResolvedValue({ id: existingUser.id });
+            userRepository.findOneBy = jest.fn().mockResolvedValue({id: existingUser.id});
             userRepository.delete = jest.fn().mockRejectedValue(undefined);
 
 
-            const result: UserResponseDto<IUser> = await userService.deleteUser(existingUser.id);
+            const result: UserResponseDto<IUser> = await userService.deleteUser(
+                {
+                    id: existingUser.id,
+                    updatingUserId: existingUser.id
+                });
 
 
-            expect(userRepository.findOneBy).toHaveBeenCalledWith({ id: existingUser.id });
+            expect(userRepository.findOneBy).toHaveBeenCalledWith({id: existingUser.id});
             expect(userRepository.delete).toHaveBeenCalledWith(existingUser.id);
             expect(result).toEqual({
                 status: HttpStatus.PRECONDITION_FAILED,

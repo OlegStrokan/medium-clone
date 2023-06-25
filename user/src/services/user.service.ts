@@ -14,6 +14,7 @@ import {ActivationLinkEntity} from '../repository/activation-link.entity';
 import {IActivationLink} from '../interfaces/IActivationLink';
 import {UserLogsEnum} from '../interfaces/message-enums/user-logs.enum';
 import {UserDto} from "../interfaces/response-dtos/user.dto";
+import {DeleteUserDto} from "../interfaces/request-dtos/delete-user.dto";
 
 @Injectable()
 export class UserService {
@@ -210,7 +211,7 @@ export class UserService {
         }
     }
 
-    public async updateUser(dto: UpdateUserDto): Promise<UserResponseDto<UserDto>> {
+    public async updateUser(dto: UpdateUserDto,): Promise<UserResponseDto<UserDto>> {
         this.logger.log(UserLogsEnum.USER_UPDATE_INITIATED);
 
         try {
@@ -224,17 +225,18 @@ export class UserService {
                     data: null,
                 };
             }
-
-            if (user.id !== dto.tokenUserId) {
-                this.logger.log(UserLogsEnum.USER_NOT_ALLOWED);
+            if (user.id !== dto.updatingUserId) {
+                this.logger.log(UserLogsEnum.USER_UPDATE_NOT_ALLOWED);
                 return {
                     status: HttpStatus.FORBIDDEN,
-                    message: MessageEnum.FORBIDDEN,
+                    message: MessageEnum.UPDATE_FORBIDDEN,
                     data: null,
                 }
             }
 
-            await this.userRepository.update(dto.id, dto);
+            const {updatingUserId, ...newDto} = dto
+
+            await this.userRepository.update(dto.id, newDto);
 
             const updatedUser = await this.searchUserHelper(dto.id, 'id');
 
@@ -247,7 +249,7 @@ export class UserService {
                 data: userDto,
             };
         } catch (e) {
-            this.logger.log(UserLogsEnum.USER_UPDATE_ERROR);
+            this.logger.error(UserLogsEnum.USER_UPDATE_ERROR, e);
             return {
                 status: HttpStatus.PRECONDITION_FAILED,
                 message: MessageEnum.PRECONDITION_FAILED,
@@ -257,11 +259,12 @@ export class UserService {
         }
     }
 
-    public async deleteUser(id: string): Promise<UserResponseDto<IUser>> {
+    public async deleteUser(dto: DeleteUserDto): Promise<UserResponseDto<IUser>> {
+
         this.logger.log(UserLogsEnum.USER_DELETION_INITIATED);
 
         try {
-            const user = await this.searchUserHelper(id, 'id');
+            const user = await this.searchUserHelper(dto.id, 'id');
             if (!user) {
                 this.logger.log(UserLogsEnum.USER_NOT_FOUND);
                 return {
@@ -271,7 +274,19 @@ export class UserService {
                 };
             }
 
-            await this.userRepository.delete(id);
+            if (user.id !== dto.deletingUserId) {
+                this.logger.log(UserLogsEnum.USER_DELETE_NOT_ALLOWED);
+                return {
+                    status: HttpStatus.FORBIDDEN,
+                    message: MessageEnum.DELETE_FORBIDDEN,
+                    data: null,
+                }
+            }
+
+            const activationLink = await this.activationLinkRepository.findOneBy({userId: dto.deletingUserId})
+
+            await this.activationLinkRepository.delete(activationLink.userId)
+            await this.userRepository.delete(dto.id);
 
             this.logger.log(UserLogsEnum.USER_DELETED);
             return {
@@ -280,7 +295,7 @@ export class UserService {
                 data: null,
             };
         } catch (e) {
-            this.logger.log(UserLogsEnum.USER_DELETION_ERROR);
+            this.logger.error(UserLogsEnum.USER_DELETION_ERROR, e);
             return {
                 status: HttpStatus.PRECONDITION_FAILED,
                 message: MessageEnum.PRECONDITION_FAILED,
