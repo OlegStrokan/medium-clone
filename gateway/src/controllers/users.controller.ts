@@ -24,12 +24,9 @@ import {IError} from "../interfaces/IError";
 import {UpdateUserDto} from "../interfaces/user/dto/update-user.dto";
 import {AuthGuard} from "../helpers/auth.guard";
 import {UserLogsEnum} from "../interfaces/user/user-logs.enum";
-import {IUserSubscription} from "../interfaces/subscriptions/IUserSubscription";
-import {AssignSubscriptionDto} from "../interfaces/subscriptions/dto/assign-subscription.dto";
-import {ISubscription} from "../interfaces/subscriptions/ISubscription";
-import {GetUserDto} from "../interfaces/user/response-dto/get-user.dto";
 import {IRole} from "../interfaces/role/IRole";
 import {Request} from "express";
+
 
 
 @Controller('users')
@@ -47,12 +44,15 @@ export class UsersController {
     }
 
     @Get('/:id')
-    public async getUser(@Param('id') id: string): Promise<IGetItemResponse<GetUserDto> | GenericHttpException> {
+    public async getUser(@Param('id') id: string): Promise<IGetItemResponse<IUser> | GenericHttpException> {
 
         const userResponse = await this.getUserById(id);
 
         if (userResponse.status === HttpStatus.OK) {
-            return userResponse
+            return {
+                data: userResponse.data,
+                status: userResponse.status
+            }
         } else if (userResponse.status === HttpStatus.NOT_FOUND) {
             this.logger.log(UserLogsEnum.USER_NOT_FOUND)
             throw new GenericHttpException(404, userResponse.message)
@@ -86,7 +86,6 @@ export class UsersController {
 
     @Post("")
     public async createUser(@Body() dto: CreateUserDto): Promise<IGetItemResponse<IUser> | GenericHttpException> {
-
 
         this.logger.log(UserLogsEnum.USER_CREATE_INITIATED)
 
@@ -153,7 +152,6 @@ export class UsersController {
     }
 
     @UseGuards(AuthGuard)
-
     @Delete('/:id')
     public async deleteUser(@Param('id') id: string, @Req() request): Promise<IGetItemResponse<string> | GenericHttpException> {
 
@@ -182,33 +180,8 @@ export class UsersController {
 
     }
 
-    @Post('/subscriptions/:id')
-    public async subscribeUser(@Body() dto: AssignSubscriptionDto, @Param('id') id: string): Promise<IGetItemResponse<GetUserDto> | GenericHttpException> {
 
-        const subscriptionResponse: IGetItemServiceResponse<IUserSubscription> = await firstValueFrom(
-            this.subscriptionServiceClient.send(
-                MessageUserEnum.SUBSCRIPTION_ASSIGN_TO_USER, JSON.stringify(dto))
-        )
-
-        if (subscriptionResponse.status !== HttpStatus.OK) {
-            throw new GenericHttpException<IError>(subscriptionResponse.status, subscriptionResponse.message)
-        }
-
-        const userResponse = await this.getUserById(id);
-
-        if (userResponse.data.hasOwnProperty('user')) {
-            return {
-                data: userResponse.data,
-                status: userResponse.status
-            };
-        }
-        if (userResponse.status !== HttpStatus.OK) {
-            throw new GenericHttpException<IError>(subscriptionResponse.status, subscriptionResponse.message);
-        }
-
-    }
-
-    private async getUserById(id: string): Promise<IGetItemResponse<GetUserDto>> {
+    private async getUserById(id: string): Promise<IGetItemResponse<IUser>> {
 
         this.logger.log(UserLogsEnum.USER_INITIATED)
 
@@ -218,43 +191,17 @@ export class UsersController {
 
         if (userResponse.status === HttpStatus.OK) {
 
-            const subscriptionResponse: IGetItemServiceResponse<ISubscription[]> = await firstValueFrom(
-                this.subscriptionServiceClient.send(MessageUserEnum.SUBSCRIPTION_GET_FOR_USER, id)
-            )
-
-            if (subscriptionResponse.status === HttpStatus.OK) {
-
-                const roleResponse: IGetItemServiceResponse<IRole[]> = await firstValueFrom(
-                    this.roleServiceClient.send(MessageUserEnum.ROLE_GET_FOR_USER, id)
-                )
+            return {
+                data: userResponse.data,
+                status: userResponse.status
 
 
-                if (roleResponse.status === HttpStatus.OK) {
-                    return {
-                        data: {
-                            user: userResponse.data,
-                            subscriptions: subscriptionResponse.data,
-                            roles: roleResponse.data
-                        },
-                        status: userResponse.status,
-                    }
-                } else {
-                    return {
-                        data: {
-                            user: userResponse.data
-                        },
-                        status: userResponse.status
-                    }
-                }
-            } else {
+            }
+        } else {
                 return {
-                    data: {
-                        user: userResponse.data
-                    },
+                    data:  userResponse.data,
                     status: userResponse.status
                 }
             }
         }
-    }
-
 }
