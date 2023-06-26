@@ -17,4 +17,6 @@ export enum SubscriptionLogsEnum {
     SUBSCRIPTION_RETRIEVAL_SUCCESS = 'Subscription retrieval successful',
     SUBSCRIPTION_RETRIEVAL_NOT_FOUND = 'Subscription not found for user ',
     SUBSCRIPTION_RETRIEVAL_ERROR = 'Subscription retrieval error',
+    SUBSCRIPTION_CREATE_NOT_ALLOWED = 'Subscription creating not allowed',
+
 }
