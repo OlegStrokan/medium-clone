@@ -4,7 +4,6 @@ import {MessagePattern} from "@nestjs/microservices";
 import {MessagePatternEnum} from "../interfaces/message-enums/message-pattern.enum";
 import {ISubscription} from "../interfaces/ISubscription";
 import {ResponseDto} from "../interfaces/response-dtos/subscription.dto";
-import {IUserSubscription} from "../interfaces/IUserSubscription";
 
 @Controller()
 export class SubscriptionController {
@@ -27,12 +26,12 @@ export class SubscriptionController {
     }
 
     @MessagePattern(MessagePatternEnum.SUBSCRIPTION_ASSIGN_TO_USER)
-    public async assignSubscriptionToUser(jsonDto: string): Promise<ResponseDto<IUserSubscription>> {
+    public async assignSubscriptionToUser(jsonDto: string): Promise<ResponseDto<ISubscription[]>> {
         return this.subscriptionService.assignSubscriptionToUser(JSON.parse(jsonDto));
     }
 
     @MessagePattern(MessagePatternEnum.SUBSCRIPTION_DELETE_FROM_USER)
-    public async deleteSubscriptionFromUser(jsonDto: string): Promise<ResponseDto<IUserSubscription>> {
+    public async deleteSubscriptionFromUser(jsonDto: string): Promise<ResponseDto<ISubscription[]>> {
         return this.subscriptionService.deleteSubscriptionFromUser(JSON.parse(jsonDto));
     }
 

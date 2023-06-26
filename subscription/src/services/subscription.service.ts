@@ -34,7 +34,7 @@ export class SubscriptionService {
                 this.logger.warn(SubscriptionLogsEnum.CREATE_SUBSCRIPTION_CONFLICT)
                 return {
                     status: HttpStatus.CONFLICT,
-                    message: MessageEnum.CONFLICT,
+                    message: MessageEnum.SUBSCRIPTION_CONFLICT,
                     data: null
                 }
             }
@@ -114,19 +114,54 @@ export class SubscriptionService {
         }
     }
 
-    public async assignSubscriptionToUser(dto: AssignSubscriptionDto): Promise<ResponseDto<IUserSubscription>> {
+    public async assignSubscriptionToUser(dto: AssignSubscriptionDto): Promise<ResponseDto<ISubscription[]>> {
         try {
 
             this.logger.log(SubscriptionLogsEnum.SUBSCRIPTION_ASSIGNMENT_INITIATED)
+
+            if (dto.userId !== dto.subscribingUserId) {
+
+                this.logger.log(SubscriptionLogsEnum.SUBSCRIPTION_CREATE_NOT_ALLOWED);
+                return {
+                    status: HttpStatus.FORBIDDEN,
+                    message: MessageEnum.RELATION_FORBIDDEN,
+                    data: null,
+                }
+            }
+
+            const subscription = await this.getSubscriptionById(dto.subscriptionId);
+
+            if  (!subscription) {
+                return {
+                    status: HttpStatus.NOT_FOUND,
+                    message: MessageEnum.SUBSCRIPTION_NOT_FOUND,
+                    data: null
+                }
+            }
+
+            const relation = await this.userSubscriptionRepository.findBy({
+                userId: dto.userId,
+                subscriptionId: dto.subscriptionId
+            })
+
+            if (relation.length > 0) {
+                return {
+                    status: HttpStatus.CONFLICT,
+                    message: MessageEnum.RELATION_CONFLICT,
+                    data: null
+                }
+            }
             const newRelation = await this.userSubscriptionRepository.create(dto)
 
             await this.userSubscriptionRepository.save(newRelation);
 
+            const subscriptions = await this.getSubscriptionsForUser(dto.userId);
+
             this.logger.log(SubscriptionLogsEnum.SUBSCRIPTION_ASSIGNMENT_SUCCESS)
             return {
                 status: HttpStatus.CREATED,
-                message: MessageEnum.CREATED,
-                data: newRelation
+                message: MessageEnum.RELATION_CREATED,
+                data: subscriptions.data
             }
         } catch (e) {
             this.logger.error(SubscriptionLogsEnum.SUBSCRIPTION_ASSIGNMENT_ERROR)
@@ -141,26 +176,53 @@ export class SubscriptionService {
     }
 
 
-    public async deleteSubscriptionFromUser(dto: AssignSubscriptionDto): Promise<ResponseDto<null>> {
+    public async deleteSubscriptionFromUser(dto: AssignSubscriptionDto): Promise<ResponseDto<ISubscription[]>> {
         try {
 
-            this.logger.log(SubscriptionLogsEnum.SUBSCRIPTION_ASSIGNMENT_INITIATED)
-            const relations = await this.userSubscriptionRepository.findBy({
+            this.logger.log(SubscriptionLogsEnum.SUBSCRIPTION_DELETE_INITIATED)
+
+
+            if (dto.userId !== dto.subscribingUserId) {
+
+                this.logger.log(SubscriptionLogsEnum.SUBSCRIPTION_CREATE_NOT_ALLOWED);
+                return {
+                    status: HttpStatus.FORBIDDEN,
+                    message: MessageEnum.DELETE_FORBIDDEN,
+                    data: null,
+                }
+            }
+
+            const relation = await this.userSubscriptionRepository.findOneBy({
                 subscriptionId: dto.subscriptionId,
                 userId: dto.userId
             })
-            relations.map(async (relation) => {
-                await this.userSubscriptionRepository.delete(relation)
+
+
+            if (!relation) {
+                return {
+                    status: HttpStatus.NOT_FOUND,
+                    message: MessageEnum.RELATION_NOT_FOUND,
+                    data: null
+                }
+            }
+
+
+            await this.userSubscriptionRepository.delete({
+                userId: dto.userId,
+                subscriptionId: dto.subscriptionId
             })
 
-            this.logger.log(SubscriptionLogsEnum.SUBSCRIPTION_ASSIGNMENT_SUCCESS)
+            this.logger.log(SubscriptionLogsEnum.SUBSCRIPTION_DELETE_SUCCESS)
+
+            const subscriptions = await this.getSubscriptionsForUser(dto.userId);
+
             return {
                 status: HttpStatus.NO_CONTENT,
                 message: MessageEnum.SUBSCRIPTION_DELETE_OK,
-                data: null
+                data: subscriptions.data
             }
         } catch (e) {
-            this.logger.error(SubscriptionLogsEnum.SUBSCRIPTION_ASSIGNMENT_ERROR)
+            this.logger.error(SubscriptionLogsEnum.SUBSCRIPTION_DELETE_ERROR)
             return {
                 status: HttpStatus.PRECONDITION_FAILED,
                 message: MessageEnum.PRECONDITION_FAILED,
@@ -215,6 +277,6 @@ export class SubscriptionService {
     }
 
     private async getSubscriptionById(subscriptionId: string) {
-        return await this.subscriptionRepository.findOneBy({ id: subscriptionId })
+        return await this.subscriptionRepository.findOneBy({id: subscriptionId})
     }
 }
