@@ -4,7 +4,6 @@ import {ClientProxy} from "@nestjs/microservices";
 import {IGetItemServiceResponse} from "../interfaces/IGetItemServiceResponse";
 import {MessageTokenEnum} from "../interfaces/token/message-token.enum";
 import {DecodeTokenDto} from "../interfaces/token/dto/response-dto/decode-token.dto";
-import {Request} from "express";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -15,6 +14,12 @@ export class AuthGuard implements CanActivate {
 
         const request = context.switchToHttp().getRequest();
         const headers = request.headers['authorization']
+
+
+        if (!headers) {
+          return Promise.resolve(false);
+        }
+
         const tokenValue = headers.split(" ")[1];
 
         return this.validateUser(tokenValue, request);
@@ -26,6 +31,9 @@ export class AuthGuard implements CanActivate {
             this.tokenService.send(MessageTokenEnum.TOKEN_DECODE, tokenValue),
         );
 
+        if (tokenServiceResponse.errors) {
+            return false;
+        }
         request.user = tokenServiceResponse.data.userId;
         return tokenServiceResponse.status === HttpStatus.OK
     }
