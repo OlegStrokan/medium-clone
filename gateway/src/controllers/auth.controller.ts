@@ -61,7 +61,11 @@ export class AuthController {
             const subscriptionResponse: IGetItemServiceResponse<null> = await firstValueFrom(
                 this.subscriptionServiceClient.send(
                     MessageUserEnum.SUBSCRIPTION_ASSIGN_TO_USER,
-                    JSON.stringify({userId: userResponse.data.id, subscriptionId: 2}),
+                    JSON.stringify({
+                        userId: userResponse.data.id,
+                        subscriptionId: 2,
+                        subscribingUserId: userResponse.data.id
+                    }),
                 ),
             );
 
