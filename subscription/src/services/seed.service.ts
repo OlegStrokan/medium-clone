@@ -16,9 +16,9 @@ export class SeedService {
 
             this.logger.log(SeedLogMessage.DATABASE_SEEDING_INIT)
 
-            const roleRepository: Repository<SubscriptionEntity> = this.connection.getRepository(SubscriptionEntity);
+            const subscriptionRepository: Repository<SubscriptionEntity> = this.connection.getRepository(SubscriptionEntity);
 
-            const hasData = await this.checkDataExistence(roleRepository);
+            const hasData = await this.checkDataExistence(subscriptionRepository);
 
             if (!hasData) {
                 // TODO - update PATH
@@ -26,9 +26,9 @@ export class SeedService {
 
                 const data = JSON.parse(testData);
 
-                for (const role of data.subscriptions) {
-                    const createdRole = roleRepository.create(role)
-                    await roleRepository.save(createdRole);
+                for (const subscription of data.subscriptions) {
+                    const createdSubscription = subscriptionRepository.create(subscription)
+                    await subscriptionRepository.save(createdSubscription);
                 }
 
                 this.logger.log(SeedLogMessage.DATABASE_SEEDING_COMPLETED);
@@ -42,9 +42,9 @@ export class SeedService {
         }
     }
 
-    async checkDataExistence(userRepository: Repository<SubscriptionEntity>): Promise<boolean> {
-        const roles = await userRepository.find();
-        return roles.length > 1;
+    async checkDataExistence(subscriptionRepository: Repository<SubscriptionEntity>): Promise<boolean> {
+        const subscriptions = await subscriptionRepository.find();
+        return subscriptions.length > 1;
     }
 
     async clearTables(): Promise<void> {
