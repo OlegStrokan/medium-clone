@@ -3,7 +3,7 @@ export enum SubscriptionLogsEnum {
     CREATE_SUBSCRIPTION_INITIATED = 'Subscription creation initiated',
     CREATE_SUBSCRIPTION_ERROR = 'Failed to create subscription',
     CREATE_SUBSCRIPTION_CONFLICT = 'Subscription already exists',
-    SUBSCRIPTION_NOT_FOUND = 'Subscription not found, creating a new one',
+    SUBSCRIPTION_NOT_FOUND = 'Subscription not found',
     SUBSCRIPTION_SEARCH_OK = 'Subscription retrieval successful',
     SUBSCRIPTION_SEARCH_INITIATED = 'Subscription retrieval initiated',
     SUBSCRIPTION_SEARCH_ERROR = 'Failed to retrieve subscriptions',
