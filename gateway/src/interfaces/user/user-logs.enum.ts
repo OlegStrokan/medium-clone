@@ -32,5 +32,4 @@ export enum UserLogsEnum {
     USER_SUBSCRIPTION_ASSIGNMENT_INITIATED = 'Subscription assignment initiated',
     USER_SUBSCRIPTION_ASSIGNMENT_SUCCESS = 'Subscription assignment successful',
     USER_SUBSCRIPTION_ASSIGNMENT_ERROR = 'Subscription assignment error',
-
 }

@@ -26,6 +26,8 @@ import {AuthGuard} from "../helpers/auth.guard";
 import {UserLogsEnum} from "../interfaces/user/user-logs.enum";
 import {IRole} from "../interfaces/role/IRole";
 import {Request} from "express";
+import {ISubscription} from "../interfaces/subscriptions/ISubscription";
+import {MessageSubscriptionEnum} from "../interfaces/subscriptions/message-subscription.enum";
 
 
 
@@ -179,6 +181,31 @@ export class UsersController {
         }
 
     }
+
+
+    @UseGuards(AuthGuard)
+    @Get('/:id/subscriptions')
+    public async getSubscriptionsForUser(@Param('id') id: string, @Req() request): Promise<IGetItemResponse<ISubscription[]> | GenericHttpException> {
+
+        const subscriptionResponse: IGetItemServiceResponse<ISubscription[]> = await firstValueFrom(
+            this.subscriptionServiceClient.send(MessageUserEnum.SUBSCRIPTION_GET_FOR_USER,
+                JSON.stringify({
+                    userId: +id,
+                    subscribingUserId: request.user
+                }))
+        )
+
+        if (subscriptionResponse.status !== HttpStatus.OK) {
+            throw new GenericHttpException<IError>(subscriptionResponse.status, subscriptionResponse.message)
+        }
+
+        return {
+            data: subscriptionResponse.data,
+            status: subscriptionResponse.status
+        }
+
+    }
+
 
 
     private async getUserById(id: string): Promise<IGetItemResponse<IUser>> {
