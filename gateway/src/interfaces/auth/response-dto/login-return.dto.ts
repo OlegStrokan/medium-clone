@@ -1,5 +1,7 @@
-import {GetUserDto} from "../../user/response-dto/get-user.dto";
+import { ApiProperty } from '@nestjs/swagger';
+import { GetUserDto } from '../../user/response-dto/get-user.dto';
 
 export class LoginReturnDto extends GetUserDto {
-    token: string
+    @ApiProperty({ example: 'abcxyz123', description: 'Access token' })
+    token: string;
 }

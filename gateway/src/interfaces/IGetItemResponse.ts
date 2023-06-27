@@ -1,6 +1,6 @@
 
-export interface IGetItemResponse<T> {
-    data?: T | null,
-    status: number;
-    message?: string;
+export class IGetItemResponse<T> {
+    data?: T | null
+    status: number
+    message?: string
 }
