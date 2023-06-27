@@ -15,9 +15,9 @@ export class SubscriptionController {
         return this.subscriptionService.createSubscription(JSON.parse(jsonDto))
     }
 
-    @MessagePattern(MessagePatternEnum.SUBSCRIPTION_GET_BY_VALUE)
-    public async getSubscriptionByValue(jsonDto: string): Promise<ResponseDto<ISubscription>> {
-        return this.subscriptionService.getSubscriptionByValue(JSON.parse(jsonDto))
+    @MessagePattern(MessagePatternEnum.SUBSCRIPTION_GET_BY_ID)
+    public async getSubscriptionById(id: string): Promise<ResponseDto<ISubscription>> {
+        return this.subscriptionService.getSubscriptionById(id)
     }
 
     @MessagePattern(MessagePatternEnum.SUBSCRIPTION_GET_ALL)

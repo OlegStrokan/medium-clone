@@ -60,25 +60,25 @@ export class SubscriptionService {
         }
     }
 
-    public async getSubscriptionByValue(value: string): Promise<ResponseDto<ISubscription>> {
+    public async getSubscriptionById(id: string): Promise<ResponseDto<ISubscription>> {
 
         this.logger.log(SubscriptionLogsEnum.SUBSCRIPTION_SEARCH_INITIATED)
         try {
-            const role = await this.subscriptionRepository.findOneBy({value});
+            const subscription = await this.subscriptionRepository.findOneBy({id});
 
-            if (!role) {
+            if (!subscription) {
                 this.logger.log(SubscriptionLogsEnum.SUBSCRIPTION_NOT_FOUND)
                 return {
                     status: HttpStatus.NOT_FOUND,
                     message: MessageEnum.SUBSCRIPTION_NOT_FOUND,
-                    data: role
+                    data: subscription
                 }
             }
             this.logger.log(SubscriptionLogsEnum.SUBSCRIPTION_SEARCH_OK)
             return {
                 status: HttpStatus.OK,
                 message: MessageEnum.SUBSCRIPTION_SEARCH_OK,
-                data: role
+                data: subscription
             }
         } catch (e) {
             this.logger.error(SubscriptionLogsEnum.SUBSCRIPTION_SEARCH_ERROR)
@@ -241,7 +241,7 @@ export class SubscriptionService {
             const relations = await this.userSubscriptionRepository.findBy({userId: userId})
 
             const subscriptionPromises = relations.map(async (relation) => {
-                return await this.getSubscriptionById(relation.subscriptionId);
+                return await this.getById(relation.subscriptionId);
             });
 
             const subscriptions = await Promise.all(subscriptionPromises);
@@ -276,7 +276,7 @@ export class SubscriptionService {
         }
     }
 
-    private async getSubscriptionById(subscriptionId: string) {
+    private async getById(subscriptionId: string) {
         return await this.subscriptionRepository.findOneBy({id: subscriptionId})
     }
 }
