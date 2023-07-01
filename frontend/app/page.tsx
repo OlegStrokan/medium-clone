@@ -1,10 +1,13 @@
 import Image from 'next/image'
+import {LogIn} from "@/app/components/auth/LogIn";
+import {SignIn} from "@/app/components/auth/SignIn";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
- hello
-    </main>
+      <div>
+          <SignIn />
+          <LogIn />
+      </div>
   )
 }
 
