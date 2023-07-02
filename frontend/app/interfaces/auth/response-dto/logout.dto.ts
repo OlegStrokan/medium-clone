@@ -1,4 +1,4 @@
-export class LogoutResponseDto {
+export interface LogoutResponseDto {
     status: number;
     message: string;
 }

@@ -1,3 +1,3 @@
-export class LogoutDto {
+export interface LogoutDto {
     id: string;
 }

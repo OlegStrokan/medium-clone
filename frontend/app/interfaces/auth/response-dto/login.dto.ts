@@ -1,6 +1,6 @@
-import {IUser} from "@/app/interfaces/user/IUser";
-import {ISubscription} from "@/app/interfaces/subscribe/ISubscription";
-import {IRole} from "@/app/interfaces/role/IRole";
+import {IUser} from ".git/interfaces/user/IUser";
+import {ISubscription} from ".git/interfaces/subscribe/ISubscription";
+import {IRole} from ".git/interfaces/role/IRole";
 
 export class LoginResponseDto {
     user: IUser;
