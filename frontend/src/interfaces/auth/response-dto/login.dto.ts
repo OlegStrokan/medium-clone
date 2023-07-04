@@ -1,6 +1,7 @@
-import {IUser} from "@/app/interfaces/user/IUser";
-import {ISubscription} from "@/app/interfaces/subscribe/ISubscription";
-import {IRole} from "@/app/interfaces/role/IRole";
+import {ISubscription} from "../../subscribe/ISubscription";
+import {IUser} from "../../user/IUser";
+import {IRole} from "../../role/IRole";
+
 
 export interface LoginResponseDto {
     user: IUser;

@@ -1,2 +1,4 @@
 /token/TokenService/obj/
 /token/TokenService.Tests/obj/
+node_modules
+node_modules

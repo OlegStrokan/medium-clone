@@ -1,15 +1,20 @@
-import {LoginResponseDto} from "../interfaces/auth/response-dto/login.dto";
-import {LoginDto} from "../interfaces/auth/request-dto/login.dto";
-import {RegistrationResponseDto} from "../interfaces/auth/response-dto/registration";
-import {RegistrationDto} from "../interfaces/auth/request-dto/registration";
-import {LogoutResponseDto} from "../interfaces/auth/response-dto/logout.dto";
-import {LogoutDto} from "../interfaces/auth/request-dto/logout.dto";
-import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { LoginResponseDto } from "../interfaces/auth/response-dto/login.dto";
+import { LoginDto } from "../interfaces/auth/request-dto/login.dto";
+import { RegistrationResponseDto } from "../interfaces/auth/response-dto/registration";
+import { RegistrationDto } from "../interfaces/auth/request-dto/registration";
+import { LogoutDto } from "../interfaces/auth/request-dto/logout.dto";
+import { LogoutResponseDto } from "../interfaces/auth/response-dto/logout.dto";
 
+
+export const BASE_URL = 'http://localhost:8000/'
+
+const baseQuery = fetchBaseQuery({
+    baseUrl: BASE_URL,
+  });
 
 export const api = createApi({
-    reducerPath: 'authApi',
-    baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
+    baseQuery: baseQuery,
     endpoints: (builder) => ({
         login: builder.mutation<LoginResponseDto, LoginDto>({
             query: (dto) => ({
@@ -34,6 +39,8 @@ export const api = createApi({
         }),
     }),
 });
+
+
 
 
 export const { useLoginMutation, useRegisterMutation, useLogoutMutation } = api

@@ -21,7 +21,7 @@ public class Startup
 
 
     public void ConfigureServices(IServiceCollection services)
-    {
+        {
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(Configuration.GetConnectionString("PostgreSQL")));
         services.AddTransient<ITokenServices, TokenServices>();
@@ -43,7 +43,7 @@ public class Startup
         }
 
     }
-    
+
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
 
@@ -52,10 +52,10 @@ public class Startup
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
-        }
+}
 
         //app.UseHttpsRedirection();
-        
+
 
         app.UseAuthorization();
 

@@ -1,4 +1,5 @@
-import {LoginDto} from "@/app/interfaces/auth/request-dto/login.dto";
+import {LoginDto} from "./login.dto";
+
 
 export interface RegistrationDto extends LoginDto {
     userName: string;
