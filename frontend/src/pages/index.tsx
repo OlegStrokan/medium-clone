@@ -1,5 +1,5 @@
+import { useLoginMutation } from '@/api/auth.api'
 import { Inter } from 'next/font/google'
-import { useLoginMutation } from '@/api/api'
 import { useEffect } from 'react'
 
 const inter = Inter({ subsets: ['latin'] })
