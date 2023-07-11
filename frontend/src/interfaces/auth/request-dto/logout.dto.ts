@@ -1,3 +1,3 @@
 export interface LogoutDto {
-    id: string;
+    id: string
 }

@@ -1,7 +1,6 @@
-import {LoginDto} from "./login.dto";
-
+import { LoginDto } from './login.dto'
 
 export interface RegistrationDto extends LoginDto {
-    userName: string;
-    fullName: string;
+    userName: string
+    fullName: string
 }
