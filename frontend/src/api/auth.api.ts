@@ -1,10 +1,10 @@
-import { api } from "@/api/api";
-import { LoginDto } from "@/interfaces/auth/request-dto/login.dto";
-import { LogoutDto } from "@/interfaces/auth/request-dto/logout.dto";
-import { RegistrationDto } from "@/interfaces/auth/request-dto/registration";
-import { LoginResponseDto } from "@/interfaces/auth/response-dto/login.dto";
-import { LogoutResponseDto } from "@/interfaces/auth/response-dto/logout.dto";
-import { RegistrationResponseDto } from "@/interfaces/auth/response-dto/registration";
+import { api } from '@/api/api'
+import { LoginDto } from '@/interfaces/auth/request-dto/login.dto'
+import { LogoutDto } from '@/interfaces/auth/request-dto/logout.dto'
+import { RegistrationDto } from '@/interfaces/auth/request-dto/registration'
+import { LoginResponseDto } from '@/interfaces/auth/response-dto/login.dto'
+import { LogoutResponseDto } from '@/interfaces/auth/response-dto/logout.dto'
+import { RegistrationResponseDto } from '@/interfaces/auth/response-dto/registration'
 
 export const authApi = api.injectEndpoints({
     endpoints: (builder) => ({
@@ -26,10 +26,11 @@ export const authApi = api.injectEndpoints({
             query: (dto) => ({
                 url: 'auth/logout',
                 method: 'POST',
-                body: dto
+                body: dto,
             }),
         }),
-    })
+    }),
 })
 
-export const { useLoginMutation, useLogoutMutation, useRegisterMutation } = authApi
+export const { useLoginMutation, useLogoutMutation, useRegisterMutation } =
+    authApi
