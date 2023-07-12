@@ -16,6 +16,38 @@ interface LoginFormValues {
     password: string
 }
 
+function first() {
+    return function (
+        target: any,
+        propertyKey: string,
+        descriptor: PropertyDescriptor
+    ) {
+        console.log('first(): called')
+    }
+}
+
+function second() {
+    return function (
+        target: any,
+        propertyKey: string,
+        descriptor: PropertyDescriptor
+    ) {
+        console.log('second(): called')
+    }
+}
+
+class ExampleClass {
+    @first()
+    @second()
+    method() {
+        console.log('method')
+    }
+}
+
+const exampe = new ExampleClass()
+
+exampe.method()
+
 const LoginPage = ({ isAuth, userId }: ILogin) => {
     const authContext = useContext(AuthContext)
 
