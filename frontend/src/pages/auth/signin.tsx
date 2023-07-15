@@ -1,27 +1,21 @@
 import { useRouter } from 'next/router'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { loginSchema } from '@/helpers/validators/login.schema'
+import { signinSchema } from '@/helpers/validators/signin.schema'
 import { useLoginMutation } from '@/api/auth.api'
-import { useContext } from 'react'
-import { AuthContext } from '@/context/AuthContext'
 
-interface ILogin {
-    isAuth: boolean
-    userId: number | null
-}
-
-interface LoginFormValues {
+interface SigninFormValues {
     email: string
     password: string
+    userName: string
+    fullName: string
 }
 
-const LoginPage = ({ isAuth, userId }: ILogin) => {
-    const authContext = useContext(AuthContext)
-
+const LoginPage = () => {
     const router = useRouter()
+    const [login, { data, isLoading, error }] = useLoginMutation()
 
-    if (isAuth) {
+    if (data) {
         return router.push('/feed')
     }
 
@@ -30,33 +24,20 @@ const LoginPage = ({ isAuth, userId }: ILogin) => {
         handleSubmit,
         formState: { errors },
     } = useForm({
-        resolver: yupResolver(loginSchema),
+        resolver: yupResolver(signinSchema),
     })
 
-    const [login, { data, isLoading, error }] = useLoginMutation()
-
-    const onSubmit = (formData: LoginFormValues) => {
-        login({ email: formData.email, password: formData.password })
-            .then(() => {
-                authContext.setAuthState({
-                    isAuth: true,
-                    user: data,
-                    error: null,
-                })
-                router.push('/feed')
-            })
-            .catch(() => {
-                authContext.setAuthState({
-                    isAuth: false,
-                    error: error,
-                    user: null,
-                })
-            })
+    const onSubmit = (formData: SigninFormValues) => {
+        login({ ...formData })
     }
 
     return (
         <div className="">
-            {isLoading && <div>..loading</div>}
+            {isLoading ? (
+                <div className="fixed top-0 left-0 z-50 w-screen h-screen flex justify-center items-center bg-gray-900 bg-opacity-50">
+                    <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+                </div>
+            ) : null}
             <form
                 onSubmit={handleSubmit(onSubmit)}
                 className="max-w-md mx-auto"
@@ -99,21 +80,51 @@ const LoginPage = ({ isAuth, userId }: ILogin) => {
                         </span>
                     )}
                 </div>
+                <div className="mb-4">
+                    <label htmlFor="username" className="block text-gray-700">
+                        Password
+                    </label>
+                    <input
+                        id="userName"
+                        {...register('userName')}
+                        className={`w-full px-4 py-2 border ${
+                            errors.userName
+                                ? 'border-red-500'
+                                : 'border-gray-300'
+                        } rounded`}
+                    />
+                    {errors.userName && (
+                        <span className="text-red-500">
+                            {errors.userName.message}
+                        </span>
+                    )}
+                </div>
+                <div className="mb-4">
+                    <label htmlFor="fullName" className="block text-gray-700">
+                        Password
+                    </label>
+                    <input
+                        id="fullName"
+                        {...register('fullName')}
+                        className={`w-full px-4 py-2 border ${
+                            errors.fullName
+                                ? 'border-red-500'
+                                : 'border-gray-300'
+                        } rounded`}
+                    />
+                    {errors.fullName && (
+                        <span className="text-red-500">
+                            {errors.fullName.message}
+                        </span>
+                    )}
+                </div>
                 <div className="flex items-center justify-between mb-4">
                     <div>
                         <a
-                            href="forgot-password"
+                            href="login"
                             className="text-blue-500 hover:underline"
                         >
-                            Forgot password?
-                        </a>
-                    </div>
-                    <div>
-                        <a
-                            href="signin"
-                            className="text-blue-500 hover:underline"
-                        >
-                            Don't have an account?
+                            Already have a account?
                         </a>
                     </div>
                 </div>

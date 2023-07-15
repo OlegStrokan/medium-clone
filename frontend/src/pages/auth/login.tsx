@@ -3,57 +3,17 @@ import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { loginSchema } from '@/helpers/validators/login.schema'
 import { useLoginMutation } from '@/api/auth.api'
-import { useContext } from 'react'
-import { AuthContext } from '@/context/AuthContext'
-
-interface ILogin {
-    isAuth: boolean
-    userId: number | null
-}
 
 interface LoginFormValues {
     email: string
     password: string
 }
 
-function first() {
-    return function (
-        target: any,
-        propertyKey: string,
-        descriptor: PropertyDescriptor
-    ) {
-        console.log('first(): called')
-    }
-}
-
-function second() {
-    return function (
-        target: any,
-        propertyKey: string,
-        descriptor: PropertyDescriptor
-    ) {
-        console.log('second(): called')
-    }
-}
-
-class ExampleClass {
-    @first()
-    @second()
-    method() {
-        console.log('method')
-    }
-}
-
-const exampe = new ExampleClass()
-
-exampe.method()
-
-const LoginPage = ({ isAuth, userId }: ILogin) => {
-    const authContext = useContext(AuthContext)
-
+const LoginPage = () => {
     const router = useRouter()
+    const [login, { data, isLoading, error }] = useLoginMutation()
 
-    if (isAuth) {
+    if (data) {
         return router.push('/feed')
     }
 
@@ -65,30 +25,25 @@ const LoginPage = ({ isAuth, userId }: ILogin) => {
         resolver: yupResolver(loginSchema),
     })
 
-    const [login, { data, isLoading, error }] = useLoginMutation()
+    const onSubmit = async (formData: LoginFormValues) => {
+        try {
+            await login({ email: formData.email, password: formData.password })
 
-    const onSubmit = (formData: LoginFormValues) => {
-        login({ email: formData.email, password: formData.password })
-            .then(() => {
-                authContext.setAuthState({
-                    isAuth: true,
-                    user: data,
-                    error: null,
-                })
+            if (data) {
                 router.push('/feed')
-            })
-            .catch(() => {
-                authContext.setAuthState({
-                    isAuth: false,
-                    error: error,
-                    user: null,
-                })
-            })
+            }
+        } catch (e: any) {
+            console.log(e)
+        }
     }
 
     return (
         <div className="">
-            {isLoading && <div>..loading</div>}
+            {isLoading ? (
+                <div className="fixed top-0 left-0 z-50 w-screen h-screen flex justify-center items-center bg-gray-900 bg-opacity-50">
+                    <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+                </div>
+            ) : null}
             <form
                 onSubmit={handleSubmit(onSubmit)}
                 className="max-w-md mx-auto"
