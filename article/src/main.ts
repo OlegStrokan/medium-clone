@@ -1,8 +1,31 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { NestFactory } from '@nestjs/core'
+import { Transport, MicroserviceOptions } from '@nestjs/microservices'
+import { ValidationPipe } from '@nestjs/common'
+import { ArticleModule } from './article.module'
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  await app.listen(3000);
+	const app = await NestFactory.createMicroservice<MicroserviceOptions>(
+		ArticleModule,
+		{
+			transport: Transport.RMQ,
+			options: {
+				urls: ['amqp://guest:guest@localhost:5672'],
+				queue: 'article_queue',
+				queueOptions: { durable: false },
+			},
+		}
+	)
+
+	const seedService = app.get(SeedService)
+	await seedService.seedDatabase()
+
+	app.useGlobalPipes(
+		new ValidationPipe({
+			whitelist: true,
+			transform: true,
+		})
+	)
+	await app.listen()
 }
-bootstrap();
+
+bootstrap()

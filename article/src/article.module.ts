@@ -7,4 +7,4 @@ import { ArticleService } from './services/article.service'
 	controllers: [ArticleContoller],
 	providers: [ArticleService],
 })
-export class AppModule {}
+export class ArticleModule {}
