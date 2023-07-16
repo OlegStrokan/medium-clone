@@ -1,17 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { ArticleEntity } from './article.entity';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm'
 
 @Entity('interactions')
 export class InteractionEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+	@PrimaryGeneratedColumn()
+	id: number
 
-  @ManyToOne(() => ArticleEntity, (article) => article.interactions)
-  article: ArticleEntity;
+	@Column({ nullable: true })
+	rating: number
 
-  @Column({ nullable: true })
-  rating: number;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  readAt: Date;
+	@Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+	readAt: Date
 }

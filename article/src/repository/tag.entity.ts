@@ -1,11 +1,4 @@
-import {
-	Entity,
-	PrimaryGeneratedColumn,
-	Column,
-	Repository,
-	ManyToMany,
-} from 'typeorm'
-import { ArticleEntity } from './article.entity'
+import { Entity, PrimaryGeneratedColumn, Column, Repository } from 'typeorm'
 
 export interface ITagCreationAttributes {
 	name: string
@@ -17,11 +10,8 @@ export class TagEntity
 	implements ITagCreationAttributes
 {
 	@PrimaryGeneratedColumn()
-	id: number
+	id: string
 
-	@Column()
+	@Column({ nullable: false })
 	name: string
-
-	@ManyToMany(() => ArticleEntity, (article) => article.tags)
-	articles: ArticleEntity[]
 }

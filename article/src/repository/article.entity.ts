@@ -32,11 +32,4 @@ export class ArticleEntity
 
 	@Column()
 	body: string
-
-	@OneToMany(() => InteractionEntity, (interaction) => interaction.article)
-	interactions: InteractionEntity[]
-
-	@ManyToMany(() => TagEntity, (tag) => tag.articles)
-	@JoinTable({ name: 'tags' })
-	tags: TagEntity[]
 }
