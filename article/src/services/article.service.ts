@@ -7,6 +7,7 @@ import { MessageEnum } from 'src/interfaces/message-enums/message.enum'
 import { CreateArticleDto } from 'src/interfaces/request-dtos/create-article.dto'
 import { DeleteArticleDto } from 'src/interfaces/request-dtos/delete-article.dto'
 import { UpdateArticleDto } from 'src/interfaces/request-dtos/update-article.dto'
+import { ArticlePreviewDto } from 'src/interfaces/response-dtos/article-preview.dto'
 import { ArticleDto } from 'src/interfaces/response-dtos/article.dto'
 import { ResponseDto } from 'src/interfaces/response-dtos/response.dto'
 import { ArticleTagEntity } from 'src/repository/article-tag.entity'
@@ -61,32 +62,41 @@ export class ArticleService {
 	public async updateArticle(
 		dto: UpdateArticleDto
 	): Promise<ResponseDto<IArticle>> {
-		const article = await this.searchHelper(dto.id, 'id')
+		try {
+			const article = await this.searchHelper(dto.id, 'id')
 
-		if (!article) {
-			return {
-				status: HttpStatus.NOT_FOUND,
-				message: MessageEnum.ARTICLE_NOT_FOUND_ID,
-				data: null,
+			if (!article) {
+				return {
+					status: HttpStatus.NOT_FOUND,
+					message: MessageEnum.ARTICLE_NOT_FOUND_ID,
+					data: null,
+				}
 			}
-		}
 
-		if (dto.updatingUserId !== article.ownerId) {
-			return {
-				status: HttpStatus.FORBIDDEN,
-				message: MessageEnum.UPDATE_FORBIDDEN,
-				data: null,
+			if (dto.updatingUserId !== article.ownerId) {
+				return {
+					status: HttpStatus.FORBIDDEN,
+					message: MessageEnum.UPDATE_FORBIDDEN,
+					data: null,
+				}
 			}
-		}
 
-		await this.articleRepository.update(dto.id, dto)
+			await this.articleRepository.update(dto.id, dto)
 
-		const updatedArticle = await this.searchHelper(dto.title, 'title')
+			const updatedArticle = await this.searchHelper(dto.title, 'title')
 
-		return {
-			status: HttpStatus.OK,
-			message: MessageEnum.ARTICLE_UPDATED,
-			data: updatedArticle,
+			return {
+				status: HttpStatus.OK,
+				message: MessageEnum.ARTICLE_UPDATED,
+				data: updatedArticle,
+			}
+		} catch (e) {
+			return {
+				status: HttpStatus.PRECONDITION_FAILED,
+				message: MessageEnum.PRECONDITION_FAILED,
+				data: null,
+				errors: e,
+			}
 		}
 	}
 
@@ -139,7 +149,58 @@ export class ArticleService {
 		}
 	}
 
-	public async getArticle(): Promise<ResponseDto<void>> {}
+	public async getArticle(id: string): Promise<ResponseDto<IArticle>> {
+		try {
+			const article = await this.searchHelper(id, 'id')
+
+			if (!article) {
+				return {
+					status: HttpStatus.NOT_FOUND,
+					message: MessageEnum.ARTICLE_NOT_FOUND_ID,
+					data: null,
+				}
+			}
+			return {
+				status: HttpStatus.OK,
+				message: MessageEnum.ARTICLE_SEARCH_OK,
+				data: article,
+			}
+		} catch (e) {
+			return {
+				status: HttpStatus.PRECONDITION_FAILED,
+				message: MessageEnum.PRECONDITION_FAILED,
+				data: null,
+				errors: e,
+			}
+		}
+	}
+
+	public async getArticles(): Promise<ResponseDto<ArticlePreviewDto[]>> {
+		try {
+			const articles = await this.articleRepository.find()
+
+			let previewedArticles: ArticlePreviewDto[] = []
+			articles?.map(async (article: IArticle) => {
+				const previewedArticle = await ArticleService.mapArticlePreview(
+					article
+				)
+				previewedArticles.push(previewedArticle)
+			})
+
+			return {
+				status: HttpStatus.OK,
+				message: MessageEnum.ARTICLE_SEARCH_OK,
+				data: previewedArticles,
+			}
+		} catch (e) {
+			return {
+				status: HttpStatus.PRECONDITION_FAILED,
+				message: MessageEnum.PRECONDITION_FAILED,
+				data: null,
+				errors: e,
+			}
+		}
+	}
 
 	public async getArticleForUser(): Promise<ResponseDto<void>> {}
 
@@ -154,11 +215,13 @@ export class ArticleService {
 		})
 	}
 
-	private static async mapAtricleDto(dto): Promise<ArticleDto> {
+	private static async mapArticlePreview(
+		dto: IArticle
+	): Promise<ArticlePreviewDto> {
 		return {
+			id: dto.id,
 			title: dto.title,
 			description: dto.description,
-			body: dto.body,
 		}
 	}
 }
