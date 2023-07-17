@@ -3,5 +3,6 @@ export interface IArticle {
 	title: string
 	description: string
 	body: string
+	ownerId: string
 	tags?: string[]
 }
