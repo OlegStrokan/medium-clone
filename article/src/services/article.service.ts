@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable, Logger } from '@nestjs/common'
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { IArticle } from 'src/interfaces/IArticle'
 import { IArticleTag } from 'src/interfaces/IArticleTag'
@@ -202,9 +202,42 @@ export class ArticleService {
 		}
 	}
 
-	public async getArticleForUser(): Promise<ResponseDto<void>> {}
+	public async getArticleForUser(): Promise<ResponseDto<null>> {
+		return {
+			status: HttpStatus.NOT_FOUND,
+			message: 'NOT_IMPLEMENTED',
+			data: null,
+		}
+	}
 
-	public async getUsersArticle(): Promise<ResponseDto<void>> {}
+	public async getUsersArticle(
+		userId: string
+	): Promise<ResponseDto<IArticle[]>> {
+		try {
+			const relation = await this.articleUserRepository.findBy({
+				userId,
+			})
+
+			const articlePromises = relation.map(async (article) => {
+				return await this.searchHelper(article.articleId, 'id')
+			})
+
+			const articles = await Promise.all(articlePromises)
+
+			return {
+				status: HttpStatus.OK,
+				message: MessageEnum.ARTICLE_SEARCH_OK,
+				data: articles,
+			}
+		} catch (e) {
+			return {
+				status: HttpStatus.PRECONDITION_FAILED,
+				message: MessageEnum.PRECONDITION_FAILED,
+				data: null,
+				errors: e,
+			}
+		}
+	}
 
 	private async searchHelper(
 		value: string,
