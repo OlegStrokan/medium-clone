@@ -7,6 +7,7 @@ import { MessageEnum } from 'src/interfaces/message-enums/message.enum'
 import { CreateArticleDto } from 'src/interfaces/request-dtos/create-article.dto'
 import { DeleteArticleDto } from 'src/interfaces/request-dtos/delete-article.dto'
 import { UpdateArticleDto } from 'src/interfaces/request-dtos/update-article.dto'
+import { ArticleDto } from 'src/interfaces/response-dtos/article.dto'
 import { ResponseDto } from 'src/interfaces/response-dtos/response.dto'
 import { ArticleTagEntity } from 'src/repository/article-tag.entity'
 import { ArticleUserEntity } from 'src/repository/article-user.entity'
@@ -32,9 +33,16 @@ export class ArticleService {
 	): Promise<ResponseDto<IArticle>> {
 		try {
 			const article = await this.articleRepository.create({ ...dto })
-			this.articleRepository.save(article)
+			await this.articleRepository.save(article)
 
-			const response = await this.getArticleByTitle(article.title)
+			const articleRelation = await this.articleUserRepository.create({
+				userId: dto.userId,
+				articleId: article.id,
+			})
+
+			await this.articleUserRepository.save(articleRelation)
+
+			const response = await this.searchHelper(article.title, 'title')
 			return {
 				status: HttpStatus.CREATED,
 				message: MessageEnum.ARTICLE_CREATED,
@@ -52,11 +60,84 @@ export class ArticleService {
 
 	public async updateArticle(
 		dto: UpdateArticleDto
-	): Promise<ResponseDto<void>> {}
+	): Promise<ResponseDto<IArticle>> {
+		const article = await this.searchHelper(dto.id, 'id')
+
+		if (!article) {
+			return {
+				status: HttpStatus.NOT_FOUND,
+				message: MessageEnum.ARTICLE_NOT_FOUND_ID,
+				data: null,
+			}
+		}
+
+		if (dto.updatingUserId !== article.ownerId) {
+			return {
+				status: HttpStatus.FORBIDDEN,
+				message: MessageEnum.UPDATE_FORBIDDEN,
+				data: null,
+			}
+		}
+
+		await this.articleRepository.update(dto.id, dto)
+
+		const updatedArticle = await this.searchHelper(dto.title, 'title')
+
+		return {
+			status: HttpStatus.OK,
+			message: MessageEnum.ARTICLE_UPDATED,
+			data: updatedArticle,
+		}
+	}
 
 	public async deleteArticle(
 		dto: DeleteArticleDto
-	): Promise<ResponseDto<void>> {}
+	): Promise<ResponseDto<void>> {
+		try {
+			const article = await this.searchHelper(dto.id, 'id')
+
+			if (!article) {
+				return {
+					status: HttpStatus.NOT_FOUND,
+					message: MessageEnum.ARTICLE_NOT_FOUND_ID,
+					data: null,
+				}
+			}
+
+			if (dto.deletingUserId !== article.ownerId) {
+				return {
+					status: HttpStatus.FORBIDDEN,
+					message: MessageEnum.UPDATE_FORBIDDEN,
+					data: null,
+				}
+			}
+
+			await this.articleRepository.delete(article.id)
+
+			const relations = await this.articleUserRepository.findBy({
+				userId: dto.deletingUserId,
+			})
+
+			const articlePromises = relations.map(async (relation) => {
+				return await this.articleUserRepository.delete(relation)
+			})
+
+			await Promise.all(articlePromises)
+
+			return {
+				status: HttpStatus.NO_CONTENT,
+				message: MessageEnum.ARTICLE_DELETED,
+				data: null,
+			}
+		} catch (e) {
+			return {
+				status: HttpStatus.PRECONDITION_FAILED,
+				message: MessageEnum.PRECONDITION_FAILED,
+				data: null,
+				errors: e,
+			}
+		}
+	}
 
 	public async getArticle(): Promise<ResponseDto<void>> {}
 
@@ -64,7 +145,20 @@ export class ArticleService {
 
 	public async getUsersArticle(): Promise<ResponseDto<void>> {}
 
-	private async getArticleByTitle(title: string): Promise<IArticle> {
-		return await this.articleRepository.findOneBy({ title })
+	private async searchHelper(
+		value: string,
+		field: string
+	): Promise<IArticle | undefined> {
+		return await this.articleRepository.findOne({
+			where: { [field]: value },
+		})
+	}
+
+	private static async mapAtricleDto(dto): Promise<ArticleDto> {
+		return {
+			title: dto.title,
+			description: dto.description,
+			body: dto.body,
+		}
 	}
 }
