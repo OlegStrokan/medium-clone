@@ -163,15 +163,6 @@ export class RoleService {
 
             const roles = await Promise.all(rolePromises);
 
-            if (!relations) {
-                this.logger.warn(RoleLogsEnum.ROLE_RETRIEVAL_NOT_FOUND);
-                return {
-                    status: HttpStatus.NOT_FOUND,
-                    message: MessageEnum.RELATION_NOT_FOUND,
-                    data: null,
-                };
-            }
-
             this.logger.log(RoleLogsEnum.ROLE_RETRIEVAL_SUCCESS);
             return {
                 status: HttpStatus.OK,
