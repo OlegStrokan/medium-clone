@@ -14,8 +14,8 @@
     "lint:scss --fix": "npx stylelint \"**/*.scss\" --fix"
   },
   "devDependencies": {
-    "@types/react": "^18.2.20",
-    "@types/react-dom": "^18.2.7",
+    "@types/react": "^17.0.39",
+    "@types/react-dom": "^17.0.11",
     "@types/webpack-bundle-analyzer": "^4.6.0",
     "@typescript-eslint/eslint-plugin": "^6.4.0",
     "@typescript-eslint/parser": "^6.4.0",
@@ -43,7 +43,7 @@
     "ts-node": "^10.5.0"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   }
 }
