@@ -8,15 +8,6 @@ module.exports = {
         'plugin:react/recommended',
         'airbnb',
     ],
-    // to allow linting ts code
-    parser: '@typescript-eslint/parser',
-    parserOptions: {
-        ecmaFeatures: {
-            jsx: true,
-        },
-        ecmaVersion: 'latest',
-        sourceType: 'module',
-    },
     plugins: [
         'react',
         '@typescript-eslint',
@@ -27,7 +18,7 @@ module.exports = {
         indent: [2, 4],
         'react/jsx-filename-extension': [
             2,
-            { extensions: ['.js', '.jsx', '.tsx'] },
+            {extensions: ['.js', '.jsx', '.tsx']},
         ],
         'import/no-unresolved': 'off',
         'import/prefer-default-export': 'off',
@@ -40,7 +31,7 @@ module.exports = {
         'import/extensions': 'off',
         'import/no-extraneous-dependencies': 'off',
         'no-underscore-dangle': 'off',
-        'max-len': ['error', { ignoreComments: true, code: 100 }],
+        'max-len': ['error', {ignoreComments: true, code: 100}],
     },
     globals: {
         __IS_DEV__: true,
