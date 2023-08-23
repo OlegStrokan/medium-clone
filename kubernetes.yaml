@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: medium-clone
+spec:
+  containers:
+    - name: frontend
+      image: 258120/frontend:latest
+      ports:
+        - containerPort: 3000
+      command: ["yarn", "preview"]
+      volumeMounts:
+        - name: app
+          mountPath: /frontend/app
+  volumes:
+    - name: app

@@ -1,19 +1,14 @@
-apiVersion: v1
-kind: Pod
-metadata:
-  name: medium-clone
-spec:
-  containers:
-    - name: frontend
-      image: 258120/frontend:latest
-      ports:
-        - containerPort: 3000
-      command: ["yarn", "preview"]
-      volumeMounts:
-        - name: app
-          mountPath: /frontend/app
-  volumes:
-    - name: app
+version: '3'
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile  # Adjust the Dockerfile name if needed
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/frontend/app  # Adjust the relative path here
+    command: ["yarn", "preview"]
 
 #  user_db:
 #    container_name: user_db
