@@ -1,78 +1,93 @@
-version: "3.2"
-services:
-  user_db:
-    container_name: user_db
-    image: postgres:13
-    environment:
-      POSTGRES_USER: stroka01
-      POSTGRES_PASSWORD: user
-      POSTGRES_DB: user_db
-    ports:
-      - "5433:5432"
-    volumes:
-      - pgdata_user:/var/lib/postgresql/data
-    restart: always
+apiVersion: v1
+kind: Pod
+metadata:
+  name: medium-clone
+spec:
+  containers:
+    - name: frontend
+      image: 258120/frontend:latest
+      ports:
+        - containerPort: 3000
+      command: ["yarn", "preview"]
+      volumeMounts:
+        - name: app
+          mountPath: /frontend/app
+  volumes:
+    - name: app
 
-  token_db:
-    container_name: token_db
-    image: postgres:13
-    environment:
-      POSTGRES_USER: stroka01
-      POSTGRES_PASSWORD: token
-      POSTGRES_DB: token_db
-    ports:
-      - "5434:5432"
-    volumes:
-      - pgdata_token:/var/lib/postgresql/data
-    restart: always
-
-  role_db:
-    container_name: role_db
-    image: postgres:13
-    environment:
-      POSTGRES_USER: stroka01
-      POSTGRES_PASSWORD: role
-      POSTGRES_DB: role_db
-    ports:
-      - "5435:5432"
-    volumes:
-      - pgdata_role:/var/lib/postgresql/data
-    restart: always
-
-  subscription:
-     container_name: subscription_db
-     image: postgres:13
-     environment:
-       POSTGRES_USER: stroka01
-       POSTGRES_PASSWORD: subscription
-       POSTGRES_DB: subscription_db
-     ports:
-      - "5436:5432"
-     volumes:
-      - pgdata_user_role:/var/lib/postgresql/data
-     restart: always
-
-
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    container_name: rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    volumes:
-      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
-      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
-    networks:
-      - rabbitmq_go_net
-
-
-volumes:
-  pgdata_user:
-  pgdata_token:
-  pgdata_role:
-  pgdata_user_role:
-
-
-networks:
-  rabbitmq_go_net:
-    driver: bridge
+#  user_db:
+#    container_name: user_db
+#    image: postgres:13
+#    environment:
+#      POSTGRES_USER: stroka01
+#      POSTGRES_PASSWORD: user
+#      POSTGRES_DB: user_db
+#    ports:
+#      - "5433:5432"
+#    volumes:
+#      - pgdata_user:/var/lib/postgresql/data
+#    restart: always
+#
+#  token_db:
+#    container_name: token_db
+#    image: postgres:13
+#    environment:
+#      POSTGRES_USER: stroka01
+#      POSTGRES_PASSWORD: token
+#      POSTGRES_DB: token_db
+#    ports:
+#      - "5434:5432"
+#    volumes:
+#      - pgdata_token:/var/lib/postgresql/data
+#    restart: always
+#
+#  role_db:
+#    container_name: role_db
+#    image: postgres:13
+#    environment:
+#      POSTGRES_USER: stroka01
+#      POSTGRES_PASSWORD: role
+#      POSTGRES_DB: role_db
+#    ports:
+#      - "5435:5432"
+#    volumes:
+#      - pgdata_role:/var/lib/postgresql/data
+#    restart: always
+#
+#  subscription:
+#     container_name: subscription_db
+#     image: postgres:13
+#     environment:
+#       POSTGRES_USER: stroka01
+#       POSTGRES_PASSWORD: subscription
+#       POSTGRES_DB: subscription_db
+#     ports:
+#      - "5436:5432"
+#     volumes:
+#      - pgdata_user_role:/var/lib/postgresql/data
+#     restart: always
+#
+#
+#  rabbitmq:
+#    image: rabbitmq:3-management-alpine
+#    container_name: rabbitmq
+#    ports:
+#      - "5672:5672"
+#      - "15672:15672"
+#    volumes:
+#      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+#      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+#    networks:
+#      - rabbitmq_go_net
+#
+#
+#volumes:
+#  pgdata_user:
+#  pgdata_token:
+#  pgdata_role:
+#  pgdata_user_role:
+#
+#
+#networks:
+#  rabbitmq_go_net:
+#    driver: bridge

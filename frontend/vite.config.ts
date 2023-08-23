@@ -17,4 +17,8 @@ export default defineConfig({
     define: {
         __IS__DEV__: JSON.stringify(true),
     },
+    preview: {
+        host: true,
+        port: 3000
+    }
 });
